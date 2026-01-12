@@ -47,7 +47,7 @@ export async function GET(request: Request) {
         }
 
         if (type === 'trending') {
-            const { data, error } = await supabaseAdmin.rpc('get_trending_skills', {
+            const { data, error } = await (supabaseAdmin.rpc as any)('get_trending_skills', {
                 limit_count: 10
             })
 
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         if (type === 'skill' && searchParams.get('id')) {
             const skillId = searchParams.get('id')
 
-            const { data, error } = await supabaseAdmin.rpc('get_skill_analytics', {
+            const { data, error } = await (supabaseAdmin.rpc as any)('get_skill_analytics', {
                 p_skill_id: skillId
             })
 
