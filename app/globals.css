@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+
+  /* Mobile Polish: Optimize Touch Feel */
+  -webkit-tap-highlight-color: transparent;
+  /* Remove grey box on tap */
+  touch-action: manipulation;
+  /* Improves touch response */
+
+  /* Safe Area for Notches (iPhone X+) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Prevent text selection on app-like interface (except inputs) */
+* {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Re-enable selection for inputs */
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Mobile Polish: Button Active State */
+button:active {
+  transform: scale(0.96);
+  transition: transform 0.1s;
+}
