@@ -67,7 +67,7 @@ export default function Nexus() {
     const [concept, setConcept] = useState('')
     const [image, setImage] = useState<string | null>(null)
     const [selectedContext, setSelectedContext] = useState(AVAILABLE_CONTEXTS[0])
-    const [model, setModel] = useState<ModelId>('gpt-5.2-pro')
+    const [model, setModel] = useState<ModelId>('gpt-4o')
     const [loading, setLoading] = useState(false)
     const [response, setResponse] = useState<AnalogyResponse | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -301,10 +301,10 @@ export default function Nexus() {
                                     onChange={(e) => setModel(e.target.value as ModelId)}
                                     className="w-full px-4 py-2.5 rounded-lg border-2 border-slate-600 bg-[#151c26] text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none font-medium"
                                 >
-                                    <option value="gpt-5.2-pro">GPT-5.2 Pro (Raciocínio Supremo)</option>
-                                    <option value="claude-opus-4.5">Claude Opus 4.5 (Visão Perfeita)</option>
-                                    <option value="gemini-3-pro">Gemini 3 Pro (Multimodal Nativo)</option>
-                                    <option value="deepseek-v3.2">DeepSeek V3.2 (Open Source)</option>
+                                    <option value="gpt-4o">GPT-4o (OpenAI — Raciocínio Superior)</option>
+                                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic — Visão Perfeita)</option>
+                                    <option value="gemini-2-flash">Gemini 2.0 Flash (Google — Multimodal Rápido)</option>
+                                    <option value="deepseek-chat">DeepSeek Chat (Open Source)</option>
                                 </select>
                             </div>
                         </div>

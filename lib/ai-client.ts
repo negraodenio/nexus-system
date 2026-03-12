@@ -2,14 +2,18 @@ import OpenAI from 'openai'
 
 // Client initialization moved inside function for runtime safety
 
-export type ModelId = 'gpt-5.2-pro' | 'gemini-3-pro' | 'claude-opus-4.5' | 'deepseek-v3.2'
+export type ModelId = 'gpt-4o' | 'gemini-2-flash' | 'claude-3-5-sonnet' | 'deepseek-chat'
 
+// Slugs verificados e válidos no OpenRouter (Março 2026)
+// Atualizar aqui se o OpenRouter mudar os IDs.
 const MODELS: Record<ModelId, string> = {
-    'gpt-5.2-pro': 'openai/gpt-5.2-pro',
-    'gemini-3-pro': 'google/gemini-3-pro-preview',
-    'claude-opus-4.5': 'anthropic/claude-opus-4.5',
-    'deepseek-v3.2': 'deepseek/deepseek-v3.2',
+    'gpt-4o':           'openai/gpt-4o',
+    'gemini-2-flash':   'google/gemini-2.0-flash-001',
+    'claude-3-5-sonnet':'anthropic/claude-3.5-sonnet',
+    'deepseek-chat':    'deepseek/deepseek-chat',
 }
+
+const FALLBACK_MODEL = 'openai/gpt-4o'
 
 interface GenerateParams {
     concept: string
@@ -20,8 +24,8 @@ interface GenerateParams {
     preferredVisualType?: string
 }
 
-export async function generateAnalogy({ concept, audience, model = 'gpt-5.2-pro', image, systemPrompt }: GenerateParams) {
-    const modelId = MODELS[model] || MODELS['gpt-5.2-pro']
+export async function generateAnalogy({ concept, audience, model = 'gpt-4o', image, systemPrompt }: GenerateParams) {
+    const modelId = MODELS[model] || FALLBACK_MODEL
 
     // Use provided system prompt or fallback to default
     let finalSystemPrompt = systemPrompt || `You are Nexus, a cognitive adapter. Your goal is to explain complex concepts using analogies tailored to a specific audience.
@@ -105,39 +109,30 @@ export async function generateAnalogy({ concept, audience, model = 'gpt-5.2-pro'
             },
         })
 
-        const isOpenAI = modelId.startsWith('gpt') || modelId.startsWith('openai')
+        // OpenAI e Gemini suportam json_object natively; Claude e DeepSeek preferem system prompt
+        const supportsJsonMode = modelId.startsWith('openai/') || modelId.startsWith('google/')
 
-        const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = image && !isOpenAI
-            ? [
-                {
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: `${finalSystemPrompt}\n\nTask: Explain "${concept}" to a "${audience}"` },
+        const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: finalSystemPrompt },
+            {
+                role: 'user',
+                content: image
+                    ? [
+                        { type: 'text', text: `Explain "${concept}" to a "${audience}"` },
                         { type: 'image_url', image_url: { url: image } }
                     ]
-                }
-            ]
-            : [
-                { role: 'system', content: finalSystemPrompt },
-                {
-                    role: 'user',
-                    content: image
-                        ? [
-                            { type: 'text', text: `Explain "${concept}" to a "${audience}"` },
-                            { type: 'image_url', image_url: { url: image } }
-                        ]
-                        : `Explain "${concept}" to a "${audience}"`
-                } as OpenAI.Chat.Completions.ChatCompletionMessageParam
-            ]
+                    : `Explain "${concept}" to a "${audience}"`
+            } as OpenAI.Chat.Completions.ChatCompletionMessageParam
+        ]
 
         const params: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
             model: modelId,
             messages,
-            max_tokens: 4096, // Increased buffer, but still limited to prevent runaway costs
-            temperature: 0.5 // Lower temperature for more deterministic coordinate output
+            max_tokens: 4096,
+            temperature: 0.5,
         }
 
-        if (isOpenAI || modelId.includes('gemini') || modelId.includes('claude-3-opus')) {
+        if (supportsJsonMode) {
             params.response_format = { type: 'json_object' }
         }
 

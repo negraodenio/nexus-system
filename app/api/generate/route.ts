@@ -4,74 +4,134 @@ import { supabaseAdmin as adminClient } from '@/lib/supabase'
 
 const supabaseAdmin = adminClient as any
 
+// Similarity threshold for RAG match (0-1). 0.82 = "very similar concept"
+const RAG_THRESHOLD = 0.82
+
 export async function POST(req: Request) {
     try {
         const { concept, audience, model, image, systemPrompt, visualMode } = await req.json()
 
-        if ((!concept && !image) || !audience) { // Allow image-only if concept is missing
-            // return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-            // Relaxed validation for image interactions
+        if (!audience) {
+            return NextResponse.json({ error: 'Missing audience' }, { status: 400 })
         }
 
-        // ... exact cache check ...
+        // =========================================================
+        // STEP 1 — Exact cache match
+        // =========================================================
+        if (concept && !image) {
+            try {
+                const { data: exactMatch } = await supabaseAdmin
+                    .rpc('get_exact_analogy', {
+                        p_concept_name: concept.toLowerCase().trim(),
+                        p_audience: audience
+                    })
 
-        // 3. Generate new analogy
+                if (exactMatch && exactMatch.length > 0) {
+                    const hit = exactMatch[0]
+                    // Increment usage counter (fire-and-forget)
+                    supabaseAdmin
+                        .from('analogies')
+                        .update({ usage_count: (hit.usage_count || 0) + 1 })
+                        .eq('id', hit.id)
+                        .then(() => {})
+
+                    return NextResponse.json({
+                        source: 'exact',
+                        analogy: hit.analogy_text,
+                        coreIdeas: hit.core_ideas || [],
+                        limits: hit.limits || [],
+                        visual: hit.visual_data,
+                    })
+                }
+            } catch (exactErr) {
+                console.warn('Exact match lookup failed (non-fatal):', exactErr)
+            }
+        }
+
+        // =========================================================
+        // STEP 2 — Vector similarity match (RAG)
+        // =========================================================
+        if (concept && !image) {
+            try {
+                const queryEmbedding = await generateEmbedding(concept)
+
+                if (queryEmbedding) {
+                    const { data: similarMatches } = await supabaseAdmin
+                        .rpc('match_analogies', {
+                            query_embedding: queryEmbedding,
+                            target_audience: audience,
+                            match_threshold: RAG_THRESHOLD,
+                            match_count: 1
+                        })
+
+                    if (similarMatches && similarMatches.length > 0) {
+                        const match = similarMatches[0]
+
+                        return NextResponse.json({
+                            source: 'rag',
+                            analogy: match.analogy_text,
+                            coreIdeas: [],
+                            limits: [],
+                            visual: match.visual_data,
+                            ragSimilarity: match.similarity,
+                            ragConceptName: match.concept_name,
+                        })
+                    }
+                }
+            } catch (ragErr) {
+                console.warn('RAG match failed (non-fatal):', ragErr)
+            }
+        }
+
+        // =========================================================
+        // STEP 3 — Generate new analogy via OpenRouter
+        // =========================================================
         const generated = await generateAnalogy({
             concept,
             audience,
             model: model as ModelId,
             image,
-            systemPrompt, // Pass the custom prompt from Context
-            preferredVisualType: visualMode // Force reality mode if requested
+            systemPrompt,
+            preferredVisualType: visualMode
         })
 
-        // 4. Save to database (Safely)
-        try {
-            // First ensure concept exists
-            const normalizedName = concept.toLowerCase().trim()
+        // =========================================================
+        // STEP 4 — Save to DB for future cache hits (non-fatal)
+        // =========================================================
+        if (concept && !image) {
+            try {
+                const normalizedName = concept.toLowerCase().trim()
 
-            let conceptId: string
-
-            const { data: existingConcept } = await supabaseAdmin
-                .from('concepts')
-                .select('id')
-                .eq('normalized_name', normalizedName)
-                .single()
-
-            if (existingConcept) {
-                conceptId = existingConcept.id
-            } else {
-                const { data: newConcept, error: createError } = await supabaseAdmin
+                // Upsert concept
+                const { data: conceptRow } = await supabaseAdmin
                     .from('concepts')
-                    .insert({
-                        name: concept,
-                        normalized_name: normalizedName,
-                        category: 'general' // Default category
-                    })
+                    .upsert(
+                        { name: concept, normalized_name: normalizedName, category: 'general' },
+                        { onConflict: 'normalized_name', ignoreDuplicates: false }
+                    )
                     .select('id')
                     .single()
 
-                if (createError) throw createError
-                conceptId = newConcept.id
+                if (conceptRow?.id) {
+                    // Generate and save embedding asynchronously
+                    generateEmbedding(generated.analogy).then(async (embedding) => {
+                        await supabaseAdmin.from('analogies').insert({
+                            concept_id: conceptRow.id,
+                            audience,
+                            analogy_text: generated.analogy,
+                            core_ideas: generated.coreIdeas || [],
+                            limits: generated.limits || [],
+                            visual_type: generated.visual?.type || 'mermaid',
+                            visual_data: generated.visual || {},
+                            embedding,
+                            generated_by: model || 'gpt-4o',
+                            usage_count: 1,
+                        })
+                    }).catch(e => console.warn('Embedding save failed:', e))
+                }
+            } catch (dbErr) {
+                console.warn('DB save failed (non-fatal):', dbErr)
             }
-
-            // Generate embedding for the analogy (optional, for future RAG)
-            const embedding = await generateEmbedding(generated.analogy)
-
-            // Store analogy
-            await supabaseAdmin.from('analogies').insert({
-                concept_id: conceptId,
-                audience: audience,
-                analogy_text: generated.analogy,
-                core_ideas: generated.coreIdeas,
-                limits: generated.limits || [],
-                visual_type: generated.visual.type,
-                visual_data: generated.visual, // Store the whole visual object or parts? Schema has visual_data JSONB.
-                embedding: embedding,
-                usage_count: 1
-            })
-        } catch (dbSaveError) {
-            console.warn('Failed to save to database (non-fatal):', dbSaveError)
         }
 
         return NextResponse.json({
@@ -81,7 +141,7 @@ export async function POST(req: Request) {
 
     } catch (error: any) {
         console.error('API Error:', error)
-        const errorMessage = error?.message || (typeof error === 'string' ? error : JSON.stringify(error))
-        return NextResponse.json({ error: `Debug: ${errorMessage}` }, { status: 500 })
+        const msg = error?.message || JSON.stringify(error)
+        return NextResponse.json({ error: `API Error: ${msg}` }, { status: 500 })
     }
 }

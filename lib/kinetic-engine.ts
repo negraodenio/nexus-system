@@ -603,6 +603,14 @@ export class KineticEngine {
         return names[idx] || `landmark ${idx}`;
     }
 
+    /**
+     * Public wrapper: normalize landmarks to palm-relative orthonormal basis.
+     * Use this instead of accessing the private normalizer directly.
+     */
+    public normalizeLandmarks(landmarks: Landmark[]): Landmark[] {
+        return this.normalizer.normalize(landmarks);
+    }
+
     reset(): void {
         this.smoother.reset();
         this.referenceTemplate = null;

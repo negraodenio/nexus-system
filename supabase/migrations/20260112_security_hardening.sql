@@ -123,6 +123,15 @@ DROP POLICY IF EXISTS "Anyone can read skill_frames" ON skill_frames;
 ALTER TABLE skills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skill_frames ENABLE ROW LEVEL SECURITY;
 
+-- Drop first to avoid conflicts (idempotent migration)
+DROP POLICY IF EXISTS "Public skills are viewable by anyone" ON skills;
+DROP POLICY IF EXISTS "Authenticated users can create skills" ON skills;
+DROP POLICY IF EXISTS "Users can update own skills" ON skills;
+DROP POLICY IF EXISTS "Users can soft delete own skills" ON skills;
+DROP POLICY IF EXISTS "Users can view frames of accessible skills" ON skill_frames;
+DROP POLICY IF EXISTS "Authenticated users can create frames for own skills" ON skill_frames;
+DROP POLICY IF EXISTS "Users can update frames of own skills" ON skill_frames;
+
 -- SKILLS: Read policies
 CREATE POLICY "Public skills are viewable by anyone"
     ON skills FOR SELECT
@@ -197,6 +206,7 @@ CREATE POLICY "Users can update frames of own skills"
             AND skills.creator_id = auth.uid()
         )
     );
+
 
 -- =============================================================================
 -- PART 6: ATOMIC SAVE RPC

@@ -3,9 +3,10 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision'
 import { supabase } from '@/lib/supabase'
-import { Camera, Play, Pause, RotateCcw, Target, X, Volume2, VolumeX, Zap } from 'lucide-react'
+import { Camera, Play, Pause, RotateCcw, Target, X, Volume2, VolumeX, Layers } from 'lucide-react'
 import { KineticEngine, type Landmark, type MatchResult } from '@/lib/kinetic-engine'
-import { useHardwareQualification, getCachedTier } from '@/lib/hardware-benchmark'
+import { getCachedTier } from '@/lib/hardware-benchmark'
+import { HandSkeleton3D } from '@/components/hand-skeleton-3d'
 
 interface SkillFrame {
     frame_index: number
@@ -30,9 +31,15 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
     const [currentFrameIndex, setCurrentFrameIndex] = useState(0)
     const [alignmentScore, setAlignmentScore] = useState(0)
     const [status, setStatus] = useState('Initializing...')
-    const [isRecoveryMode, setIsRecoveryMode] = useState(false) // New Recovery Mode
-    const [kinematicQuality, setKinematicQuality] = useState(0) // NEW: Jerk-free motion quality
+    const [isRecoveryMode, setIsRecoveryMode] = useState(false)
+    const [kinematicQuality, setKinematicQuality] = useState(0)
     const [deviceTier, setDeviceTier] = useState<'premium' | 'standard' | 'lite'>('lite')
+    // 3D view toggle
+    const [viewMode, setViewMode] = useState<'camera' | '3d'>('camera')
+
+    // Live landmark refs — partilhados com o renderer 3D sem re-renders
+    const expertLiveLandmarksRef = useRef<{ x: number; y: number; z: number }[] | null>(null)
+    const userLiveLandmarksRef   = useRef<{ x: number; y: number; z: number }[] | null>(null)
 
     // Performance optimization: Store frame/score in refs to avoid re-renders
     const currentFrameRef = useRef(0)
@@ -198,11 +205,10 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         const result = engine.processFrame(userLm, timestamp)
 
         // Calculate instant score using cosine similarity
-        // The engine normalizes both poses and compares
-        const normalizer = engine['normalizer'] // Access private for direct comparison
+        // Uses the public normalizeLandmarks() method — safe for production builds
         try {
-            const normalizedUser = normalizer.normalize(userLm)
-            const normalizedExpert = normalizer.normalize(expertLm)
+            const normalizedUser = engine.normalizeLandmarks(userLm)
+            const normalizedExpert = engine.normalizeLandmarks(expertLm)
 
             // Cosine similarity on fingertips (indices 4, 8, 12, 16, 20)
             const fingertips = [4, 8, 12, 16, 20]
@@ -329,7 +335,10 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
 
         const expertFrame = expertFrames[frameIndex]
 
-        // ... (Drawing code remains same) ...
+        // Atualizar refs de landmarks para o renderer 3D (sem custo de re-render)
+        if (expertFrame?.landmarks?.[0]) {
+            expertLiveLandmarksRef.current = expertFrame.landmarks[0]
+        }
 
         // Draw expert skeleton (GREEN - Ghost)
         let expertLandmarksToDraw = expertFrame?.landmarks
@@ -424,10 +433,14 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                 }
             }
 
+            // Atualizar ref de landmarks do utilizador para o renderer 3D
+            if (results.landmarks[0]) {
+                userLiveLandmarksRef.current = results.landmarks[0]
+            }
+
             // Calculate alignment score
             if (expertFrame?.landmarks) {
                 const score = calculateAlignment(results.landmarks, expertFrame.landmarks)
-                // FIX: Store in ref instead of triggering re-render
                 alignmentScoreRef.current = score
             }
         }
@@ -463,8 +476,44 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         setIsPlaying(true)
     }
 
-    const handleStop = () => {
+    const handleStop = async () => {
         setIsPlaying(false)
+
+        // Guardar sessão no DB (fire-and-forget, não bloqueia UI)
+        const sessionDuration = startTimeRef.current
+            ? Math.round((Date.now() - startTimeRef.current) / 1000)
+            : 0
+
+        if (skillId && sessionDuration > 3) {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    const bestScore = alignmentScoreRef.current
+                    const db = supabase as any
+
+                    // Buscar registo atual para calcular incrementos
+                    const { data: existing } = await db
+                        .from('learning_progress')
+                        .select('practice_count, total_practice_time_seconds, best_alignment_score')
+                        .eq('user_id', user.id)
+                        .eq('skill_id', skillId)
+                        .single()
+
+                    await db.from('learning_progress').upsert({
+                        user_id: user.id,
+                        skill_id: skillId,
+                        best_alignment_score: existing
+                            ? Math.max(existing.best_alignment_score || 0, bestScore)
+                            : bestScore,
+                        practice_count: (existing?.practice_count || 0) + 1,
+                        total_practice_time_seconds: (existing?.total_practice_time_seconds || 0) + sessionDuration,
+                        last_practiced_at: new Date().toISOString(),
+                    }, { onConflict: 'user_id,skill_id' })
+                }
+            } catch (e) {
+                console.warn('Failed to save session progress:', e)
+            }
+        }
     }
 
     const handleRestart = () => {
@@ -488,30 +537,62 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                         Ghost Hand Practice
                     </h2>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                    {/* Toggle 3D / Câmera */}
+                    <button
+                        onClick={() => setViewMode(v => v === 'camera' ? '3d' : 'camera')}
+                        className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${
+                            viewMode === '3d'
+                                ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)]'
+                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                        }`}
+                        title={viewMode === '3d' ? 'Voltar à câmera' : 'Ver skeleton 3D'}
+                    >
+                        <Layers className="w-5 h-5" />
+                        <span className="hidden md:inline">{viewMode === '3d' ? 'Vista 3D' : 'Modo 3D'}</span>
+                    </button>
+
                     <button
                         onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-                        className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${isVoiceEnabled ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'
-                            }`}
+                        className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
+                            isVoiceEnabled ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'
+                        }`}
                         title={isVoiceEnabled ? 'Mute Voice Coach' : 'Enable Voice Coach'}
                     >
                         {isVoiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                        <span className="text-sm font-bold hidden md:inline">Voice Coach</span>
+                        <span className="text-sm font-bold hidden md:inline">Voz</span>
                     </button>
-                    <div className="text-sm text-slate-400">
-                        Frame: {currentFrameIndex + 1} / {expertFrames.length}
+
+                    <div className="text-xs text-slate-500 hidden md:block">
+                        {currentFrameIndex + 1}/{expertFrames.length}
                     </div>
-                    <div className={`px-4 py-2 rounded-full font-bold ${alignmentScore >= 80 ? 'bg-green-500 text-white' :
+                    <div className={`px-4 py-2 rounded-full font-bold text-sm ${
+                        alignmentScore >= 80 ? 'bg-green-500 text-white' :
                         alignmentScore >= 50 ? 'bg-yellow-500 text-black' :
-                            'bg-red-500 text-white'
-                        }`}>
-                        {alignmentScore}% Match
+                        'bg-red-500 text-white'
+                    }`}>
+                        {alignmentScore}%
                     </div>
                 </div>
             </div>
 
-            {/* Video + Canvas */}
-            <div className="flex-1 relative">
+            {/* ============================================================
+                VISTA 3D — HandSkeleton3D com Three.js
+            ============================================================ */}
+            {viewMode === '3d' && (
+                <div className="flex-1 relative">
+                    <HandSkeleton3D
+                        expertLandmarksRef={expertLiveLandmarksRef}
+                        userLandmarksRef={userLiveLandmarksRef}
+                        alignmentScoreRef={alignmentScoreRef}
+                    />
+                </div>
+            )}
+
+            {/* ============================================================
+                VISTA CÂMERA — Canvas 2D original
+            ============================================================ */}
+            <div className={`flex-1 relative ${viewMode === '3d' ? 'hidden' : ''}`}>
                 <video
                     ref={videoRef}
                     crossOrigin="anonymous"
