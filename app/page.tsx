@@ -94,7 +94,7 @@ export default function Home() {
                                 muted 
                                 playsInline
                                 className="w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-1000"
-                                src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" 
+                                src="/meo_demo.mp4" 
                             />
                             
                             {/* UI Overlay Simulation */}
