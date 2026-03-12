@@ -61,14 +61,14 @@ export default function Home() {
                     </div>
 
                     <h1 className="text-5xl md:text-7xl lg:text-[80px] font-black leading-[1.1] tracking-tighter mb-8 text-white drop-shadow-2xl">
-                        Escale o Conhecimento da sua<br />
+                        A Linha da Frente,<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 drop-shadow-md">
-                            Linha da Frente.
+                            Guiada por IA.
                         </span>
                     </h1>
 
                     <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-                        A plataforma de <strong className="text-slate-200 font-semibold">Inteligência Operacional</strong> que corta o tempo de onboarding tático pela metade. Transformamos o conhecimento dos seus técnicos seniores em guias interativos que corrigem as ações no terreno.
+                        A plataforma de <strong className="text-slate-200 font-semibold">Inteligência Operacional</strong> que corta o tempo de onboarding tático pela metade e elimina chamadas ao suporte (Nível 1). Transformamos o conhecimento dos seus técnicos seniores em guias interativos que dão autonomia à sua equipa ou diretamente ao seu cliente final.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
