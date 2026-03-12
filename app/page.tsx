@@ -87,14 +87,11 @@ export default function Home() {
                 <div className="w-full max-w-6xl mx-auto mt-20 relative z-20 perspective-1000">
                     <div className="rounded-2xl border border-white/10 bg-[#0A111X] p-2 shadow-2xl shadow-blue-500/10 transform-gpu rotate-x-12 hover:rotate-x-0 transition-transform duration-700 ease-out">
                         <div className="aspect-video rounded-xl bg-slate-900 border border-white/5 overflow-hidden relative group">
-                            {/* Realistic Video Placeholder from Unsplash (Tech/Engineering) */}
-                            <video 
-                                autoPlay 
-                                loop 
-                                muted 
-                                playsInline
+                            {/* Premium AI-Generated Static Mockup (B2B2C Holographic Troubleshoot) */}
+                            <img 
+                                src="/nexus_hero_b2b2c_router.png" 
+                                alt="Utilizador diagnosticando router fibra com Realidade Aumentada Nexus"
                                 className="w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-1000"
-                                src="/meo_demo.mp4" 
                             />
                             
                             {/* UI Overlay Simulation */}
