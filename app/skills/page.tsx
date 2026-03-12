@@ -31,10 +31,15 @@ export default function SkillsPage() {
         <div className="min-h-screen bg-[#101822] text-white p-6 font-sans">
             {/* Header */}
             <div className="max-w-4xl mx-auto flex items-center justify-between mb-8">
-                <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-                    <ArrowLeft className="w-5 h-5" />
-                    Back to Nexus
-                </Link>
+                <div className="flex items-center gap-4">
+                    <Link href="/dashboard/progress" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                        <ArrowLeft className="w-5 h-5" />
+                        Dashboard
+                    </Link>
+                    <Link href="/app" className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-colors hidden sm:block">
+                        Cognitive Adapter
+                    </Link>
+                </div>
                 <div className="flex items-center gap-2">
                     <Database className="w-6 h-6 text-blue-500" />
                     <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">

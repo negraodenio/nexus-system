@@ -210,16 +210,16 @@ export default function Nexus() {
                 <div className="text-center mb-10">
                     {/* Top Navigation */}
                     <div className="absolute top-4 right-4 flex items-center gap-4">
-                        <a href="/" className="text-sm font-medium text-slate-400 hover:text-blue-400 transition-colors">Home</a>
+                        <a href="/dashboard/progress" className="text-sm font-medium text-slate-400 hover:text-blue-400 transition-colors">Dashboard</a>
                         <a href="/skills" className="text-sm font-medium text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1">
                             <span>📹</span> Skills
                         </a>
                         <AuthButton />
                         <a
-                            href="/skills?skillId=3bdb03d9-9322-46be-a825-03b9a6c3c4f0"
+                            href="/skills"
                             className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-[0_0_15px_rgba(34,197,94,0.3)] animate-pulse"
                         >
-                            🚀 DEMO MODE: MEO MODEM
+                            🚀 EXPLORAR SOPS
                         </a>
                     </div>
                     <div className="flex items-center justify-center gap-3 mb-2">

@@ -155,10 +155,18 @@ export default function ProgressPage() {
                 {/* Header */}
             <div className="mb-14 flex items-end justify-between">
                 <div>
-                    <Link href="/dashboard" className="text-slate-500 text-sm font-bold tracking-widest uppercase hover:text-white transition-colors mb-4 flex items-center gap-2 w-fit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                        Operational Dashboard
-                    </Link>
+                    <div className="flex items-center gap-4 mb-4">
+                        <Link href="/" className="text-slate-500 text-sm font-bold tracking-widest uppercase hover:text-white transition-colors flex items-center gap-2">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                            Página Inicial
+                        </Link>
+                        <Link href="/skills" className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-colors">
+                            Physical Graph
+                        </Link>
+                        <Link href="/app" className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-colors">
+                            Cognitive Adapter
+                        </Link>
+                    </div>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-2">
                         Telemetry & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Progresso</span>
                     </h1>
