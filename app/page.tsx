@@ -60,25 +60,24 @@ export default function Home() {
                         NEXUS ENTERPRISE BETA
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl lg:text-[80px] font-black leading-[1.1] tracking-tighter mb-8 text-white">
-                        Conhecimento Físico, <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
-                            Digitalizado.
+                    <h1 className="text-5xl md:text-7xl lg:text-[80px] font-black leading-[1.1] tracking-tighter mb-8 text-white drop-shadow-2xl">
+                        Escale o Conhecimento da sua<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 drop-shadow-md">
+                            Linha da Frente.
                         </span>
                     </h1>
 
                     <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-                        O primeiro Sistema Operacional B2B para treinar a sua força de trabalho tática. 
-                        Transformamos <strong className="text-slate-200 font-semibold">procedimentos manuais críticos</strong> em guias holográficos interativos guiados por IA.
+                        A plataforma de <strong className="text-slate-200 font-semibold">Inteligência Operacional</strong> que corta o tempo de onboarding tático pela metade. Transformamos o conhecimento dos seus técnicos seniores em guias interativos que corrigem as ações no terreno.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a href="#pricing" className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-black rounded-xl hover:bg-slate-200 transition-colors">
-                            Ver Planos Comerciais
+                        <a href="#pricing" className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-black rounded-xl hover:bg-slate-200 transition-colors shadow-lg shadow-white/10">
+                            Agendar Piloto B2B
                             <ArrowRight className="w-5 h-5" />
                         </a>
                         <Link href="/app" className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 transition-colors group">
-                            Agendar Apresentação
+                            Playground Demo
                             <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -141,10 +140,10 @@ export default function Home() {
             <section id="solution" className="py-32 px-4 lg:px-8 bg-[#03070E] relative">
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
                 <div className="max-w-4xl mx-auto text-center mb-20 relative z-10">
-                    <span className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-4 block">FIM DA ERA CHATBOT</span>
-                    <h2 className="text-4xl lg:text-6xl font-black mb-6 text-white tracking-tight">O ChatGPT gera texto.<br/>A IA Física gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Ação.</span></h2>
+                    <span className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-4 block">PRECISÃO ABSOLUTA</span>
+                    <h2 className="text-4xl lg:text-6xl font-black mb-6 text-white tracking-tight">Modelos de IA geram texto.<br/>O Nexus gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Ação Correta.</span></h2>
                     <p className="text-slate-400 max-w-2xl mx-auto text-lg/relaxed font-light">
-                        Chega de alucinações de modelos de linguagem quando está a operar maquinaria. Não pergunte *como* consertar. Aponte a câmera e a IA mostra-lhe exatamente *onde* apertar.
+                        A linha da frente não tem o luxo de interpretar textos e longos manuais em PDF. Através de Visão Computacional, o Nexus analisa a destreza física e corrige os movimentos do operador *antes* que ocorra um erro de procedimento.
                     </p>
                 </div>
 
@@ -153,9 +152,9 @@ export default function Home() {
                         <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-8 border border-blue-500/20 group-hover:scale-110 transition-transform duration-500">
                             <Brain className="w-6 h-6 text-blue-400" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-4">Córtex Local (Offline)</h3>
+                        <h3 className="text-2xl font-bold text-white mb-4">Processamento Edge (Offline)</h3>
                         <p className="text-slate-400 font-light leading-relaxed">
-                            Processamento neural injetado direto no hardware edge. O Phi-3 Mini corre no telemóvel do técnico. Ultra-rápido e não precisa de internet em instalações remotas.
+                            A Inteligência Artificial corre diretamente no dispositivo do técnico (Phi-3 Mini). Respostas em milissegundos, com encriptação local e sem dependência de internet ou 5G nas instalações.
                         </p>
                     </div>
 
@@ -163,9 +162,9 @@ export default function Home() {
                         <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
                             <Shield className="w-6 h-6 text-emerald-400" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-4">Monitor Tático EPI</h3>
+                        <h3 className="text-2xl font-bold text-white mb-4">Supervisão Tática de Segurança</h3>
                         <p className="text-slate-400 font-light leading-relaxed">
-                            A câmara vigia o operador. Visão computacional que paralisa o guia e emite alerta vermelho em ms se uma mão desprotegida entrar na zona de perigo.
+                            Câmaras vigiam a execução. Se a visão computacional não detetar Equipamento de Proteção Individual (EPI), ou prever uma manobra de risco, a tarefa de treino é interrompida preventivamente.
                         </p>
                     </div>
 
@@ -173,9 +172,9 @@ export default function Home() {
                         <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-8 border border-purple-500/20 group-hover:scale-110 transition-transform duration-500">
                             <Sparkles className="w-6 h-6 text-purple-400" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-4">Teleprompter Holográfico</h3>
+                        <h3 className="text-2xl font-bold text-white mb-4">Captura Cinética Rápida</h3>
                         <p className="text-slate-400 font-light leading-relaxed">
-                            Grave procedimentos Standard Operating Procedure (SOPs) perfeitos à primeira. O ecrã guia os movimentos do Master Technician durante a captura.
+                            Gravar um Standard Operating Procedure (SOP) demora apenas os minutos da sua execução real. Transforma os movimentos perfeitos do técnico sénior num holograma didático interativo.
                         </p>
                     </div>
                 </div>
@@ -190,17 +189,17 @@ export default function Home() {
                             ECOSSISTEMA NEXUS
                         </span>
                         <h2 className="text-4xl lg:text-5xl font-black mb-6 text-white leading-tight mt-6">
-                            Capitalize os seus <br/>Master Technicians.
+                            Proteja o Ativo Mais Valioso<br/>da sua Operação.
                         </h2>
                         <p className="text-slate-400 text-lg mb-8 leading-relaxed font-light">
-                            Não deixe que reformas estupétem o knowledge base da sua empresa. Transforme os movimentos do seu melhor funcionário num Ativo Digital replicável para as próximas dezenas de contrações.
+                            Não permita que a rotatividade de pessoal e as reformas extingam as competências essenciais da sua empresa. Retenha digitalmente o conhecimento tácito dos especialistas seniores num repositório vivo e interativo.
                         </p>
 
                         <div className="space-y-8 mt-12">
                             {[
-                                { num: '1', title: 'Captura Kinetic', desc: 'Registe em 3D o workflow do seu especialista.' },
-                                { num: '2', title: 'RAG Embedding', desc: 'A IA limpa e torna o procedimento consultável textualmente.' },
-                                { num: '3', title: 'Distribuição Instantânea', desc: 'Deploy na app dos 500 técnicos de campo no dia seguinte.' }
+                                { num: '1', title: 'Captura Kinetic', desc: 'Grave as ações críticas dos especialistas de elite da empresa no terreno.' },
+                                { num: '2', title: 'Contextualização de IA', desc: 'O motor RAG limpa, mapeia em 3D e torna o procedimento consultável.' },
+                                { num: '3', title: 'Escalabilidade Flexível', desc: 'Distribua o treino prático por 500 novos operadores num único dia.' }
                             ].map((s) => (
                                 <div key={s.num} className="flex gap-6 items-start group">
                                     <div className="w-10 h-10 shrink-0 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-slate-300 group-hover:bg-blue-600 group-hover:border-blue-500 group-hover:text-white transition-colors">
@@ -266,20 +265,20 @@ export default function Home() {
                 <div className="max-w-6xl mx-auto">
                     <div className="max-w-2xl mx-auto text-center mb-20">
                         <span className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-4 block">PLATAFORMA ENTERPRISE</span>
-                        <h2 className="text-4xl lg:text-5xl font-black mb-6 text-white tracking-tight">Arquitetura de Escala Escarpada.</h2>
+                        <h2 className="text-4xl lg:text-5xl font-black mb-6 text-white tracking-tight">Concebido para Escala Operacional.</h2>
                         <p className="text-slate-400 text-lg font-light leading-relaxed">
-                            Projetado desde o dia zero para suportar frotas com dezenas de milhares de técnicos de campo.
+                            A arquitetura SaaS suporta infraestruturas industriais multiregionistas, mantendo-se robusta sob extrema utilização tática.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
-                            { icon: Shield, title: 'White-Label Total', desc: 'A sua marca. Sem logótipos da Nexus.', color: 'blue' },
-                            { icon: Users, title: 'Role-Based Access', desc: 'SSO e controlo granulado. Admin vs. Técnico de Campo.', color: 'emerald' },
-                            { icon: Zap, title: 'Local-First Sync', desc: 'Trabalho contínuo em caves sem 5G. Sincroniza em background.', color: 'amber' },
-                            { icon: Activity, title: 'Gestor Telemetry', desc: 'Dashboards C-Suite para justificar o ROI da formação.', color: 'purple' }
+                            { icon: Shield, title: 'White-Label Branding', desc: 'A sua plataforma, a sua marca. Experiência unificada para o colaborador.', color: 'blue' },
+                            { icon: Users, title: 'Gestão de Perfis SSO', desc: 'Controlo granulado com Active Directory. Supervisores vs Operadores.', color: 'emerald' },
+                            { icon: Zap, title: 'Local-First Resync', desc: 'Sem 5G nas instalações? Trabalhe offline, sincronização silenciosa no regresso.', color: 'amber' },
+                            { icon: Activity, title: 'Telemetria de Gestão', desc: 'Validar ROI formativo a partir de métricas do Ghost Hand e Progresso.', color: 'purple' }
                         ].map((f, i) => (
-                            <div key={i} className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
+                            <div key={i} className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:shadow-xl transition-all hover:-translate-y-1">
                                 <f.icon className={`w-8 h-8 text-${f.color}-400 mb-6`} />
                                 <h3 className="text-xl font-bold text-white mb-2">{f.title}</h3>
                                 <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
@@ -294,8 +293,8 @@ export default function Home() {
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
-                        <span className="text-blue-500 text-sm font-bold tracking-widest uppercase mb-4 block">INVESTIMENTO</span>
-                        <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight">Retorno Mensurável.</h2>
+                        <span className="text-blue-500 text-sm font-bold tracking-widest uppercase mb-4 block">INVESTIMENTO DE FORMAÇÃO</span>
+                        <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight">ROI Imediato Desde o Dia 1.</h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
