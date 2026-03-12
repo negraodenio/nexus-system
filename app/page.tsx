@@ -30,7 +30,7 @@ export default function Home() {
                             <AuthButton />
                         </div>
                         <a
-                            href="/skills?skillId=3bdb03d9-9322-46be-a825-03b9a6c3c4f0"
+                            href="/skills"
                             className="relative group bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all hover:scale-[1.02] overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -114,7 +114,7 @@ export default function Home() {
 
                             {/* Center Play Button */}
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <a href="/skills?skillId=3bdb03d9-9322-46be-a825-03b9a6c3c4f0" className="w-20 h-20 rounded-full bg-blue-600/30 backdrop-blur-md flex items-center justify-center border border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-110 hover:bg-blue-600/50 transition-all cursor-pointer group/btn">
+                                <a href="/skills" className="w-20 h-20 rounded-full bg-blue-600/30 backdrop-blur-md flex items-center justify-center border border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-110 hover:bg-blue-600/50 transition-all cursor-pointer group/btn">
                                     <Play className="w-8 h-8 text-white ml-1 group-hover/btn:text-blue-100" fill="currentColor" />
                                 </a>
                             </div>

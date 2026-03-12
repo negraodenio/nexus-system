@@ -41,7 +41,11 @@ export function SkillPlayer({ skillId }: { skillId: string }) {
                 .single()
 
             if (skillError) {
-                console.error("Skill Load Error:", skillError)
+                if (skillError.code === 'PGRST116') {
+                    console.warn("Skill not found in DB")
+                } else {
+                    console.error("Skill Load Error:", skillError)
+                }
                 setLoading(false)
                 return
             }

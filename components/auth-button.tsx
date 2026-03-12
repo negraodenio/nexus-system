@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase'
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { LogIn, LogOut, User as UserIcon } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
@@ -13,6 +14,7 @@ interface AuthButtonProps {
 export function AuthButton({ onAuthChange }: AuthButtonProps) {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
     useEffect(() => {
         // Get initial session
@@ -67,6 +69,7 @@ export function AuthButton({ onAuthChange }: AuthButtonProps) {
             // Success handler usually handled by onAuthStateChange listener
             setShowModal(false)
             setLoading(false)
+            router.push('/dashboard/progress')
         }
     }
 
