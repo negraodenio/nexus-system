@@ -13,14 +13,12 @@ export default function CertificatesPage() {
 
     useEffect(() => {
         const fetchAttestations = async () => {
-            const { data, error } = await (supabase.from('skill_attestations') as any)
-                .select(`
-                    *,
-                    skills (
-                        title
-                    )
-                `)
-                .order('created_at', { ascending: false })
+            const { data, error } = await (supabase.from('skill_attestations').select(`
+                *,
+                skills (
+                    title
+                )
+            `).order('created_at', { ascending: false }) as any)
 
             if (data) {
                 const formatted = (data as any[]).map(a => ({

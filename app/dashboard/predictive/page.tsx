@@ -315,12 +315,14 @@ export default function PredictiveDashboard() {
                         </div>
                         {showCert && (
                             <CertificateCard
-                                technicianName="Carlos Mendes"
-                                technicianId="KNX-USR-002"
-                                skillName="KUKA Kr16 — Calibração de Eixos (Level 3)"
-                                score={94}
-                                issuedAt={new Date()}
-                                certId="a1b2c3d4-1234-5678-abcd-ef0123456789"
+                                attestation={{
+                                    skillTitle: "KUKA Kr16 — Calibração de Eixos (Level 3)",
+                                    score: 94,
+                                    ipfsHash: "a1b2c3d4-1234-5678-abcd-ef0123456789",
+                                    transactionHash: "0xebd6678..." ,
+                                    timestamp: Date.now(),
+                                    network: "Polygon Amoy"
+                                }}
                             />
                         )}
                     </div>

@@ -83,7 +83,7 @@ export default function NexusStudioPage() {
             if (!user) throw new Error('User not authenticated')
 
             // 1. Create Skill record
-            const { data: skill, error: skillErr } = await supabase
+            const { data: skill, error: skillErr } = await (supabase
                 .from('skills')
                 .insert({
                     user_id: user.id,
@@ -92,9 +92,9 @@ export default function NexusStudioPage() {
                     category: 'Generated',
                     difficulty: 'Intermediate',
                     is_published: true
-                })
+                } as any)
                 .select()
-                .single()
+                .single() as any)
 
             if (skillErr) throw skillErr
 
@@ -105,9 +105,9 @@ export default function NexusStudioPage() {
                 landmarks: [landmarks] // Store as array of hands
             }))
 
-            const { error: framesErr } = await supabase
+            const { error: framesErr} = await (supabase
                 .from('skill_frames')
-                .insert(framesToInsert)
+                .insert(framesToInsert as any) as any)
 
             if (framesErr) throw framesErr
 

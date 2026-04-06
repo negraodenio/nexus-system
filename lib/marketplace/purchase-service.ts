@@ -5,7 +5,7 @@
 
 import { supabase } from '../supabase';
 
-export interface PurchaseResult {
+export interface NexusPurchaseResult {
     success: boolean;
     transactionId?: string;
     error?: string;
@@ -20,17 +20,17 @@ export class PurchaseService {
         userId: string, 
         listingId: string, 
         amount: number
-    ): Promise<PurchaseResult> {
+    ): Promise<NexusPurchaseResult> {
         try {
-            const { data, error } = await (supabase.rpc('process_skill_purchase', {
+            const { data, error } = await ((supabase as any).rpc('process_skill_purchase', {
                 p_buyer_id: userId,
                 p_listing_id: listingId,
                 p_amount: amount,
                 p_batch_size: 1
-            }) as any);
+            }));
 
             if (error) throw error;
-            return data as PurchaseResult;
+            return data as NexusPurchaseResult;
         } catch (err: any) {
             console.error('Purchase failed:', err);
             return { success: false, error: err.message || 'Transaction reflected a failure' };
@@ -46,21 +46,21 @@ export class PurchaseService {
         listingId: string,
         amount: number,
         batchSize: number
-    ): Promise<PurchaseResult> {
+    ): Promise<NexusPurchaseResult> {
         try {
             // 1. Check corporate balance & apply discount (e.g., 20% off for batches > 10)
             const discount = batchSize >= 10 ? 0.8 : 1.0;
             const finalAmount = amount * batchSize * discount;
 
-            const { data, error } = await (supabase.rpc('process_skill_purchase', {
+            const { data, error } = await ((supabase as any).rpc('process_skill_purchase', {
                 p_buyer_id: companyId, // Can be corporate account ID
                 p_listing_id: listingId,
                 p_amount: finalAmount,
                 p_batch_size: batchSize
-            }) as any);
+            }));
 
             if (error) throw error;
-            return data as PurchaseResult;
+            return data as NexusPurchaseResult;
         } catch (err: any) {
             console.error('Batch Purchase failed:', err);
             return { success: false, error: err.message };

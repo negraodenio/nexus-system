@@ -122,7 +122,7 @@ export default function NexusLanding() {
                             <p><span className="text-slate-500">// Initialize Physical SDLC</span></p>
                             <p><span className="text-blue-400">const</span> skill = <span className="text-blue-400">new</span> <span className="text-amber-400">MotionRuntime</span>({"{ skillId: 'SOP-4A' }"});</p>
                             <p>&nbsp;</p>
-                            <p>skill.<span className="text-blue-300">attach</span>(intent <span className="text-blue-400">=></span> {"{"}</p>
+                            <p>skill.<span className="text-blue-300">attach</span>(intent {"=>"} {"{"}</p>
                             <p>&nbsp;&nbsp;<span className="text-blue-400">if</span> (intent.<span className="text-amber-300">alignment</span> {"<"} <span className="text-purple-400">0.95</span>) {"{"}</p>
                             <p>&nbsp;&nbsp;&nbsp;&nbsp;intent.<span className="text-blue-300">applyPatch</span>(<span className="text-green-400">'haptic-correction'</span>);</p>
                             <p>&nbsp;&nbsp;{"}"}</p>
