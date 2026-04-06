@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Loader2, Sparkles, Brain, Clock, CheckCircle, AlertCircle, RotateCcw, History, Settings, Camera, X } from 'lucide-react'
+import { Loader2, Sparkles, Brain, Clock, CheckCircle, AlertCircle, RotateCcw, History, Settings, Camera, X, Thermometer, Zap, MessageSquareQuote, ShieldAlert, Target, Activity } from 'lucide-react'
+import { motion } from 'framer-motion'
 import MermaidRenderer from './mermaid-renderer'
 import RealityCanvas from './reality-canvas'
 import { SkillPlayer } from './skill-player'
+import { GhostHandPractice } from './ghost-hand-practice'
 import ContextSelector, { AVAILABLE_CONTEXTS } from './context-selector'
 import { AuthButton } from './auth-button'
 import { AudienceType, VisualType, CacheSource, RealityOverlay } from '@/lib/db-types'
@@ -74,6 +76,7 @@ export default function Nexus() {
     const [history, setHistory] = useState<HistoryItem[]>([])
     const [showHistory, setShowHistory] = useState(false)
     const [matchedSkillId, setMatchedSkillId] = useState<string | null>(null)
+    const [showPractice, setShowPractice] = useState(false) // NEW: State for interactive practice
 
     // Metrics
     const [startTime, setStartTime] = useState<number | null>(null)
@@ -115,16 +118,20 @@ export default function Nexus() {
             const data = await res.json()
             setResponse(data)
 
-            // Search for matching skill if AI suggested one
+            // Semantic Search for matching skill if AI suggested one (Ghost Hand Demo mapping)
             if (data.skill_query) {
                 try {
-                    const skillRes = await fetch(`/api/skills/search?q=${encodeURIComponent(data.skill_query)}`)
+                    const skillRes = await fetch(`/api/skills/semantic-search`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: data.skill_query })
+                    })
                     const skillData = await skillRes.json()
-                    if (skillData.skills?.length > 0) {
-                        setMatchedSkillId(skillData.skills[0].id)
+                    if (skillData.results?.length > 0) {
+                        setMatchedSkillId(skillData.results[0].id)
                     }
                 } catch (skillErr) {
-                    console.error('Skill search failed:', skillErr)
+                    console.error('Semantic Skill search failed:', skillErr)
                 }
             }
 
@@ -409,16 +416,65 @@ export default function Nexus() {
 
                         {/* Ghost Hand - Physical Skill Demo */}
                         {matchedSkillId && (
-                            <div className="bg-gray-900 rounded-2xl p-6 border border-indigo-500/30 mt-8">
-                                <h4 className="text-indigo-400 font-bold mb-4 flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-                                    Ghost Hand Demo
+                            <div className="bg-[#151c26] rounded-2xl p-6 border border-blue-500/30 mt-8 relative overflow-hidden group">
+                                {/* Sensor Fusion Overlay (Mocks for APEX) */}
+                                <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                                    <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-lg backdrop-blur-md animate-pulse">
+                                        <Thermometer className="w-4 h-4 text-red-400" />
+                                        <span className="text-xs font-mono text-red-200">FLIR: 42.5°C</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1.5 rounded-lg backdrop-blur-md">
+                                        <Zap className="w-4 h-4 text-cyan-400" />
+                                        <span className="text-xs font-mono text-cyan-200">Torque: 45Nm</span>
+                                    </div>
+                                </div>
+
+                                <h4 className="text-blue-400 font-bold mb-4 flex items-center justify-between">
+                                    <span className="flex items-center gap-2">
+                                        <Activity className="w-5 h-5 text-blue-500" />
+                                        Physical Intelligence: Execution Record
+                                    </span>
+                                    <button 
+                                        onClick={() => setShowPractice(true)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all hover:scale-105"
+                                    >
+                                        <Target className="w-4 h-4" />
+                                        Calibration (Live AR)
+                                    </button>
                                 </h4>
-                                <p className="text-gray-400 text-sm mb-4">
-                                    Veja o movimento gravado por um especialista:
-                                </p>
-                                <SkillPlayer skillId={matchedSkillId} />
+                                
+                                <div className="mb-6">
+                                    <SkillPlayer skillId={matchedSkillId} />
+                                </div>
+
+                                {/* Physical Copilot Proactive Insight */}
+                                <motion.div 
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-400/30 rounded-xl p-4 flex gap-4 items-start"
+                                >
+                                    <div className="p-2 bg-blue-500 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.5)] flex-shrink-0">
+                                        <MessageSquareQuote className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[10px] font-black uppercase tracking-tighter text-blue-300 bg-blue-400/20 px-1.5 py-0.5 rounded">Copilot Físico</span>
+                                            <span className="text-[10px] text-slate-500 font-mono italic">Contexto: Sensor Fusion (Torque + Vision)</span>
+                                        </div>
+                                        <p className="text-sm text-blue-100 leading-relaxed italic">
+                                            "Detetei resistência anormal no passo 3. O torque subiu para 45Nm prematuramente. Sugiro verificar a rosca antes de continuar para evitar danos permanentes."
+                                        </p>
+                                        <div className="mt-2 flex gap-3">
+                                            <button className="text-[10px] font-bold text-blue-400 hover:text-blue-300">Aceitar Sugestão</button>
+                                            <button className="text-[10px] font-bold text-slate-500 hover:text-slate-400">Ignorar</button>
+                                        </div>
+                                    </div>
+                                </motion.div>
                             </div>
+                        )}
+
+                        {showPractice && matchedSkillId && (
+                            <GhostHandPractice skillId={matchedSkillId} onClose={() => setShowPractice(false)} />
                         )}
 
                         {/* Limits */}

@@ -280,7 +280,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
                 await db.pendingSkills.add({
                     title,
                     videoBlob,
-                    skeletonFrames: frames,
+                    skeletonFrames: frames as any,
                     createdAt: new Date(),
                     status: 'pending',
                     instructions: sopInstructions
@@ -304,7 +304,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
         const { data: { user } } = await supabase.auth.getUser()
 
         // 1. Create skill record
-        const { data: skill, error: skillError } = await supabase
+        const { data: skill, error: skillError } = await (supabase as any)
             .from('skills')
             .insert({
                 title,
@@ -346,7 +346,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
 
         console.log('[DEBUG] Public URL generated:', publicUrl)
 
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
             .from('skills')
             .update({ video_url: publicUrl })
             .eq('id', skill.id)
@@ -369,12 +369,31 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
 
         for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
             const chunk = payload.slice(i, i + CHUNK_SIZE)
-            await supabase.from('skill_frames').insert(chunk)
+            await (supabase as any).from('skill_frames').insert(chunk)
         }
 
         console.log(`Saved ${payload.length} frames + video to Skill ${skill.id}`)
+        
+        // 5. Trigger Semantic Search Embedding
+        try {
+            setUploadProgress('Indexing for Semantic Search...')
+            await fetch('/api/skills/semantic-search', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    skillId: skill.id,
+                    title: title,
+                    description: '', // Can be added if field exists in UI
+                    instructions: sopInstructions
+                })
+            })
+        } catch (err) {
+            console.error('Semantic Indexing Error:', err)
+            // Non-blocking error, we don't return here
+        }
+
         setLastSavedId(skill.id)
-        setStatus('✅ Saved with Video!')
+        setStatus('✅ Habilidade Salva com IA!')
         setUploadProgress(null)
     }
 

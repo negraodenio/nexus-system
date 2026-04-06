@@ -55,6 +55,16 @@ export const AVAILABLE_CONTEXTS: (Context & { usage_hint: string })[] = [
         usage_hint: 'Use para verificar se uma notícia é verdadeira ou validar fatos.'
     },
     {
+        id: 'ctx-debugger',
+        name: 'Auto-Debugger',
+        description: 'Diagnóstico de Hardware',
+        category: 'utility',
+        icon: 'ShieldCheck',
+        visual_mode: 'reality',
+        system_prompt: 'You are the Nexus Auto-Debugger. Your specialized goal is to identify issues in the PHYSICAL ENVIRONMENT that affect AR/AI performance. Check for: 1. Poor lighting / Glare. 2. Blur or focus issues. 3. Hand occlusion. 4. Camera angle. Suggest physical movements or lighting adjustments.',
+        usage_hint: 'Use para calibrar o ambiente, melhorar a luz ou corrigir o ângulo da câmera.'
+    },
+    {
         id: 'ctx-gamer',
         name: 'Gamer',
         description: 'Analogias de jogos',

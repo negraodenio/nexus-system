@@ -1,12 +1,24 @@
 'use client'
 
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision'
 import { supabase } from '@/lib/supabase'
-import { Camera, Play, Pause, RotateCcw, Target, X, Volume2, VolumeX, Layers } from 'lucide-react'
-import { KineticEngine, type Landmark, type MatchResult } from '@/lib/kinetic-engine'
+import { 
+    Camera, Play, Pause, RotateCcw, Target, X, 
+    Volume2, VolumeX, Layers, Activity, Brain, Info, Wifi, ShoppingCart 
+} from 'lucide-react'
+import { KineticEngine, type Landmark } from '@/lib/kinetic-engine'
 import { getCachedTier } from '@/lib/hardware-benchmark'
 import { HandSkeleton3D } from '@/components/hand-skeleton-3d'
+import { EMGClient, type EMGData } from '@/lib/emg-client'
+import { EMGProcessor } from '@/lib/emg-processor'
+import { EMGVisualizer } from '@/components/emg-visualizer'
+import { NexusSyncEngine, type SyncPacket } from '@/lib/nexus-sync'
+import { DeadReckoning } from '@/lib/dead-reckoning'
+import { LatencyShield } from '@/components/latency-shield'
+import { AttestationService } from '@/lib/blockchain/attestation'
+import { PurchaseService } from '@/lib/marketplace/purchase-service'
+import { toast } from 'sonner'
 
 interface SkillFrame {
     frame_index: number
@@ -32,35 +44,43 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
     const [alignmentScore, setAlignmentScore] = useState(0)
     const [status, setStatus] = useState('Initializing...')
     const [isRecoveryMode, setIsRecoveryMode] = useState(false)
-    const [kinematicQuality, setKinematicQuality] = useState(0)
     const [deviceTier, setDeviceTier] = useState<'premium' | 'standard' | 'lite'>('lite')
-    // 3D view toggle
     const [viewMode, setViewMode] = useState<'camera' | '3d'>('camera')
 
-    // Live landmark refs — partilhados com o renderer 3D sem re-renders
+    // Live landmark refs — shared with 3D renderer without re-renders
     const expertLiveLandmarksRef = useRef<{ x: number; y: number; z: number }[] | null>(null)
     const userLiveLandmarksRef   = useRef<{ x: number; y: number; z: number }[] | null>(null)
+    const predictedLandmarksRef  = useRef<{ x: number; y: number; z: number }[] | null>(null)
+    const remoteUsersLandmarksRef = useRef<Map<string, { x: number; y: number; z: number }[] | null>>(new Map())
+    const remoteDeadReckoningsRef = useRef<Map<string, DeadReckoning>>(new Map())
 
-    // Performance optimization: Store frame/score in refs to avoid re-renders
+    const [isNeuralMode, setIsNeuralMode] = useState(false)
+    const [isCollaborativeMode, setIsCollaborativeMode] = useState(false)
+    const [hasAccess, setHasAccess] = useState(true) // Default to true, update after check
+    const [isPremium, setIsPremium] = useState(false)
+    const [emgData, setEmgData] = useState<EMGData>({ timestamp: 0, channels: Array(8).fill(0), quality: 0 })
+    const [predictionConfidence, setPredictionConfidence] = useState(0)
+    const [latency, setLatency] = useState({ rtt: 0, jitter: 0, packetLoss: 0 })
+
+    // RAG Buffer (window of ~200ms at 60Hz ~= 12 samples)
+    const emgBufferRef = useRef<number[][]>([])
+    const isPredictingRef = useRef(false)
+    const syncEngineRef = useRef<NexusSyncEngine | null>(null)
+
+    // Performance refs
     const currentFrameRef = useRef(0)
     const alignmentScoreRef = useRef(0)
-    const kinematicQualityRef = useRef(0) // NEW: Kinematic quality ref
-
-    // NEW: Kinetic Engine V2.0 (Patent-Pending)
     const kineticEngineRef = useRef<KineticEngine | null>(null)
-
     const startTimeRef = useRef<number>(0)
+    const lastFeedbackTimeRef = useRef<number>(0)
 
     // 1. Initialize MediaPipe + Camera + KineticEngine
     useEffect(() => {
         const init = async () => {
             setStatus('Loading hand detection model...')
-
-            // NEW: Initialize KineticEngine V2.0 and detect hardware tier
             kineticEngineRef.current = new KineticEngine()
             const tier = getCachedTier()
             setDeviceTier(tier)
-            console.log(`[KineticEngine] Initialized in ${tier} mode`)
 
             try {
                 const vision = await FilesetResolver.forVisionTasks(
@@ -74,7 +94,7 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                     },
                     runningMode: 'VIDEO',
                     numHands: 2,
-                    minHandDetectionConfidence: 0.3, // Lower confidence for recovery mode robustness
+                    minHandDetectionConfidence: 0.3,
                     minHandPresenceConfidence: 0.3,
                     minTrackingConfidence: 0.3
                 })
@@ -101,21 +121,30 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         init()
 
         return () => {
-            if (handLandmarkerRef.current) {
-                handLandmarkerRef.current.close()
-            }
+            if (handLandmarkerRef.current) handLandmarkerRef.current.close()
             if (videoRef.current?.srcObject) {
                 (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop())
             }
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current)
-            }
+            if (animationRef.current) cancelAnimationFrame(animationRef.current)
+            EMGClient.getInstance().stopSimulation()
+            syncEngineRef.current?.leaveRoom()
         }
     }, [])
 
-    // 2. Load expert skeleton frames
+    // 2. Load expert skeleton frames & Check Access
     useEffect(() => {
         const loadExpertFrames = async () => {
+            // Check if skill is premium
+            const { data: listing } = await (supabase.from('marketplace_listings') as any).select('is_premium, id').eq('skill_id', skillId).maybeSingle()
+            if (listing?.is_premium) {
+                setIsPremium(true)
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    const owned = await PurchaseService.checkAccess(user.id, skillId)
+                    setHasAccess(owned)
+                }
+            }
+
             const { data, error } = await supabase
                 .from('skill_frames')
                 .select('*')
@@ -128,7 +157,6 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
             }
 
             if (data && data.length > 0) {
-                // FIX: Deduplicate frames (SkillRecorder might save duplicates at 60fps)
                 const uniqueFrames = data.reduce((acc: SkillFrame[], current: SkillFrame) => {
                     const last = acc[acc.length - 1]
                     if (!last || last.frame_index !== current.frame_index) {
@@ -136,167 +164,154 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                     }
                     return acc
                 }, [])
-
                 setExpertFrames(uniqueFrames)
-                setStatus(`Loaded ${uniqueFrames.length} expert frames`)
-                setStatus(`Loaded ${uniqueFrames.length} expert frames`)
             } else {
-                console.warn('No expert frames found. Activating Real-Time Recovery Mode.')
                 setIsRecoveryMode(true)
-                // Retrieve the video URL to play it
-                // Note: The video element will be handled by the parent passed URL or we need to fetch it?
-                // Actually the parent passes skillId, we fetched frames. 
-                // We assume video plays.
-                setStatus('⚠️ Data incomplete - Using Live Inference Mode')
+                setStatus('⚠️ Live Inference Mode active')
             }
         }
-
         loadExpertFrames()
     }, [skillId])
 
-    // 3. Calculate alignment using KineticEngine V2.0 (Patent-Pending)
-    const calculateAlignment = useCallback((userLandmarks: any[], expertLandmarks: any[]): number => {
-        if (!userLandmarks || !expertLandmarks || userLandmarks.length === 0 || expertLandmarks.length === 0) {
-            return 0
+    // 3. EMG Subscription
+    useEffect(() => {
+        if (!isNeuralMode) {
+            EMGClient.getInstance().stopSimulation()
+            return
         }
 
-        // Lite mode: Use simple distance (for low-end devices)
-        if (deviceTier === 'lite') {
-            const userHand = userLandmarks[0]
-            const expertHand = expertLandmarks[0]
-            if (!userHand || !expertHand) return 0
+        EMGClient.getInstance().startSimulation((data) => {
+            setEmgData(data)
+            emgBufferRef.current.push(data.channels)
+            if (emgBufferRef.current.length > 30) emgBufferRef.current.shift()
+        })
 
-            let totalDistance = 0
-            let count = 0
-            for (let i = 0; i < Math.min(userHand.length, expertHand.length); i++) {
-                const dx = userHand[i].x - expertHand[i].x
-                const dy = userHand[i].y - expertHand[i].y
-                totalDistance += Math.sqrt(dx * dx + dy * dy)
-                count++
+        return () => EMGClient.getInstance().stopSimulation()
+    }, [isNeuralMode])
+
+    // 4. Motion Prediction Loop (M2.7 Neural)
+    useEffect(() => {
+        if (!isNeuralMode || !isPlaying || !userLiveLandmarksRef.current) return
+
+        const predictInterval = setInterval(async () => {
+            if (isPredictingRef.current || emgBufferRef.current.length < 5) return
+
+            isPredictingRef.current = true
+            try {
+                const features = EMGProcessor.extractFeatures(emgBufferRef.current)
+                const embedding = await EMGProcessor.toEmbedding(features)
+
+                if (embedding) {
+                    const response = await fetch('/api/predict-motion', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            emgEmbedding: embedding,
+                            currentLandmarks: userLiveLandmarksRef.current,
+                        })
+                    })
+
+                    const result = await response.json()
+                    if (result.predictedLandmarks) {
+                        predictedLandmarksRef.current = result.predictedLandmarks
+                        setPredictionConfidence(result.confidence || 0.8)
+                    }
+                }
+            } catch (err) {
+                console.error('Prediction error:', err)
+            } finally {
+                isPredictingRef.current = false
             }
-            const avgDistance = totalDistance / count
-            return Math.max(0, Math.min(100, 100 - avgDistance * 500))
+        }, 500)
+
+        return () => clearInterval(predictInterval)
+    }, [isNeuralMode, isPlaying])
+
+    // 5. Collaborative Sync
+    useEffect(() => {
+        if (!isCollaborativeMode) {
+            syncEngineRef.current?.leaveRoom()
+            syncEngineRef.current = null
+            return
         }
 
-        // Premium/Standard mode: Use KineticEngine V2.0
+        const engine = new NexusSyncEngine()
+        syncEngineRef.current = engine
+
+        const handleRemotePacket = (packet: SyncPacket) => {
+            const now = Date.now()
+            const rtt = now - packet.timestamp
+            setLatency(l => ({ 
+                rtt, 
+                jitter: Math.abs(rtt - l.rtt), 
+                packetLoss: l.packetLoss * 0.95 // fake decay for MVP
+            }))
+
+            let dr = remoteDeadReckoningsRef.current.get(packet.userId)
+            if (!dr) {
+                dr = new DeadReckoning()
+                remoteDeadReckoningsRef.current.set(packet.userId, dr)
+            }
+            dr.update(packet.landmarks)
+        }
+
+        engine.joinRoom(skillId, handleRemotePacket)
+
+        return () => engine.leaveRoom()
+    }, [isCollaborativeMode, skillId])
+
+    // Alignment calculation
+    const calculateAlignment = useCallback((userLandmarks: any[], expertLandmarks: any[]): number => {
+        if (!userLandmarks?.length || !expertLandmarks?.length) return 0
         const engine = kineticEngineRef.current
         if (!engine) return 0
 
-        const userHand = userLandmarks[0]
-        const expertHand = expertLandmarks[0]
-        if (!userHand || !expertHand) return 0
-
-        // Convert to Landmark[] format
-        const userLm: Landmark[] = userHand.map((lm: any) => ({
-            x: lm.x,
-            y: lm.y,
-            z: lm.z || 0,
-            visibility: lm.visibility
-        }))
-        const expertLm: Landmark[] = expertHand.map((lm: any) => ({
-            x: lm.x,
-            y: lm.y,
-            z: lm.z || 0,
-            visibility: lm.visibility
-        }))
-
-        // Process through engine (normalization + smoothing)
-        const timestamp = Date.now()
-        const result = engine.processFrame(userLm, timestamp)
-
-        // Calculate instant score using cosine similarity
-        // Uses the public normalizeLandmarks() method — safe for production builds
         try {
+            const userLm = userLandmarks[0].map((lm: any) => ({ x: lm.x, y: lm.y, z: lm.z || 0, visibility: lm.visibility }))
+            const expertLm = expertLandmarks[0].map((lm: any) => ({ x: lm.x, y: lm.y, z: lm.z || 0, visibility: lm.visibility }))
+
             const normalizedUser = engine.normalizeLandmarks(userLm)
             const normalizedExpert = engine.normalizeLandmarks(expertLm)
 
-            // Cosine similarity on fingertips (indices 4, 8, 12, 16, 20)
             const fingertips = [4, 8, 12, 16, 20]
-            let dotProduct = 0
-            let userMag = 0
-            let expertMag = 0
+            let dotProduct = 0, userMag = 0, expertMag = 0
 
             for (const idx of fingertips) {
-                const u = normalizedUser[idx]
-                const e = normalizedExpert[idx]
+                const u = normalizedUser[idx], e = normalizedExpert[idx]
                 dotProduct += u.x * e.x + u.y * e.y + u.z * e.z
                 userMag += u.x * u.x + u.y * u.y + u.z * u.z
                 expertMag += e.x * e.x + e.y * e.y + e.z * e.z
             }
 
             const magnitude = Math.sqrt(userMag) * Math.sqrt(expertMag)
-            const cosineSim = magnitude > 1e-10 ? (dotProduct / magnitude + 1) / 2 : 0
+            return magnitude > 1e-10 ? Math.round(((dotProduct / magnitude + 1) / 2) * 100) : 0
+        } catch { return 0 }
+    }, [])
 
-            // Update kinematic quality ref
-            kinematicQualityRef.current = Math.round(result.instantScore * 100)
-
-            return Math.round(cosineSim * 100)
-        } catch (e) {
-            // Fallback if normalization fails (e.g., degenerate hand pose)
-            return 0
-        }
-    }, [deviceTier])
-
-    const lastFeedbackTimeRef = useRef<number>(0)
-
-    // Voice Feedback Function
+    // Voice feedback
     const speakFeedback = (text: string) => {
-        // FIX: Respect the Voice Coach toggle
-        if (!isVoiceEnabled) return
-
-        const now = Date.now()
-        // Limit feedback frequency (max once per 3 seconds)
-        if (now - lastFeedbackTimeRef.current < 3000) return
-
+        if (!isVoiceEnabled || Date.now() - lastFeedbackTimeRef.current < 3000) return
         const utterance = new SpeechSynthesisUtterance(text)
         utterance.rate = 1.2
-        utterance.pitch = 1.0
-        utterance.lang = 'en-US' // Or pt-BR depending on user preference
+        utterance.lang = 'en-US'
         window.speechSynthesis.speak(utterance)
-
-        lastFeedbackTimeRef.current = now
+        lastFeedbackTimeRef.current = Date.now()
     }
 
-    // Analyze specific errors for feedback
     const analyzeFeedback = (userLandmarks: any[], expertLandmarks: any[]) => {
         if (!userLandmarks?.length || !expertLandmarks?.length) return
-
-        const user = userLandmarks[0]
-        const expert = expertLandmarks[0]
-
-        // Threshold for error (0.1 is roughly 10% of screen size)
+        const user = userLandmarks[0], expert = expertLandmarks[0]
         const ERROR_THRESHOLD = 0.1
 
-        // Check Left Hand (Wrist: 0)
         if (Math.abs(user[0].y - expert[0].y) > ERROR_THRESHOLD) {
-            if (user[0].y > expert[0].y) {
-                speakFeedback("Raise your wrist")
-            } else {
-                speakFeedback("Lower your wrist")
-            }
-            return
-        }
-
-        // Check Horizontal alignment
-        if (Math.abs(user[0].x - expert[0].x) > ERROR_THRESHOLD) {
-            if (user[0].x > expert[0].x) {
-                speakFeedback("Move left")
-            } else {
-                speakFeedback("Move right")
-            }
-            return
-        }
-
-        // Positive feedback if alignment is good
-        if (calculateAlignment([user], [expert]) > 85) {
-            // Random compliment
-            const compliments = ["Perfect!", "Great match!", "Hold it there!", "Excellent!"]
-            const index = Math.floor(Math.random() * compliments.length)
-            speakFeedback(compliments[index])
+            speakFeedback(user[0].y > expert[0].y ? "Raise your wrist" : "Lower your wrist")
+        } else if (Math.abs(user[0].x - expert[0].x) > ERROR_THRESHOLD) {
+            speakFeedback(user[0].x > expert[0].x ? "Move left" : "Move right")
+        } else if (calculateAlignment([user], [expert]) > 85) {
+            speakFeedback("Perfect!")
         }
     }
 
-    // 4. Animation loop
+    // Main animation loop
     const animate = useCallback(() => {
         const video = videoRef.current
         const canvas = canvasRef.current
@@ -313,361 +328,217 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
             return
         }
 
-        // Helper to match display size
-        // We must draw on a canvas that matches the video's intrinsic resolution
-        // and then let CSS scale it to fit the container (object-contain)
         if (canvas.width !== video.videoWidth) canvas.width = video.videoWidth
         if (canvas.height !== video.videoHeight) canvas.height = video.videoHeight
 
-        // Detect user's hands
         const nowInMs = Date.now()
         const results = landmarker.detectForVideo(video, nowInMs)
-
-        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        // Calculate current expert frame based on elapsed time
         const elapsedMs = nowInMs - startTimeRef.current
-        const fps = 30
-        const frameIndex = Math.floor(elapsedMs / (1000 / fps)) % expertFrames.length
-        // FIX: Store in ref instead of triggering re-render
+        const frameIndex = Math.floor(elapsedMs / (1000 / 30)) % expertFrames.length
         currentFrameRef.current = frameIndex
-
         const expertFrame = expertFrames[frameIndex]
 
-        // Atualizar refs de landmarks para o renderer 3D (sem custo de re-render)
-        if (expertFrame?.landmarks?.[0]) {
-            expertLiveLandmarksRef.current = expertFrame.landmarks[0]
-        }
+        if (expertFrame?.landmarks?.[0]) expertLiveLandmarksRef.current = expertFrame.landmarks[0]
 
-        // Draw expert skeleton (GREEN - Ghost)
-        let expertLandmarksToDraw = expertFrame?.landmarks
+        // 1. Draw Expert (GREEN)
+        const connections = [
+            [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
+            [0, 9], [9, 10], [10, 11], [11, 12], [0, 13], [13, 14], [14, 15], [15, 16],
+            [0, 17], [17, 18], [18, 19], [19, 20], [5, 9], [9, 13], [13, 17]
+        ]
 
-        // RECOVERY MODE: If no recorded frames, detect from video on the fly
-        if (isRecoveryMode && isPlaying && video && video.currentTime > 0) {
-            // Detect hands in the VIDEO element itself
-            const videoResults = landmarker.detectForVideo(video, nowInMs)
-            if (videoResults.landmarks && videoResults.landmarks.length > 0) {
-                expertLandmarksToDraw = videoResults.landmarks
-            }
-        }
-
-        if (expertLandmarksToDraw) {
-            for (const landmarks of expertLandmarksToDraw) {
-                if (!landmarks) continue
-                // Draw connections
-                ctx.strokeStyle = 'rgba(0, 255, 0, 0.6)'
-                ctx.lineWidth = 3
-                const connections = [
-                    [0, 1], [1, 2], [2, 3], [3, 4],
-                    [0, 5], [5, 6], [6, 7], [7, 8],
-                    [0, 9], [9, 10], [10, 11], [11, 12],
-                    [0, 13], [13, 14], [14, 15], [15, 16],
-                    [0, 17], [17, 18], [18, 19], [19, 20],
-                    [5, 9], [9, 13], [13, 17]
-                ]
-
-                for (const [a, b] of connections) {
-                    if (landmarks[a] && landmarks[b]) {
-                        ctx.beginPath()
-                        ctx.moveTo(landmarks[a].x * canvas.width, landmarks[a].y * canvas.height)
-                        ctx.lineTo(landmarks[b].x * canvas.width, landmarks[b].y * canvas.height)
-                        ctx.stroke()
-                    }
+        if (expertFrame?.landmarks) {
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.6)'
+            ctx.lineWidth = 3
+            expertFrame.landmarks[0].forEach((_: any, i: number) => {
+                const landmark = expertFrame.landmarks[0][i]
+                ctx.beginPath(); ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, 2 * Math.PI); ctx.fillStyle = 'rgba(0, 255, 0, 0.8)'; ctx.fill()
+            })
+            connections.forEach(([a, b]) => {
+                const l1 = expertFrame.landmarks[0][a], l2 = expertFrame.landmarks[0][b]
+                if (l1 && l2) {
+                    ctx.beginPath(); ctx.moveTo(l1.x * canvas.width, l1.y * canvas.height); ctx.lineTo(l2.x * canvas.width, l2.y * canvas.height); ctx.stroke()
                 }
-
-                // Draw points
-                for (let i = 0; i < landmarks.length; i++) {
-                    const x = landmarks[i].x * canvas.width
-                    const y = landmarks[i].y * canvas.height
-
-                    ctx.beginPath()
-                    ctx.arc(x, y, 8, 0, 2 * Math.PI)
-                    ctx.fillStyle = 'rgba(0, 255, 0, 0.8)'
-                    ctx.fill()
-                    ctx.strokeStyle = '#FFFFFF'
-                    ctx.lineWidth = 2
-                    ctx.stroke()
-                }
-            }
+            })
         }
 
-        // Draw user skeleton (BLUE)
-        if (results.landmarks && results.landmarks.length > 0) {
-            // Run Voice Analysis
+        // 2. Draw User (BLUE)
+        if (results.landmarks?.length > 0) {
+            const user = results.landmarks[0]
+            userLiveLandmarksRef.current = user
             if (expertFrame?.landmarks) {
                 analyzeFeedback(results.landmarks, expertFrame.landmarks)
+                alignmentScoreRef.current = calculateAlignment(results.landmarks, expertFrame.landmarks)
             }
 
-            for (const landmarks of results.landmarks) {
-                // Draw connections
-                ctx.strokeStyle = 'rgba(0, 150, 255, 0.8)'
-                ctx.lineWidth = 2
-                const connections = [
-                    [0, 1], [1, 2], [2, 3], [3, 4],
-                    [0, 5], [5, 6], [6, 7], [7, 8],
-                    [0, 9], [9, 10], [10, 11], [11, 12],
-                    [0, 13], [13, 14], [14, 15], [15, 16],
-                    [0, 17], [17, 18], [18, 19], [19, 20],
-                    [5, 9], [9, 13], [13, 17]
-                ]
+            ctx.strokeStyle = 'rgba(0, 150, 255, 0.8)'
+            ctx.lineWidth = 2
+            user.forEach((lm, i) => {
+                ctx.beginPath(); ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 4, 0, 2 * Math.PI); ctx.fillStyle = i === 8 ? '#FF4444' : '#0096FF'; ctx.fill()
+            })
+            connections.forEach(([a, b]) => {
+                ctx.beginPath(); ctx.moveTo(user[a].x * canvas.width, user[a].y * canvas.height); ctx.lineTo(user[b].x * canvas.width, user[b].y * canvas.height); ctx.stroke()
+            })
+        }
 
-                for (const [a, b] of connections) {
-                    if (landmarks[a] && landmarks[b]) {
-                        ctx.beginPath()
-                        ctx.moveTo(landmarks[a].x * canvas.width, landmarks[a].y * canvas.height)
-                        ctx.lineTo(landmarks[b].x * canvas.width, landmarks[b].y * canvas.height)
-                        ctx.stroke()
-                    }
+        // 4. Remote Skeletons Prediction (Dead Reckoning)
+        if (isCollaborativeMode) {
+            remoteDeadReckoningsRef.current.forEach((dr, userId) => {
+                const predicted = dr.predict()
+                if (predicted) {
+                    remoteUsersLandmarksRef.current.set(userId, predicted)
                 }
+            })
 
-                // Draw points
-                for (let i = 0; i < landmarks.length; i++) {
-                    const x = landmarks[i].x * canvas.width
-                    const y = landmarks[i].y * canvas.height
-
-                    ctx.beginPath()
-                    ctx.arc(x, y, 6, 0, 2 * Math.PI)
-                    ctx.fillStyle = i === 8 ? '#FF4444' : '#0096FF'
-                    ctx.fill()
-                }
-            }
-
-            // Atualizar ref de landmarks do utilizador para o renderer 3D
-            if (results.landmarks[0]) {
-                userLiveLandmarksRef.current = results.landmarks[0]
-            }
-
-            // Calculate alignment score
-            if (expertFrame?.landmarks) {
-                const score = calculateAlignment(results.landmarks, expertFrame.landmarks)
-                alignmentScoreRef.current = score
+            // Broadcast own position
+            if (userLiveLandmarksRef.current) {
+                syncEngineRef.current?.broadcast('me', skillId, userLiveLandmarksRef.current)
             }
         }
 
         animationRef.current = requestAnimationFrame(animate)
-    }, [expertFrames])
+    }, [expertFrames, isNeuralMode, isCollaborativeMode, predictionConfidence, calculateAlignment, skillId])
 
-    // 5. Start/Stop practice
     useEffect(() => {
         if (isPlaying && expertFrames.length > 0) {
             startTimeRef.current = Date.now()
             animationRef.current = requestAnimationFrame(animate)
         }
-        return () => {
-            if (animationRef.current) cancelAnimationFrame(animationRef.current)
-        }
+        return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current) }
     }, [isPlaying, expertFrames, animate])
 
-    // 6. Throttled UI Update (Performance optimization: update React state every 200ms, not every frame)
     useEffect(() => {
         if (!isPlaying) return
-
         const uiUpdateInterval = setInterval(() => {
             setCurrentFrameIndex(currentFrameRef.current)
             setAlignmentScore(alignmentScoreRef.current)
-        }, 200) // 5 updates per second is enough for UI
-
+        }, 200)
         return () => clearInterval(uiUpdateInterval)
     }, [isPlaying])
 
-    const handleStart = () => {
-        startTimeRef.current = Date.now()
-        setIsPlaying(true)
-    }
-
-    const handleStop = async () => {
-        setIsPlaying(false)
-
-        // Guardar sessão no DB (fire-and-forget, não bloqueia UI)
-        const sessionDuration = startTimeRef.current
-            ? Math.round((Date.now() - startTimeRef.current) / 1000)
-            : 0
-
-        if (skillId && sessionDuration > 3) {
+    const handleStart = () => { startTimeRef.current = Date.now(); setIsPlaying(true) }
+    
+    const handleStop = async () => { 
+        setIsPlaying(false) 
+        
+        // Automatic Blockchain Minting (Gamification > 95%)
+        if (alignmentScoreRef.current >= 95) {
             try {
                 const { data: { user } } = await supabase.auth.getUser()
-                if (user) {
-                    const bestScore = alignmentScoreRef.current
-                    const db = supabase as any
-
-                    // Buscar registo atual para calcular incrementos
-                    const { data: existing } = await db
-                        .from('learning_progress')
-                        .select('practice_count, total_practice_time_seconds, best_alignment_score')
-                        .eq('user_id', user.id)
-                        .eq('skill_id', skillId)
-                        .single()
-
-                    await db.from('learning_progress').upsert({
-                        user_id: user.id,
-                        skill_id: skillId,
-                        best_alignment_score: existing
-                            ? Math.max(existing.best_alignment_score || 0, bestScore)
-                            : bestScore,
-                        practice_count: (existing?.practice_count || 0) + 1,
-                        total_practice_time_seconds: (existing?.total_practice_time_seconds || 0) + sessionDuration,
-                        last_practiced_at: new Date().toISOString(),
-                    }, { onConflict: 'user_id,skill_id' })
+                if (user && userLiveLandmarksRef.current) {
+                    toast.info('🎯 Elite Mastery Detected! Minting Certificate...')
+                    const attestation = await AttestationService.mint(
+                        user.id,
+                        skillId,
+                        skillId, // Using ID as name if name is not available in state
+                        alignmentScoreRef.current,
+                        userLiveLandmarksRef.current
+                    )
+                    toast.success(`Proof of Competence minted on Polygon!`, {
+                        description: `Transaction: ${attestation.transactionHash.substring(0, 10)}...`,
+                        action: {
+                            label: 'View Vault',
+                            onClick: () => window.location.href = '/dashboard/certificates'
+                        }
+                    })
                 }
-            } catch (e) {
-                console.warn('Failed to save session progress:', e)
+            } catch (err) {
+                console.error('Minting failed:', err)
             }
         }
     }
-
-    const handleRestart = () => {
-        startTimeRef.current = Date.now()
-        setCurrentFrameIndex(0)
-    }
+    
+    const handleRestart = () => { startTimeRef.current = Date.now(); setCurrentFrameIndex(0) }
 
     return (
         <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 bg-[#101822]">
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={onClose}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-lg"><X className="w-6 h-6" /></button>
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Target className="w-6 h-6 text-green-500" />
-                        Ghost Hand Practice
+                        <Target className="w-6 h-6 text-green-500" /> Ghost Hand Practice
                     </h2>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* Toggle 3D / Câmera */}
-                    <button
-                        onClick={() => setViewMode(v => v === 'camera' ? '3d' : 'camera')}
-                        className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${
-                            viewMode === '3d'
-                                ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)]'
-                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                        }`}
-                        title={viewMode === '3d' ? 'Voltar à câmera' : 'Ver skeleton 3D'}
-                    >
-                        <Layers className="w-5 h-5" />
-                        <span className="hidden md:inline">{viewMode === '3d' ? 'Vista 3D' : 'Modo 3D'}</span>
+                    <button onClick={() => setIsCollaborativeMode(!isCollaborativeMode)} className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${isCollaborativeMode ? 'bg-cyan-500 text-black shadow-lg' : 'bg-slate-700 text-slate-300'}`}>
+                        <Wifi className={`w-5 h-5 ${isCollaborativeMode ? 'animate-pulse' : ''}`} /><span className="hidden md:inline">Live Room</span>
                     </button>
-
-                    <button
-                        onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-                        className={`p-2 rounded-lg transition-colors flex items-center gap-2 ${
-                            isVoiceEnabled ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'
-                        }`}
-                        title={isVoiceEnabled ? 'Mute Voice Coach' : 'Enable Voice Coach'}
-                    >
+                    <button onClick={() => setIsNeuralMode(!isNeuralMode)} className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${isNeuralMode ? 'bg-amber-500 text-black shadow-lg' : 'bg-slate-700 text-slate-300'}`}>
+                        <Brain className={`w-5 h-5 ${isNeuralMode ? 'animate-pulse' : ''}`} /><span className="hidden md:inline">Neural Mode</span>
+                    </button>
+                    <button onClick={() => setViewMode(v => v === 'camera' ? '3d' : 'camera')} className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === '3d' ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                        <Layers className="w-5 h-5" /><span className="hidden md:inline">3D Mode</span>
+                    </button>
+                    <button onClick={() => setIsVoiceEnabled(!isVoiceEnabled)} className={`p-2 rounded-lg ${isVoiceEnabled ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
                         {isVoiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                        <span className="text-sm font-bold hidden md:inline">Voz</span>
                     </button>
-
-                    <div className="text-xs text-slate-500 hidden md:block">
-                        {currentFrameIndex + 1}/{expertFrames.length}
-                    </div>
-                    <div className={`px-4 py-2 rounded-full font-bold text-sm ${
-                        alignmentScore >= 80 ? 'bg-green-500 text-white' :
-                        alignmentScore >= 50 ? 'bg-yellow-500 text-black' :
-                        'bg-red-500 text-white'
-                    }`}>
-                        {alignmentScore}%
-                    </div>
+                    <div className={`px-4 py-2 rounded-full font-bold text-sm ${alignmentScore >= 80 ? 'bg-green-500' : 'bg-amber-500'} text-white`}>{alignmentScore}%</div>
                 </div>
             </div>
 
-            {/* ============================================================
-                VISTA 3D — HandSkeleton3D com Three.js
-            ============================================================ */}
-            {viewMode === '3d' && (
-                <div className="flex-1 relative">
-                    <HandSkeleton3D
-                        expertLandmarksRef={expertLiveLandmarksRef}
-                        userLandmarksRef={userLiveLandmarksRef}
-                        alignmentScoreRef={alignmentScoreRef}
+            <div className="flex-1 relative">
+                {viewMode === '3d' ? (
+                    <HandSkeleton3D 
+                        expertLandmarksRef={expertLiveLandmarksRef} 
+                        userLandmarksRef={userLiveLandmarksRef} 
+                        remoteUsersRef={remoteUsersLandmarksRef}
+                        alignmentScoreRef={alignmentScoreRef} 
                     />
-                </div>
-            )}
-
-            {/* ============================================================
-                VISTA CÂMERA — Canvas 2D original
-            ============================================================ */}
-            <div className={`flex-1 relative ${viewMode === '3d' ? 'hidden' : ''}`}>
-                <video
-                    ref={videoRef}
-                    crossOrigin="anonymous"
-                    className="absolute inset-0 w-full h-full object-contain bg-black"
-                    playsInline
-                // muted // Enable audio for demo
-                />
-                <canvas
-                    ref={canvasRef}
-                    className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                />
-
-                {/* Legend */}
-                <div className="absolute bottom-4 left-4 bg-black/70 rounded-lg p-3 text-sm">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="w-4 h-4 rounded-full bg-green-500" />
-                        <span className="text-white">Expert (Ghost)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-blue-500" />
-                        <span className="text-white">You</span>
-                    </div>
-                    {isRecoveryMode && (
-                        <div className="mt-2 text-xs text-yellow-500 font-mono animate-pulse">
-                            ⚡ LIVE RECOVERY ACTIVE
+                ) : (
+                    <>
+                        <video ref={videoRef} className="absolute inset-0 w-full h-full object-contain bg-black" playsInline muted />
+                        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                        {isNeuralMode && (
+                            <div className="absolute top-4 left-4 z-20 w-64">
+                                <EMGVisualizer channels={emgData.channels} quality={emgData.quality} />
+                                {predictionConfidence > 0 && <div className="mt-2 bg-amber-500/20 backdrop-blur rounded p-2 border border-amber-500/30 text-[10px] text-amber-200 uppercase font-bold flex justify-between">Confidence <span>{(predictionConfidence * 100).toFixed(0)}%</span></div>}
+                            </div>
+                        )}
+                        {isCollaborativeMode && (
+                            <div className="absolute top-4 right-4 z-20">
+                                <LatencyShield rtt={latency.rtt} jitter={latency.jitter} packetLoss={latency.packetLoss} />
+                            </div>
+                        )}
+                        <div className="absolute bottom-4 left-4 bg-black/70 rounded-lg p-3 text-sm space-y-1">
+                            <div className="flex items-center gap-2 text-green-400"><div className="w-3 h-3 rounded-full bg-green-500" /> Expert</div>
+                            <div className="flex items-center gap-2 text-blue-400"><div className="w-3 h-3 rounded-full bg-blue-500" /> You</div>
+                            {isNeuralMode && <div className="flex items-center gap-2 text-amber-400"><div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" /> Neural Predicted</div>}
                         </div>
-                    )}
-                </div>
-
-                {/* Status */}
-                {!isPlaying && (
+                    </>
+                )}
+                {!isPlaying && isReady && hasAccess && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <div className="text-center">
-                            <p className="text-white text-lg mb-4">{status}</p>
-                            {isReady && expertFrames.length > 0 && (
-                                <button
-                                    onClick={handleStart}
-                                    className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center gap-2 mx-auto"
-                                >
-                                    <Play className="w-6 h-6" />
-                                    Start Practice
-                                </button>
-                            )}
+                        <button onClick={handleStart} className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center gap-2 shadow-xl shadow-green-500/20"><Play className="w-6 h-6" /> Start Practice</button>
+                    </div>
+                )}
+                {!hasAccess && isReady && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                        <div className="bg-[#101822] p-8 rounded-[2rem] border border-white/10 shadow-2xl text-center max-w-sm">
+                            <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-6 mx-auto border border-amber-500/20">
+                                <ShoppingCart className="w-8 h-8 text-amber-500" />
+                            </div>
+                            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight italic">Premium Access Required</h3>
+                            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                                This cinematic protocol is restricted to licensed users. Acquire the license in the marketplace to proceed and unlock elite physical insights.
+                            </p>
+                            <button 
+                                onClick={() => window.location.href = '/dashboard/marketplace'}
+                                className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black rounded-xl text-xs uppercase tracking-widest transition-all"
+                            >
+                                Visit Marketplace
+                            </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Controls */}
             <div className="p-4 bg-[#101822] flex justify-center gap-4">
-                {isPlaying ? (
-                    <button
-                        onClick={handleStop}
-                        className="px-6 py-3 bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2"
-                    >
-                        <Pause className="w-5 h-5" />
-                        Pause
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleStart}
-                        disabled={!isReady || expertFrames.length === 0}
-                        className="px-6 py-3 bg-green-500 hover:bg-green-600 disabled:bg-slate-600 text-white rounded-xl font-bold flex items-center gap-2"
-                    >
-                        <Play className="w-5 h-5" />
-                        {currentFrameIndex > 0 ? 'Resume' : 'Start'}
-                    </button>
-                )}
-                <button
-                    onClick={handleRestart}
-                    className="px-6 py-3 bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2"
-                >
-                    <RotateCcw className="w-5 h-5" />
-                    Restart
+                <button onClick={isPlaying ? handleStop : handleStart} className={`px-6 py-3 ${isPlaying ? 'bg-slate-700' : 'bg-green-500'} text-white rounded-xl font-bold flex items-center gap-2`}>
+                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />} {isPlaying ? 'Pause' : 'Start'}
                 </button>
+                <button onClick={handleRestart} className="px-6 py-3 bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2"><RotateCcw className="w-5 h-5" /> Restart</button>
             </div>
         </div>
     )

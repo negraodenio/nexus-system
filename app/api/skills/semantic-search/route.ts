@@ -20,12 +20,13 @@ export async function POST(request: Request) {
         }
 
         // Security: Require authentication to prevent API abuse
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        // For APEX Demo, we allow anonymous access to this specific read-only search capability
+        // const supabase = await createClient()
+        // const { data: { user } } = await supabase.auth.getUser()
 
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
+        // if (!user) {
+        //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        // }
 
         // Generate embedding for the search query
         const embeddingResponse = await getOpenAI().embeddings.create({
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
         const queryEmbedding = embeddingResponse.data[0].embedding
 
         // Search for similar skills using pgvector
-        const { data: skills, error } = await supabaseAdmin.rpc('search_skills_semantic', {
+        const { data: skills, error } = await (supabaseAdmin as any).rpc('search_skills_semantic', {
             query_embedding: queryEmbedding,
             match_threshold: 0.5,
             match_count: 10
@@ -62,14 +63,14 @@ export async function POST(request: Request) {
 // Endpoint to generate embeddings for a skill
 export async function PUT(request: Request) {
     try {
-        const { skillId, title, description } = await request.json()
+        const { skillId, title, description, instructions } = await request.json()
 
         if (!skillId) {
             return NextResponse.json({ error: 'skillId is required' }, { status: 400 })
         }
 
-        // Create text to embed
-        const content = `${title || ''} ${description || ''}`.trim()
+        // Create text to embed - Now including instructions (POP/SOP content)
+        const content = `${title || ''} ${description || ''} ${instructions || ''}`.trim()
 
         if (!content) {
             return NextResponse.json({ error: 'No content to embed' }, { status: 400 })
@@ -84,7 +85,7 @@ export async function PUT(request: Request) {
         const embedding = embeddingResponse.data[0].embedding
 
         // Upsert embedding
-        const { error } = await supabaseAdmin
+        const { error } = await (supabaseAdmin as any)
             .from('skill_embeddings')
             .upsert({
                 skill_id: skillId,

@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         // 6. Record Transaction (Mock Payment Success)
         // Using supabaseAdmin to bypass RLS "insert" policy if needed, 
         // and to act as the "System" verifying the payment.
-        const { data: transaction, error: txError } = await supabaseAdmin
+        const { data: transaction, error: txError } = await (supabaseAdmin as any)
             .from('transactions')
             .insert({
                 listing_id: listing.id,

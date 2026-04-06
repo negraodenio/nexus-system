@@ -59,6 +59,10 @@ const RED    = new THREE.Color('#ef4444')
 const YELLOW = new THREE.Color('#f59e0b')
 const GREEN  = new THREE.Color('#22c55e')
 const BLUE   = new THREE.Color('#3b82f6')
+const AMBER  = new THREE.Color('#fbbf24')
+const CYAN   = new THREE.Color('#06b6d4')
+const MAGENTA = new THREE.Color('#d946ef')
+const PURPLE  = new THREE.Color('#8b5cf6')
 const UP     = new THREE.Vector3(0, 1, 0)
 
 // ===========================================================================
@@ -207,14 +211,19 @@ function ScoreHUD({ scoreRef }: { scoreRef: MutableRefObject<number> }) {
 export interface HandSkeleton3DProps {
   expertLandmarksRef: MutableRefObject<{ x: number; y: number; z: number }[] | null>
   userLandmarksRef:   MutableRefObject<{ x: number; y: number; z: number }[] | null>
+  studioLandmarksRef?: MutableRefObject<{ x: number; y: number; z: number }[] | null>
+  remoteUsersRef?: MutableRefObject<Map<string, { x: number; y: number; z: number }[] | null>>
   alignmentScoreRef:  MutableRefObject<number>
 }
 
 export function HandSkeleton3D({
   expertLandmarksRef,
   userLandmarksRef,
+  studioLandmarksRef,
+  remoteUsersRef,
   alignmentScoreRef,
 }: HandSkeleton3DProps) {
+  const REMOTE_COLORS = [CYAN, MAGENTA, PURPLE]
   return (
     <div className="relative w-full h-full bg-[#050a12]">
       {/* Score overlay */}
@@ -233,6 +242,18 @@ export function HandSkeleton3D({
           <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
           <span className="text-white text-xs font-mono">You (score-colored)</span>
         </div>
+        {studioLandmarksRef && (
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse" />
+            <span className="text-white text-xs font-mono">Studio GPT Preview</span>
+          </div>
+        )}
+        {remoteUsersRef && (
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+            <span className="text-white text-xs font-mono">Collaborators (Live)</span>
+          </div>
+        )}
         <p className="text-slate-500 text-xs mt-1 font-mono">Arrasta para rodar ↻</p>
       </div>
 
@@ -277,6 +298,34 @@ export function HandSkeleton3D({
           emissiveIntensity={0.7}
           scoreRef={alignmentScoreRef}
         />
+
+        {/* Mão Studio GPT (Âmbar) */}
+        {studioLandmarksRef && (
+          <HandSkeleton
+            landmarksRef={studioLandmarksRef}
+            baseColor={AMBER}
+            emissiveIntensity={1.2}
+          />
+        )}
+
+        {/* Mãos Colaboradoras (Remotas) */}
+        {remoteUsersRef && Array.from(remoteUsersRef.current.keys()).map((userId, idx) => {
+          // Criamos uma ref local proxy para manter a interface HandSkeleton
+          const proxyRef = { 
+            get current() { 
+              return remoteUsersRef.current.get(userId) || null 
+            } 
+          } as MutableRefObject<{ x: number; y: number; z: number }[] | null>
+          
+          return (
+            <HandSkeleton
+              key={userId}
+              landmarksRef={proxyRef}
+              baseColor={REMOTE_COLORS[idx % REMOTE_COLORS.length]}
+              emissiveIntensity={0.6}
+            />
+          )
+        })}
       </Canvas>
     </div>
   )

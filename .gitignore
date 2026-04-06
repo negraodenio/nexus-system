@@ -52,3 +52,10 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# Debug & Temp
+tsc_errors.txt
+GUIA_CORRECAO.md
+nul
+*.tsbuildinfo
+next-env.d.ts

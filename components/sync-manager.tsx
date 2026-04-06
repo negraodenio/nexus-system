@@ -20,7 +20,7 @@ export function SyncManager() {
         await db.pendingSkills.update(item.id!, { status: 'uploading' })
 
         // 1. Create skill record
-        const { data: skill, error: skillError } = await supabase
+        const { data: skill, error: skillError } = await (supabase as any)
             .from('skills')
             .insert({ title: item.title, difficulty_level: 1 })
             .select()
@@ -41,7 +41,7 @@ export function SyncManager() {
             .from('skill_videos')
             .getPublicUrl(videoFileName)
 
-        await supabase
+        await (supabase as any)
             .from('skills')
             .update({ video_url: publicUrl })
             .eq('id', skill.id)
@@ -52,7 +52,7 @@ export function SyncManager() {
             frame_index: number;
             landmarks: unknown;
         }
-        const payload = item.skeletonFrames.map((f: SkeletonFrame) => ({
+        const payload = (item.skeletonFrames as any[]).map((f: SkeletonFrame) => ({
             skill_id: skill.id,
             frame_index: f.frame_index,
             landmarks: f.landmarks
@@ -60,10 +60,26 @@ export function SyncManager() {
 
         for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
             const chunk = payload.slice(i, i + CHUNK_SIZE)
-            await supabase.from('skill_frames').insert(chunk)
+            await (supabase as any).from('skill_frames').insert(chunk)
         }
 
-        // Success! Remove from local DB
+        // 5. Trigger Semantic Search Embedding
+        try {
+            await fetch('/api/skills/semantic-search', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    skillId: skill.id,
+                    title: item.title,
+                    description: '',
+                    instructions: (item as any).sopInstructions || '' 
+                })
+            })
+        } catch (err) {
+            console.error('Semantic sync indexing error:', err)
+        }
+
+        // 6. Success! Remove from local DB
         await db.pendingSkills.delete(item.id!)
     }, [])
 

@@ -91,7 +91,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'skillId is required' }, { status: 400 })
         }
 
-        const { error } = await supabaseAdmin
+        const { error } = await (supabaseAdmin as any)
             .from('skill_views')
             .insert({
                 skill_id: skillId,

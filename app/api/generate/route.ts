@@ -89,7 +89,7 @@ export async function POST(req: Request) {
         const generated = await generateAnalogy({
             concept,
             audience,
-            model: model as ModelId,
+            model: (model || 'minimax-m2.7') as ModelId,
             image,
             systemPrompt,
             preferredVisualType: visualMode
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
                             visual_type: generated.visual?.type || 'mermaid',
                             visual_data: generated.visual || {},
                             embedding,
-                            generated_by: model || 'gpt-4o',
+                            generated_by: model || 'minimax-m2.7',
                             usage_count: 1,
                         })
                     }).catch(e => console.warn('Embedding save failed:', e))

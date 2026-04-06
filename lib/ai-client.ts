@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 
 // Client initialization moved inside function for runtime safety
 
-export type ModelId = 'gpt-4o' | 'gemini-2-flash' | 'claude-3-5-sonnet' | 'deepseek-chat'
+export type ModelId = 'gpt-4o' | 'gemini-2-flash' | 'claude-3-5-sonnet' | 'deepseek-chat' | 'minimax-m2.7'
 
 // Slugs verificados e válidos no OpenRouter (Março 2026)
 // Atualizar aqui se o OpenRouter mudar os IDs.
@@ -11,9 +11,10 @@ const MODELS: Record<ModelId, string> = {
     'gemini-2-flash':   'google/gemini-2.0-flash-001',
     'claude-3-5-sonnet':'anthropic/claude-3.5-sonnet',
     'deepseek-chat':    'deepseek/deepseek-chat',
+    'minimax-m2.7':     'minimax/minimax-m2.7',
 }
 
-const FALLBACK_MODEL = 'openai/gpt-4o'
+const FALLBACK_MODEL = 'minimax/minimax-m2.7'
 
 interface GenerateParams {
     concept: string
@@ -22,16 +23,26 @@ interface GenerateParams {
     image?: string
     systemPrompt?: string
     preferredVisualType?: string
+    ragContext?: string
 }
 
-export async function generateAnalogy({ concept, audience, model = 'gpt-4o', image, systemPrompt }: GenerateParams) {
+export async function generateAnalogy({ concept, audience, model = 'minimax-m2.7', image, systemPrompt, ragContext }: GenerateParams) {
     const modelId = MODELS[model] || FALLBACK_MODEL
 
     // Use provided system prompt or fallback to default
-    let finalSystemPrompt = systemPrompt || `You are Nexus, a cognitive adapter. Your goal is to explain complex concepts using analogies tailored to a specific audience.
+    let finalSystemPrompt = systemPrompt || `You are Nexus, a physical intelligence operating system. Your goal is to provide high-precision diagnoses, analogies, and technical guidance.
   
   Audience: ${audience}
-  Concept: ${concept || (image ? 'Analyze the image provided' : 'Unknown')}`
+  Concept: ${concept || (image ? 'Analisar imagem fornecida' : 'Desconhecido')}`
+
+    // Inject RAG Context if available
+    if (ragContext) {
+        finalSystemPrompt += `
+  
+  --- RETRIEVED KNOWLEDGE (RAG) ---
+  ${ragContext}
+  ---------------------------------`
+    }
 
     // Always append the Schema instruction to ensure JSON validity, regardless of the prompt source
     finalSystemPrompt += `
@@ -70,15 +81,21 @@ export async function generateAnalogy({ concept, audience, model = 'gpt-4o', ima
   - "Show me a thumbs up" -> skill_query: "thumbs up gesture"
   - Abstract questions like "What is gravity?" -> skill_query: null
   
-  DECIDER AGENT RULES (PRISMA MODE):
-  1. Analyze the input (Image + Text).
-  2. Determine the user's INTENT:
-     - Broken item / Parts / How to fix? -> ACT AS "Technician" (Visual: Reality Overlay + Steps + skill_query)
-     - Learning / Concept / Question? -> ACT AS "Teacher" (Visual: Mermaid or Comparison)
-     - News / Claim / Suspicious text? -> ACT AS "Detective" (Visual: Reality Overlay for visual cues)
-     - Stress / Chaos / Overwhelm? -> ACT AS "Zen Guide" (Visual: Effect='blur', Analysis=Calming instructions)
-  3. Fill "detected_mode" with your choice.
-  4. Execute the persona's behavior for "analogy" and "visual" fields.
+   3. DECIDER AGENT RULES (PRISMA MODE):
+      - Broken item / Parts / How to fix? -> ACT AS "Technician" (Visual: Reality Overlay + Steps + skill_query)
+      - Predictive / Diagnostic / Root Cause? -> ACT AS "Systems Engineer" (Visual: Mermaid Graph showing Flow: [Failure Probability] -> [Root Cause / Human Deviation] -> [Component] -> [Mitigation Skill])
+      - Physical / AR Hardware issues (Lighing, Frame, Blur)? -> ACT AS "Auto-Debugger" (Visual: Reality Overlay pointing to sensor/lighting issues + Diagnostic Steps)
+      - Learning / Concept / Question? -> ACT AS "Teacher" (Visual: Mermaid or Comparison)
+      - News / Claim / Suspicious text? -> ACT AS "Detective" (Visual: Reality Overlay for visual cues)
+      - Stress / Chaos / Overwhelm? -> ACT AS "Zen Guide" (Visual: Effect='blur', Analysis=Calming instructions)
+   4. Fill "detected_mode" with your choice.
+   5. Execute the persona's behavior for "analogy" and "visual" fields.
+
+   AUTO-DEBUGGER SPECIAL RULES:
+   If "detected_mode" is "Auto-Debugger":
+   - Use the Image to identify lighting glare, camera angle issues, or occlusions.
+   - Provide concrete steps to fix the PHYSICAL environment (e.g., "Rotate 20 degrees left", "Increase ambient lighting").
+   - Populate "visual.type": "reality" to highlight the problematic area.
 
   HYBRID MODE: If you can identify a process (assembly, cleaning, repair), ALSO populate the "steps" array AND "skill_query". 
 
@@ -200,6 +217,51 @@ export async function generateEmbedding(text: string) {
         return null
     } catch (error) {
         console.error('Error generating embedding:', error)
+        return null
+    }
+}
+
+export async function predictMotion(currentLandmarks: any[], ragContext: string) {
+    try {
+        const apiKey = process.env.OPENROUTER_API_KEY?.trim()
+        if (!apiKey) return null
+
+        const openRouter = new OpenAI({
+            baseURL: 'https://openrouter.ai/api/v1',
+            apiKey: apiKey,
+        })
+
+        const systemPrompt = `You are a Neuromuscular Prediction Engine. Your goal is to predict hand landmarks for T+200ms.
+        - Analyze the CURRENT landmarks provided.
+        - Use the RAG context (similar muscle patterns and motions) to infer the next state.
+        - Return ONLY a JSON object with:
+          {
+            "predictedLandmarks": [{"x": number, "y": number, "z": number, "visibility": number}], // Array of 21 landmarks
+            "confidence": 0-1,
+            "reasoning": "Short technical reason for prediction"
+          }
+        - IMPORTANT: Return ONLY the JSON object. No markdown.`
+
+        const content = `Current Landmarks: ${JSON.stringify(currentLandmarks)}
+        RAG Context: ${ragContext}`
+
+        const completion = await openRouter.chat.completions.create({
+            model: 'minimax/minimax-m2.7',
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+        })
+
+        const responseContent = completion.choices[0].message.content
+        if (!responseContent) return null
+        
+        const result = JSON.parse(responseContent)
+        return result
+    } catch (error) {
+        console.error('Error predicting motion:', error)
         return null
     }
 }
