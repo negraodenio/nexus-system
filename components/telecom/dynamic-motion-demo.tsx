@@ -130,8 +130,9 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
 
         ctx.clearRect(0, 0, w, h)
 
-        // Jitter effect for "Live" feeling when data is fresh or starting
-        const jitter = phase === 'scanning' ? Math.sin(Date.now() / 100) * 0.002 : 0
+        // Biometric Pulse & Active Scanning Jitter
+        const pulse = Math.sin(Date.now() / 200) * 0.003
+        const scanMotion = phase === 'scanning' ? Math.sin(Date.now() / 400) * 0.01 : 0
         
         // Connections
         const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]]
@@ -148,8 +149,9 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
             const end = currentLandmarks[b]
             if (start && end) {
                 ctx.beginPath()
-                ctx.moveTo((start.x + jitter) * w, (start.y + jitter) * h)
-                ctx.lineTo((end.x + jitter) * w, (end.y + jitter) * h)
+                // Apply 'Active' motion even if data is static in the beginning
+                ctx.moveTo((start.x + pulse + scanMotion) * w, (start.y + pulse) * h)
+                ctx.lineTo((end.x + pulse + scanMotion) * w, (end.y + pulse) * h)
                 ctx.stroke()
             }
         })
@@ -158,7 +160,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         currentLandmarks.forEach((lm: any, i: number) => {
             ctx.fillStyle = i === 8 ? '#FFFFFF' : color
             ctx.beginPath()
-            ctx.arc((lm.x + jitter) * w, (lm.y + jitter) * h, i === 8 ? 5 : 2.5, 0, Math.PI * 2)
+            ctx.arc((lm.x + pulse + scanMotion) * w, (lm.y + pulse) * h, i === 8 ? 5 : 2.5, 0, Math.PI * 2)
             ctx.fill()
         })
 
