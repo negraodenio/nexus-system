@@ -100,7 +100,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         return () => cancelAnimationFrame(animId)
     }, [frames])
 
-    // 3. Dynamic Metadata simulation (Aggressive & Fast)
+    // 3. Dynamic Metadata simulation (Instant & Direct)
     useEffect(() => {
         const video = videoRef.current
         if (!video || frames.length === 0) return
@@ -110,12 +110,10 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         const startTime = (firstFrame / lastFrame) * video.duration
         const relativeTime = video.currentTime - startTime
         
-        // Phases start from the actual movement
-        if (relativeTime < 1) {
-            setPhase('scanning'); setScore(Math.floor(40 + Math.random() * 5))
-        } else if (relativeTime < 4) { 
+        // Immediate validation sequence
+        if (relativeTime < 2) { 
             setPhase('error'); setScore(Math.floor(32 + Math.random() * 8))
-        } else if (relativeTime < 8) { 
+        } else if (relativeTime < 6) { 
             setPhase('correcting'); setScore(Math.floor(65 + Math.random() * 10))
         } else {
             setPhase('ok'); setScore(Math.floor(96 + Math.random() * 4))
