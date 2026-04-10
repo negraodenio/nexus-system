@@ -59,11 +59,21 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         const duration = video.duration
         if (!duration || frames.length === 0) return
 
-        // 1. Calculate the target frame index based on time
-        const maxRecordedFrame = frames[frames.length - 1].frame_index
-        const targetFrame = Math.floor((video.currentTime / duration) * maxRecordedFrame)
+        // 1. Find the first and last recorded frames to calculate the "active" window
+        const firstFrame = frames[0].frame_index
+        const lastFrame = frames[frames.length - 1].frame_index
+        
+        // 2. Set the video to start at the first frame with data if it's at the very beginning
+        const startTime = (firstFrame / lastFrame) * duration
+        if (video.currentTime < startTime - 0.1) {
+            video.currentTime = startTime
+            return
+        }
 
-        // 2. Find the index in our 'frames' array that is closest to this targetFrame
+        // 3. Calculate the target frame index based on time
+        const targetFrame = Math.floor((video.currentTime / duration) * lastFrame)
+
+        // 4. Find the index in our 'frames' array
         let bestMatchIdx = 0
         for (let i = 0; i < frames.length; i++) {
             if (frames[i].frame_index <= targetFrame) {
@@ -90,19 +100,22 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         return () => cancelAnimationFrame(animId)
     }, [frames])
 
-    // 3. Dynamic Metadata simulation (Aggressive & Fast for B2B Wow Factor)
+    // 3. Dynamic Metadata simulation (Aggressive & Fast)
     useEffect(() => {
         const video = videoRef.current
         if (!video || frames.length === 0) return
         
-        const time = video.currentTime
+        const firstFrame = frames[0].frame_index
+        const lastFrame = frames[frames.length - 1].frame_index
+        const startTime = (firstFrame / lastFrame) * video.duration
+        const relativeTime = video.currentTime - startTime
         
-        // Very fast transitions to show "Intelligence" immediately
-        if (time < 0.8) {
+        // Phases start from the actual movement
+        if (relativeTime < 1) {
             setPhase('scanning'); setScore(Math.floor(40 + Math.random() * 5))
-        } else if (time < 3.5) { 
+        } else if (relativeTime < 4) { 
             setPhase('error'); setScore(Math.floor(32 + Math.random() * 8))
-        } else if (time < 7) { 
+        } else if (relativeTime < 8) { 
             setPhase('correcting'); setScore(Math.floor(65 + Math.random() * 10))
         } else {
             setPhase('ok'); setScore(Math.floor(96 + Math.random() * 4))
