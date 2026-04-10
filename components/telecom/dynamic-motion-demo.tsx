@@ -56,14 +56,24 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
     // 2. Playback Sync Loop
     // We synchronize the frame index with the video's current time for 1:1 match
     const handleTimeUpdate = () => {
-        const video = videoRef.current
-        if (!video || frames.length === 0) return
+        const duration = video.duration
+        if (!duration || frames.length === 0) return
 
-        const progress = video.currentTime / video.duration
-        if (isNaN(progress)) return
+        // 1. Calculate the target frame index based on time
+        const maxRecordedFrame = frames[frames.length - 1].frame_index
+        const targetFrame = Math.floor((video.currentTime / duration) * maxRecordedFrame)
 
-        const frameIdx = Math.floor(progress * (frames.length - 1))
-        setCurrentFrameIndex(frameIdx)
+        // 2. Find the index in our 'frames' array that is closest to this targetFrame
+        let bestMatchIdx = 0
+        for (let i = 0; i < frames.length; i++) {
+            if (frames[i].frame_index <= targetFrame) {
+                bestMatchIdx = i
+            } else {
+                break
+            }
+        }
+        
+        setCurrentFrameIndex(bestMatchIdx)
     }
 
     // Also use requestAnimationFrame for sub-second smoothness if needed
@@ -80,16 +90,18 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         return () => cancelAnimationFrame(animId)
     }, [frames])
 
-    // 3. Dynamic Metadata simulation (matching progress)
+    // 3. Dynamic Metadata simulation (based on actual video time)
     useEffect(() => {
-        if (frames.length === 0) return
+        const video = videoRef.current
+        if (!video || frames.length === 0) return
         
-        const progress = currentFrameIndex / frames.length
-        if (progress < 0.2) {
+        const time = video.currentTime
+        
+        if (time < 2) {
             setPhase('scanning'); setScore(Math.floor(40 + Math.random() * 5))
-        } else if (progress < 0.4) {
+        } else if (time < 5) { // Error phase for 3 seconds
             setPhase('error'); setScore(Math.floor(30 + Math.random() * 8))
-        } else if (progress < 0.7) {
+        } else if (time < 9) { // Correcting phase for 4 seconds
             setPhase('correcting'); setScore(Math.floor(60 + Math.random() * 10))
         } else {
             setPhase('ok'); setScore(Math.floor(95 + Math.random() * 5))
