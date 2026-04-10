@@ -90,21 +90,22 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         return () => cancelAnimationFrame(animId)
     }, [frames])
 
-    // 3. Dynamic Metadata simulation (based on actual video time)
+    // 3. Dynamic Metadata simulation (Aggressive & Fast for B2B Wow Factor)
     useEffect(() => {
         const video = videoRef.current
         if (!video || frames.length === 0) return
         
         const time = video.currentTime
         
-        if (time < 2) {
+        // Very fast transitions to show "Intelligence" immediately
+        if (time < 0.8) {
             setPhase('scanning'); setScore(Math.floor(40 + Math.random() * 5))
-        } else if (time < 5) { // Error phase for 3 seconds
-            setPhase('error'); setScore(Math.floor(30 + Math.random() * 8))
-        } else if (time < 9) { // Correcting phase for 4 seconds
-            setPhase('correcting'); setScore(Math.floor(60 + Math.random() * 10))
+        } else if (time < 3.5) { 
+            setPhase('error'); setScore(Math.floor(32 + Math.random() * 8))
+        } else if (time < 7) { 
+            setPhase('correcting'); setScore(Math.floor(65 + Math.random() * 10))
         } else {
-            setPhase('ok'); setScore(Math.floor(95 + Math.random() * 5))
+            setPhase('ok'); setScore(Math.floor(96 + Math.random() * 4))
         }
     }, [currentFrameIndex, frames.length])
 
@@ -128,6 +129,9 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         const color = phase === 'error' ? '#f87171' : phase === 'ok' ? '#4ade80' : phase === 'correcting' ? '#fb923c' : '#60a5fa'
 
         ctx.clearRect(0, 0, w, h)
+
+        // Jitter effect for "Live" feeling when data is fresh or starting
+        const jitter = phase === 'scanning' ? Math.sin(Date.now() / 100) * 0.002 : 0
         
         // Connections
         const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]]
@@ -144,8 +148,8 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
             const end = currentLandmarks[b]
             if (start && end) {
                 ctx.beginPath()
-                ctx.moveTo(start.x * w, start.y * h)
-                ctx.lineTo(end.x * w, end.y * h)
+                ctx.moveTo((start.x + jitter) * w, (start.y + jitter) * h)
+                ctx.lineTo((end.x + jitter) * w, (end.y + jitter) * h)
                 ctx.stroke()
             }
         })
@@ -154,7 +158,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         currentLandmarks.forEach((lm: any, i: number) => {
             ctx.fillStyle = i === 8 ? '#FFFFFF' : color
             ctx.beginPath()
-            ctx.arc(lm.x * w, lm.y * h, i === 8 ? 5 : 2.5, 0, Math.PI * 2)
+            ctx.arc((lm.x + jitter) * w, (lm.y + jitter) * h, i === 8 ? 5 : 2.5, 0, Math.PI * 2)
             ctx.fill()
         })
 
