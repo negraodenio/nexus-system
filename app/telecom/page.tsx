@@ -6,8 +6,8 @@ import { CheckCircle, ArrowRight, Zap, Shield, TrendingUp, Phone, Mail, ChevronD
 import { DynamicMotionDemo } from '@/components/telecom/dynamic-motion-demo'
 
 // ── CONFIG ──────────────────────────────────────────────────────────────────
-const WHATSAPP_NUMBER = '351910000000' // ← Substitui pelo teu número real
-const CALENDLY_URL    = 'https://calendly.com/nexusmotion/demo' // ← Substitui
+const WHATSAPP_NUMBER = '351921389999'
+const CALENDLY_URL    = 'https://calendly.com/negraodenio/new-meeting'
 
 // Custo real por técnico (valores médios Portugal/Telecom)
 function calcROI(techs: number, extraHours: number) {
@@ -271,7 +271,7 @@ function LeadForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {[
         { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
-        { label: 'Company / Operator', key: 'company', type: 'text', placeholder: 'MEO, NOS, Vodafone…' },
+        { label: 'Company / Operator', key: 'company', type: 'text', placeholder: 'Ex: Global Telecom, NetCloud Europe...' },
         { label: 'Work Email', key: 'email', type: 'email', placeholder: 'john@yourcompany.com' },
       ].map(f => (
         <div key={f.key}>
@@ -293,7 +293,7 @@ function LeadForm() {
       </div>
       <button type="submit"
         className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all text-sm uppercase tracking-widest hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] active:scale-95">
-        Start 30-Day Pilot →
+        Explore Nexus for your Team →
       </button>
       <p className="text-center text-xs text-white/30">
         No commitment. If there is no measurable impact, you don't continue.
@@ -336,6 +336,23 @@ export default function TelecomLanding() {
       <main className="pt-16">
 
         <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative overflow-hidden">
+                {/* HERO COPY */}
+                <div className="text-center space-y-8 relative z-10">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+                        <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
+                            Field AI · Mobile First
+                        </span>
+                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-white leading-[0.85] mb-8">
+                            O técnico vê.<br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">A IA corrige.</span><br/>
+                            Instanteamente.
+                        </h1>
+                        <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 font-medium leading-relaxed">
+                            Reduza erros de campo e elimine o retrabalho em tempo real. <br className="hidden md:block"/>
+                            <span className="text-white">Funciona em qualquer smartphone.</span> Sem hardware extra, sem fricção.
+                        </p>
+                    </motion.div>
+                </div>
           <div className="absolute inset-0 bg-radial-gradient from-blue-900/20 to-transparent pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(59,130,246,0.12), transparent)' }} />
 
           <div className="max-w-5xl z-10">
@@ -344,14 +361,6 @@ export default function TelecomLanding() {
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
               Nexus Field AI · Real-Time Validation · Telecom Edition
             </motion.div>
-
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
-              Unified Physical<br />
-              <span style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Intelligence
-              </span> for Telecom.
-            </motion.h1>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12 text-left">
@@ -401,9 +410,9 @@ export default function TelecomLanding() {
               className="grid grid-cols-3 gap-px border border-white/5 max-w-2xl mx-auto overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { v: '-50%', l: 'Field Errors' },
-                { v: '-60%', l: 'Onboarding Time' },
-                { v: '-30%', l: 'Repeat Visits' },
+                { v: '-50%', l: 'Erro de Campo' },
+                { v: '-60%', l: 'Tempo Onboarding' },
+                { v: '-30%', l: 'Segundas Visitas' },
               ].map((m, i) => (
                 <div key={i} className="py-6 text-center" style={{ background: '#070B14' }}>
                   <div className="text-2xl font-black text-blue-400 mb-1">{m.v}</div>

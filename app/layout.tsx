@@ -64,7 +64,19 @@ export default function RootLayout({
           {children}
         </ToastProvider>
         <script
-        // ... script content ...
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('Nexus Edge SW registered: ', registration.scope);
+                  }, function(err) {
+                    console.log('Nexus Edge SW registration failed: ', err);
+                  });
+                });
+              }
+            `,
+          }}
         />
       </body>
     </html>

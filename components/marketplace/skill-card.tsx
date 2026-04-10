@@ -82,17 +82,17 @@ export function SkillCard({ listing, userId }: SkillCardProps) {
                 <div className="space-y-4 pt-4 border-t border-white/5">
                     <div className="flex justify-between items-end">
                         <div>
-                            <div className="text-[9px] text-slate-500 font-mono font-black uppercase tracking-widest mb-1">License Price</div>
+                            <div className="text-[9px] text-slate-500 font-mono font-black uppercase tracking-widest mb-1">Module License</div>
                             <div className="flex items-baseline gap-1">
-                                <span className={`text-2xl font-black ${listing.is_premium ? 'text-amber-500' : 'text-white'}`}>
-                                    {listing.price}
+                                <span className={`text-2xl font-black ${listing.is_premium ? 'text-emerald-500' : 'text-white'}`}>
+                                    {listing.price === 0 ? 'UNLIMITED' : listing.price}
                                 </span>
-                                <span className="text-[10px] text-slate-500 font-mono">NC</span>
+                                {listing.price > 0 && <span className="text-[10px] text-slate-500 font-mono">NC</span>}
                             </div>
                         </div>
                         <div className="text-right">
-                             <div className="text-[9px] text-slate-500 font-mono font-black uppercase tracking-widest mb-1">Royalties</div>
-                             <div className="text-xs font-bold text-green-500">80/20 SPLIT</div>
+                             <div className="text-[9px] text-slate-500 font-mono font-black uppercase tracking-widest mb-1">Coverage</div>
+                             <div className="text-xs font-bold text-blue-500 uppercase tracking-tighter">Enterprise Wide</div>
                         </div>
                     </div>
 
@@ -100,16 +100,16 @@ export function SkillCard({ listing, userId }: SkillCardProps) {
                         onClick={handleBuy}
                         className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all group ${
                             listing.is_premium 
-                            ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/10' 
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/10' 
                             : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                         }`}
                     >
-                        <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        Buy License
+                        {listing.price === 0 ? <CheckCircle className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+                        {listing.price === 0 ? 'Activate for Team' : 'Buy License'}
                     </button>
                     <div className="flex items-center justify-center gap-1.5 text-[9px] text-slate-600 font-mono">
                         <Shield className="w-3 h-3" />
-                        SECURED BY POLYGON IMMUTABILITY
+                        CERTIFIED TELECOM PROTOCOL
                     </div>
                 </div>
             </div>

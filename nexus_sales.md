@@ -94,7 +94,8 @@ Corpo:
 >
 > Posso mostrar-lhe uma demo de 10 minutos focada no seu contexto específico?
 >
-> [Link para agendar]
+> [Link para agendar: calendly.com/negraodenio/new-meeting]
+> WhatsApp: +351 921 389 999
 
 ### Canal 3 — Demo MEO (já tens!)
 Tens um demo funcional do modem MEO. **Usa isso.** É o teu pé na porta para:

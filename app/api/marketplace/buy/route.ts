@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -40,6 +40,7 @@ export async function POST(request: Request) {
         // 5. Check if already purchased (Optional but good UX)
         // For digital goods, multiple purchases might be allowed, but usually you only need one access.
         // Let's check if a transaction exists for this user and listing.
+        const supabaseAdmin = await getAdminClient()
         const { data: existingTx } = await supabaseAdmin
             .from('transactions')
             .select('id')
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
         // 6. Record Transaction (Mock Payment Success)
         // Using supabaseAdmin to bypass RLS "insert" policy if needed, 
         // and to act as the "System" verifying the payment.
-        const { data: transaction, error: txError } = await (supabaseAdmin as any)
+        const { data: transaction, error: txError } = await supabaseAdmin
             .from('transactions')
             .insert({
                 listing_id: listing.id,

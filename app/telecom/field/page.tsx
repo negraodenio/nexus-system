@@ -3,15 +3,41 @@
 import React from 'react'
 import { FieldAssistant } from '@/components/telecom/field-assistant'
 import { motion } from 'framer-motion'
-import { Signal, User, Battery, Clock } from 'lucide-react'
+import { Signal, User, Battery, Clock, ShieldCheck } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 export default function FieldPage() {
+    const searchParams = useSearchParams()
+    const [pilotToken, setPilotToken] = useState<string | null>(null)
+
+    useEffect(() => {
+        // 1. Check URL for new token
+        const newToken = searchParams.get('token')
+        if (newToken) {
+            localStorage.setItem('nexus_pilot_token', newToken)
+            setPilotToken(newToken)
+        } else {
+            // 2. Check localStorage for existing
+            const savedToken = localStorage.getItem('nexus_pilot_token')
+            setPilotToken(savedToken)
+        }
+    }, [searchParams])
+
     return (
         <div className="fixed inset-0 bg-black flex flex-col overflow-hidden">
             
             {/* ── TOP STATUS BAR (MIMIC NATIVE) ── */}
             <div className="bg-black px-6 py-2 flex justify-between items-end h-10 select-none">
-                <div className="text-[10px] font-bold text-white/40 font-mono tracking-tighter">14:02</div>
+                <div className="flex items-center gap-2">
+                    <div className="text-[10px] font-bold text-white/40 font-mono tracking-tighter">14:02</div>
+                    {pilotToken && (
+                        <div className="flex items-center gap-1 bg-blue-500/20 border border-blue-500/30 px-2 py-0.5 rounded-md">
+                            <ShieldCheck className="w-2.5 h-2.5 text-blue-400" />
+                            <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest">Pilot Active</span>
+                        </div>
+                    )}
+                </div>
                 <div className="flex items-center gap-3 text-white/40">
                     <div className="flex gap-0.5 items-end h-2.5">
                         <div className="w-0.5 h-1 bg-white/40 rounded-full" />
@@ -44,7 +70,7 @@ export default function FieldPage() {
 
             {/* ── REAL-TIME AI STAGE ── */}
             <div className="flex-1 relative bg-black">
-                <FieldAssistant pilotId="MEO-PILOT-01" />
+                <FieldAssistant pilotId={pilotToken || 'NXM-PILOT-01'} />
             </div>
 
             {/* ── OFFLINE SYNC NOTIFICATION ── */}

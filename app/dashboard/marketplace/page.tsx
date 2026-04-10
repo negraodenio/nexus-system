@@ -61,28 +61,26 @@ export default function MarketplacePage() {
                             </div>
                         </div>
                         <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-none mb-4">
-                            Skill <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-amber-500">Marketplace</span>
+                            Telecom <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-500">Module Library</span>
                         </h1>
                         <p className="text-slate-500 text-lg max-w-xl font-medium">
-                            Acquire professional kinetic mastery fragments. Coded by top-tier architects and verified for precision and reliability.
+                            Explore and activate certified physical intelligence protocols for your field teams. Standardized modules for maintenance and installation excellence.
                         </p>
                     </div>
 
-                    <div className="p-6 bg-[#111926]/80 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] shadow-2xl flex items-center gap-6 min-w-[280px]">
-                        <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center p-2 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-                            <Wallet className="w-8 h-8 text-blue-400" />
+                    <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-[2.5rem] flex items-center gap-6 min-w-[280px]">
+                        <div className="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center p-2 border border-blue-400/30">
+                            <Shield className="w-8 h-8 text-blue-400" />
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                                <Shield className="w-3 h-3" />
-                                Nexus Credits (NC)
+                            <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                                Enterprise Plan Active
                             </div>
-                            <div className="text-3xl font-black text-white tracking-tight">
-                                {user?.balance || '0.00'}
+                            <div className="text-xl font-black text-white tracking-tight uppercase">
+                                Unlimited Licenses
                             </div>
-                            <div className="mt-1 text-[9px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1">
-                                <TrendingUp className="w-2.5 h-2.5" />
-                                +15% Loyalty APR
+                            <div className="mt-1 text-[9px] text-emerald-500 font-bold uppercase tracking-widest">
+                                Valid for 12 Operators
                             </div>
                         </div>
                     </div>
@@ -133,8 +131,27 @@ export default function MarketplacePage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredListings.map((listing) => (
-                            <SkillCard key={listing.id} listing={listing} userId={user?.id} />
+                        {[
+                            { id: 'm1', title: 'ONT Installation', desc: 'Standardized protocol for GPON/XGS-PON terminal deployment and signal validation.', tech: 'Fiber-Optic', premium: true },
+                            { id: 'm2', title: 'Fiber Fusion (Join)', desc: 'Precision-critical core alignment for minimal DB loss. 21-point tracking.', tech: 'Splicing', premium: true },
+                            { id: 'm3', title: 'Splicing Protection', desc: 'Post-fusion protective tube shrinking and tray organization protocol.', tech: 'Splicing', premium: false },
+                            { id: 'm4', title: 'Torque Validation', desc: 'Visual verification of mechanical connector tightening for safety compliance.', tech: 'Hardware', premium: false },
+                            { id: 'm5', title: 'Labeling & Audit', desc: 'Multi-point validation of cabinet labeling and site cleanliness standards.', tech: 'Audit', premium: false },
+                        ].map((m) => (
+                            <SkillCard 
+                                key={m.id} 
+                                listing={{
+                                    id: m.id,
+                                    skill_id: m.id,
+                                    title: m.title,
+                                    description: m.desc,
+                                    price: 0,
+                                    currency: 'FREE',
+                                    is_premium: m.premium,
+                                    seller_id: 'NEXUS-CORP'
+                                }} 
+                                userId={user?.id} 
+                            />
                         ))}
                     </div>
                 )}

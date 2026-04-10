@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getAdminClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
     try {
@@ -12,7 +11,8 @@ export async function POST(request: Request) {
         console.log('🔄 SEMANTIC BACKFILL - Starting...')
 
         // 1. Fetch all skills that don't have embeddings or need refresh
-        const { data: skills, error } = await supabaseAdmin
+        const supabase = await getAdminClient()
+        const { data: skills, error } = await supabase
             .from('skills')
             .select('id, title, description, instructions') as { 
                 data: Array<{ id: string; title: string; description: string | null; instructions: string | null }> | null; 

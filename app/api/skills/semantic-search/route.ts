@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getAdminClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
 
 // Lazy initialization to avoid build errors when API key is not set
@@ -36,8 +36,11 @@ export async function POST(request: Request) {
 
         const queryEmbedding = embeddingResponse.data[0].embedding
 
+        // Get hardened admin client
+        const supabase = await getAdminClient()
+
         // Search for similar skills using pgvector
-        const { data: skills, error } = await (supabaseAdmin as any).rpc('search_skills_semantic', {
+        const { data: skills, error } = await supabase.rpc('search_skills_semantic', {
             query_embedding: queryEmbedding,
             match_threshold: 0.5,
             match_count: 10
@@ -84,8 +87,11 @@ export async function PUT(request: Request) {
 
         const embedding = embeddingResponse.data[0].embedding
 
+        // Get hardened admin client
+        const supabase = await getAdminClient()
+
         // Upsert embedding
-        const { error } = await (supabaseAdmin as any)
+        const { error } = await supabase
             .from('skill_embeddings')
             .upsert({
                 skill_id: skillId,

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getAdminClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
     try {
@@ -33,6 +33,7 @@ export async function GET(request: Request) {
 
         if (type === 'overview') {
             // Get overall stats
+            const supabaseAdmin = await getAdminClient()
             const [skillsResult, viewsResult, usersResult] = await Promise.all([
                 supabaseAdmin.from('skills').select('id', { count: 'exact', head: true }),
                 supabaseAdmin.from('skill_views').select('id', { count: 'exact', head: true }),
@@ -47,6 +48,7 @@ export async function GET(request: Request) {
         }
 
         if (type === 'trending') {
+            const supabaseAdmin = await getAdminClient()
             const { data, error } = await (supabaseAdmin.rpc as any)('get_trending_skills', {
                 limit_count: 10
             })
@@ -61,6 +63,7 @@ export async function GET(request: Request) {
 
         if (type === 'skill' && searchParams.get('id')) {
             const skillId = searchParams.get('id')
+            const supabaseAdmin = await getAdminClient()
 
             const { data, error } = await (supabaseAdmin.rpc as any)('get_skill_analytics', {
                 p_skill_id: skillId

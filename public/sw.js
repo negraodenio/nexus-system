@@ -1,73 +1,45 @@
-const CACHE_NAME = 'nexus-v1';
+const CACHE_NAME = 'nexus-edge-v2';
 const urlsToCache = [
     '/',
-    '/app',
-    '/skills',
-    '/dashboard',
-    '/manifest.json'
+    '/telecom/field',
+    '/dashboard/marketplace',
+    '/manifest.json',
+    // MediaPipe Assets (CDN)
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm/hand_landmarker.wasm',
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm/hand_landmarker_solution_simd_wasm_bin.wasm',
+    'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
 ];
 
-// Install event - cache static assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
     );
 });
 
-// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+    // MediaPipe models are served from storage.googleapis and cdn.jsdelivr
+    // We want to intercept these even if they are cross-origin
     event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-
-                // Clone the request
-                const fetchRequest = event.request.clone();
-
-                return fetch(fetchRequest).then(
-                    (response) => {
-                        // Check if valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // Clone the response
-                        const responseToCache = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then((cache) => {
-                                // Only cache GET requests
-                                if (event.request.method === 'GET') {
-                                    cache.put(event.request, responseToCache);
-                                }
-                            });
-
-                        return response;
+        caches.match(event.request).then((response) => {
+            if (response) return response;
+            return fetch(event.request).then((res) => {
+                if (!res || res.status !== 200) return res;
+                const resToCache = res.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    if (event.request.method === 'GET') {
+                        cache.put(event.request, resToCache);
                     }
-                );
-            })
+                });
+                return res;
+            });
+        })
     );
 });
 
-// Activate event - cleanup old caches
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
+        caches.keys().then((names) => Promise.all(
+            names.filter(n => n !== CACHE_NAME).map(n => caches.delete(n))
+        ))
     );
 });
