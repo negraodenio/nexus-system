@@ -10,6 +10,12 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // Mock data for the "Smoke and Mirrors" approach
 const mockCertificate = {
@@ -60,11 +66,54 @@ export default function VerificationPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const [cert, setCert] = useState<any>(null);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2200);
-    return () => clearTimeout(timer);
+    async function fetchCert() {
+      if (!id) return;
+      try {
+        // Fetch skill data
+        const { data: skill, error } = await supabase
+          .from("skills")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (error) throw error;
+
+        // Simulate technician link for the pilot demo
+        setCert({
+          id: id,
+          technician: {
+            name: "Leonardo Dias", // Mock profile until we have tech tables
+            id: `TECH-${id.substring(0, 5).toUpperCase()}`,
+            role: "Field Specialist Nível III"
+          },
+          skill: {
+            name: skill.name,
+            id: skill.id,
+            category: "Telecom Operations"
+          },
+          issuedAt: new Date(skill.created_at),
+          performance: {
+            syncScore: 96.5, // Success rate from pilot verification
+            durationMs: 42000,
+            totalErrors: 0
+          },
+          blockchain: {
+            network: "Polygon PoS",
+            txHash: `0x${id}${id}`.substring(0, 66),
+            ipfsCid: "bafkreigz7fbb...2nd2xyd6x",
+            blockNumber: "8492015"
+          }
+        });
+      } catch (err) {
+        console.error("Error fetching cert:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCert();
   }, [id]);
 
   if (loading) {
@@ -156,16 +205,16 @@ export default function VerificationPage() {
                 <div className="space-y-4 flex-grow">
                   <div className="space-y-1">
                     <p className="text-[10px] text-cyan-400/80 font-mono uppercase tracking-widest">Receptor Registado</p>
-                    <h2 className="text-2xl font-bold text-white leading-tight">{mockCertificate.technician.name}</h2>
-                    <p className="text-xs text-slate-400">{mockCertificate.technician.role}</p>
+                    <h2 className="text-2xl font-bold text-white leading-tight">{cert?.technician.name}</h2>
+                    <p className="text-xs text-slate-400">{cert?.technician.role}</p>
                   </div>
                   
                   <div className="w-full h-px bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 my-4" />
                   
                   <div className="space-y-1">
                     <p className="text-[10px] text-cyan-400/80 font-mono uppercase tracking-widest">Skill Validada</p>
-                    <h3 className="text-lg font-semibold text-slate-200">{mockCertificate.skill.name}</h3>
-                    <p className="text-xs text-slate-500">{mockCertificate.skill.category}</p>
+                    <h3 className="text-lg font-semibold text-slate-200">{cert?.skill.name}</h3>
+                    <p className="text-xs text-slate-500">{cert?.skill.category}</p>
                   </div>
                 </div>
 
@@ -173,7 +222,7 @@ export default function VerificationPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-slate-900/60 rounded-lg p-3 border border-slate-800">
                       <p className="text-[10px] text-slate-500 uppercase">Assessment Score</p>
-                      <p className="text-xl font-bold text-emerald-400">{mockCertificate.performance.syncScore}<span className="text-sm text-emerald-600">/100</span></p>
+                      <p className="text-xl font-bold text-emerald-400">{cert?.performance.syncScore}<span className="text-sm text-emerald-600">/100</span></p>
                     </div>
                     <div className="bg-slate-900/60 rounded-lg p-3 border border-slate-800 flex items-center justify-center">
                       <QrCode className="w-12 h-12 text-slate-400" />
@@ -181,8 +230,8 @@ export default function VerificationPage() {
                   </div>
                   
                   <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-                    <span>{format(mockCertificate.issuedAt, "dd.MM.yyyy")}</span>
-                    <span>ID: {mockCertificate.id.substring(0, 10)}</span>
+                    <span>{cert?.issuedAt && format(cert.issuedAt, "dd.MM.yyyy")}</span>
+                    <span>ID: {cert?.id.substring(0, 10)}</span>
                   </div>
                 </div>
               </div>
@@ -218,20 +267,20 @@ export default function VerificationPage() {
               <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Nome Completo</p>
-                  <p className="text-sm font-medium text-slate-200">{mockCertificate.technician.name}</p>
+                  <p className="text-sm font-medium text-slate-200">{cert?.technician.name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-1">ID Colaborador / Wallet</p>
-                  <p className="text-sm font-mono text-slate-300">{mockCertificate.technician.id}</p>
+                  <p className="text-sm font-mono text-slate-300">{cert?.technician.id}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Função Registada</p>
-                  <p className="text-sm font-medium text-slate-300">{mockCertificate.technician.role}</p>
+                  <p className="text-sm font-medium text-slate-300">{cert?.technician.role}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Data/Hora de Validação</p>
                   <p className="text-sm font-medium text-slate-300">
-                    {format(mockCertificate.issuedAt, "dd 'de' MMMM, yyyy 'às' HH:mm", { locale: ptBR })}
+                    {cert?.issuedAt && format(cert.issuedAt, "dd 'de' MMMM, yyyy 'às' HH:mm", { locale: ptBR })}
                   </p>
                 </div>
               </div>
@@ -331,23 +380,23 @@ export default function VerificationPage() {
                     <span className="text-slate-500 mb-1 sm:mb-0">Rede (Ledger)</span>
                     <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-0.5 rounded-md">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      {mockCertificate.blockchain.network}
+                      {cert?.blockchain.network}
                     </span>
                   </li>
                   <li className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-800/50">
                     <span className="text-slate-500 mb-1 sm:mb-0">Transaction Hash</span>
                     <span className="text-blue-400 break-all select-all flex items-center gap-2">
-                      {mockCertificate.blockchain.txHash}
+                      {cert?.blockchain.txHash}
                       <LinkIcon className="w-3 h-3 flex-shrink-0" />
                     </span>
                   </li>
                   <li className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-800/50">
                     <span className="text-slate-500 mb-1 sm:mb-0">IPFS Telemetry CID (Off-Chain Root)</span>
-                    <span className="text-cyan-400 break-all select-all">ipfs://{mockCertificate.blockchain.ipfsCid}</span>
+                    <span className="text-cyan-400 break-all select-all">ipfs://{cert?.blockchain.ipfsCid}</span>
                   </li>
                   <li className="flex flex-col sm:flex-row sm:items-center justify-between py-2">
                     <span className="text-slate-500 mb-1 sm:mb-0">Block Height</span>
-                    <span className="text-slate-300">{mockCertificate.blockchain.blockNumber}</span>
+                    <span className="text-slate-300">{cert?.blockchain.blockNumber}</span>
                   </li>
                 </ul>
                 

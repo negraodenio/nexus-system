@@ -137,18 +137,60 @@ export default function EnterpriseDashboard() {
                                 </div>
                             </div>
                             
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.2em] text-slate-500">
-                                            <th className="px-6 py-4 font-bold">Technician</th>
-                                            <th className="px-6 py-4 font-bold">Current Task</th>
-                                            <th className="px-6 py-4 font-bold">Last Checkpoint</th>
-                                            <th className="px-6 py-4 font-bold text-center">Score</th>
-                                            <th className="px-6 py-4 font-bold text-right">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="text-sm">
+                            <div className="grid grid-cols-1 lg:grid-cols-2">
+                                {/* Regional Map Overlay */}
+                                <div className="p-8 border-r border-white/5 bg-black/20 flex flex-col justify-between">
+                                    <div>
+                                        <div className="text-[10px] font-mono text-blue-400 uppercase tracking-widest mb-1">Region: PT-Mainland</div>
+                                        <div className="text-xl font-black uppercase tracking-tight">National Coverage</div>
+                                    </div>
+                                    
+                                    <div className="py-8 relative group">
+                                        {/* Simple SVG Map of Portugal (Hand-crafted path) */}
+                                        <svg viewBox="0 0 200 400" className="w-full max-w-[180px] mx-auto opacity-40 group-hover:opacity-60 transition-opacity">
+                                            <path 
+                                                d="M50,20 L70,20 L80,50 L90,100 L110,150 L120,200 L110,250 L100,300 L90,350 L50,380 L30,350 L20,300 L30,200 L40,100 L50,50 Z" 
+                                                fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-500"
+                                            />
+                                            {/* Live Pings for Lisbon, Porto, Faro */}
+                                            <motion.circle cx="105" cy="180" r="4" fill="#3b82f6" animate={{ r: [4, 8, 4], opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 2 }} />
+                                            <motion.circle cx="85" cy="80" r="4" fill="#3b82f6" animate={{ r: [4, 8, 4], opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} />
+                                            <motion.circle cx="70" cy="340" r="4" fill="#3b82f6" animate={{ r: [4, 8, 4], opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 1 }} />
+                                        </svg>
+
+                                        {/* Map Overlay Labels */}
+                                        <div className="absolute top-1/4 right-0 text-[8px] font-mono p-2 bg-white/5 border border-white/5 rounded backdrop-blur-sm">
+                                            <div className="text-emerald-400 font-bold">PORTO [8]</div>
+                                            <div className="text-slate-500">Avg Compliance: 91%</div>
+                                        </div>
+                                        <div className="absolute top-1/2 left-0 text-[8px] font-mono p-2 bg-white/5 border border-white/5 rounded backdrop-blur-sm translate-x-4">
+                                            <div className="text-blue-400 font-bold">LISBOA [24]</div>
+                                            <div className="text-slate-500">Avg Compliance: 94%</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-[9px] font-mono uppercase text-slate-500">
+                                            <span>Signal Health</span>
+                                            <span className="text-emerald-500">99.2%</span>
+                                        </div>
+                                        <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                            <div className="h-full bg-blue-500 w-[99.2%]" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.2em] text-slate-500">
+                                                <th className="px-6 py-4 font-bold">Technician</th>
+                                                <th className="px-6 py-4 font-bold">Current Task</th>
+                                                <th className="px-6 py-4 font-bold text-center">Score</th>
+                                                <th className="px-6 py-4 font-bold text-right">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-sm">
                                         <AnimatePresence>
                                             {activeTechs.map((tech) => (
                                                 <motion.tr key={tech.id} 
