@@ -346,19 +346,41 @@ export default function TelecomLanding() {
             </motion.div>
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
-              Reduce field errors<br />
+              className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
+              Unified Physical<br />
               <span style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                by 50%
-              </span>{' '}with real-time AI.
+                Intelligence
+              </span> for Telecom.
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-              The technician points their phone at the equipment. The AI identifies the issue,
-              guides the correct procedure step-by-step, and logs the resolution with auditable proof.
-              Zero unnecessary truck rolls.
-            </motion.p>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12 text-left">
+              {[
+                { 
+                  role: 'Field Technician', 
+                  benefit: 'Zero errors. AR-guided precision that turns every technician into a senior expert.',
+                  icon: <Zap className="w-4 h-4 text-blue-400" />
+                },
+                { 
+                  role: 'Core Specialist', 
+                  benefit: 'Global control. Deploy and audit physical protocols as easily as pushing code.',
+                  icon: <Target className="w-4 h-4 text-cyan-400" />
+                },
+                { 
+                  role: 'End User', 
+                  benefit: 'Zero downtime. Experience the reliability of first-time resolution service.',
+                  icon: <Shield className="w-4 h-4 text-emerald-400" />
+                }
+              ].map((p, i) => (
+                <div key={i} className="p-5 border border-white/5 bg-white/[0.02] hover:border-blue-500/30 transition-all rounded-2xl group">
+                  <div className="flex items-center gap-2 mb-3">
+                    {p.icon}
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-blue-400 transition-colors">{p.role}</span>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed group-hover:text-white transition-colors">{p.benefit}</p>
+                </div>
+              ))}
+            </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">

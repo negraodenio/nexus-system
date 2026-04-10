@@ -54,28 +54,29 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
     }, [skillId])
 
     // 2. Playback Sync Loop
-    // We let the video dictate the timing
-    useEffect(() => {
+    // We synchronize the frame index with the video's current time for 1:1 match
+    const handleTimeUpdate = () => {
         const video = videoRef.current
         if (!video || frames.length === 0) return
 
-        const updateFrame = () => {
-            const time = video.currentTime
-            const duration = video.duration
-            if (!duration) {
-                requestAnimationFrame(updateFrame)
-                return
-            }
+        const progress = video.currentTime / video.duration
+        if (isNaN(progress)) return
 
-            // Map time to frame index
-            const progress = time / duration
-            const frameIdx = Math.floor(progress * (frames.length - 1))
-            setCurrentFrameIndex(frameIdx)
+        const frameIdx = Math.floor(progress * (frames.length - 1))
+        setCurrentFrameIndex(frameIdx)
+    }
 
-            requestAnimationFrame(updateFrame)
+    // Also use requestAnimationFrame for sub-second smoothness if needed
+    useEffect(() => {
+        const video = videoRef.current
+        if (!video) return
+
+        const sync = () => {
+            handleTimeUpdate()
+            requestAnimationFrame(sync)
         }
-
-        const animId = requestAnimationFrame(updateFrame)
+        
+        const animId = requestAnimationFrame(sync)
         return () => cancelAnimationFrame(animId)
     }, [frames])
 
