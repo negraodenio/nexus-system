@@ -403,7 +403,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
             <div className="absolute top-4 left-4 right-20 z-30">
                 <input
                     type="text"
-                    placeholder="🎬 Nome: Diagnóstico Modem MEO"
+                    placeholder="🎬 Nome: Diagnóstico Modem Telecom"
                     value={skillTitle}
                     onChange={e => setSkillTitle(e.target.value)}
                     disabled={isRecording}

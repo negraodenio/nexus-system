@@ -165,7 +165,7 @@ export function AuthButton({ onAuthChange }: AuthButtonProps) {
                             <div>
                                 <input
                                     type="email"
-                                    placeholder="Email (demo@meo.pt)"
+                                    placeholder="Email (demo@telecom.pt)"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"

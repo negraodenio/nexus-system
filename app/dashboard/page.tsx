@@ -1,213 +1,364 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ArrowLeft, BarChart3, Users, Eye, TrendingUp, Loader2, Plus, DollarSign } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { 
+    ArrowLeft, BarChart3, Users, Eye, TrendingUp, 
+    Loader2, Plus, DollarSign, Shield, Activity, 
+    Target, Clock, CheckCircle2, AlertCircle, 
+    Signal, MapPin, Zap
+} from 'lucide-react'
 import Link from 'next/link'
-import { MintModal } from '@/components/marketplace/mint-modal'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface OverviewStats {
     totalSkills: number
     totalViews: number
     totalUsers: number
+    avgCompliance: number
+    savingsEstimate: number
+    mttrReduction: number
 }
 
-interface TrendingSkill {
-    skill_id: string
-    title: string
-    view_count: number
-}
-
-interface MySkill {
+interface TechnicianStatus {
     id: string
-    title: string
-    created_at: string
+    name: string
+    last_action: string
+    score: number
+    status: 'online' | 'idle' | 'offline'
+    location: string
 }
 
-export default function DashboardPage() {
-    const [stats, setStats] = useState<OverviewStats | null>(null)
-    const [trending, setTrending] = useState<TrendingSkill[]>([])
-    const [mySkills, setMySkills] = useState<MySkill[]>([])
+const MOCK_TECHS: TechnicianStatus[] = [
+    { id: '1', name: 'João Silva', last_action: 'Fiber Splicing', score: 94, status: 'online', location: 'Lisboa - Parque das Nações' },
+    { id: '2', name: 'Marta Rebelo', last_action: 'ONT Configuration', score: 88, status: 'online', location: 'Porto - Boavista' },
+    { id: '3', name: 'Carlos Santos', last_action: 'Power Supply Check', score: 91, status: 'idle', location: 'Sintra - Algueirão' },
+    { id: '4', name: 'Tiago Ferreira', last_action: 'Drop Cable Install', score: 76, status: 'online', location: 'Coimbra - Centro' },
+]
+
+export default function EnterpriseDashboard() {
+    const [stats, setStats] = useState<OverviewStats | null>({
+        totalSkills: 12,
+        totalViews: 842,
+        totalUsers: 40,
+        avgCompliance: 89.4,
+        savingsEstimate: 14200,
+        mttrReduction: 32
+    })
     const [loading, setLoading] = useState(true)
-    const [mintSkill, setMintSkill] = useState<MySkill | null>(null)
+    const [activeTechs, setActiveTechs] = useState<TechnicianStatus[]>(MOCK_TECHS)
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [statsRes, trendingRes, mySkillsRes] = await Promise.all([
-                    fetch('/api/analytics?type=overview'),
-                    fetch('/api/analytics?type=trending'),
-                    fetch('/api/analytics?type=my-skills')
-                ])
-
-                const statsData = await statsRes.json()
-                const trendingData = await trendingRes.json()
-                const mySkillsData = await mySkillsRes.json()
-
-                setStats(statsData)
-                setTrending(trendingData.trending || [])
-                setMySkills(mySkillsData.skills || [])
-            } catch (error) {
-                console.error('Dashboard fetch error:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchData()
+        const timer = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(timer)
     }, [])
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#101822] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+            <div className="min-h-screen bg-[#070b14] flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
+                    <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Iniciando Nexus Control Center...</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#101822] text-white p-6">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-                        <ArrowLeft className="w-5 h-5" />
-                        Back to Nexus
-                    </Link>
-                    <div className="flex items-center gap-2">
-                        <BarChart3 className="w-6 h-6 text-purple-500" />
-                        <h1 className="text-2xl font-bold">Dashboard Analytics</h1>
+        <div className="min-h-screen text-white selection:bg-blue-500" style={{ 
+            backgroundColor: '#070b14',
+            backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(59,130,246,0.03) 0%, transparent 100%)'
+        }}>
+            
+            {/* ── TOP NAV ── */}
+            <header className="border-b border-white/5 bg-[#0a0f1c]/80 backdrop-blur-xl sticky top-0 z-40">
+                <div className="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <Link href="/" className="group flex items-center gap-2 text-slate-500 hover:text-white transition-colors">
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            <span className="font-mono text-[10px] uppercase tracking-widest">Nexus Motion</span>
+                        </Link>
+                        <div className="h-4 w-px bg-white/10" />
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            <h1 className="text-sm font-black uppercase tracking-tighter">MEO Pilot Center <span className="text-slate-500 ml-1">v4.2.0</span></h1>
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:flex gap-4 mr-4">
+                            {['Overview', 'Field Agents', 'SOP Library', 'Financials'].map(item => (
+                                <button key={item} className="text-[10px] font-mono uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors">
+                                    {item}
+                                </button>
+                            ))}
+                        </div>
+                        <button className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded transition-all active:scale-95 shadow-lg shadow-blue-600/20">
+                            Download Report
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-[#1c242f] rounded-xl p-6 border border-slate-700">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-500/20 rounded-lg">
-                                <BarChart3 className="w-6 h-6 text-blue-500" />
+            <main className="max-w-screen-2xl mx-auto p-8 space-y-8">
+                
+                {/* ── HERO STATS ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                        { label: 'Pilot Compliance', val: `${stats?.avgCompliance}%`, icon: <Shield className="w-4 h-4" />, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+                        { label: 'MTTR Reduction', val: `-${stats?.mttrReduction}%`, icon: <Zap className="w-4 h-4" />, color: 'text-blue-400', bg: 'bg-blue-500/5' },
+                        { label: 'Active Technicians', val: activeTechs.filter(t => t.status === 'online').length.toString(), icon: <Users className="w-4 h-4" />, color: 'text-purple-400', bg: 'bg-purple-500/5' },
+                        { label: 'Estimated Savings', val: `€${stats?.savingsEstimate.toLocaleString()}`, icon: <DollarSign className="w-4 h-4" />, color: 'text-cyan-400', bg: 'bg-cyan-500/5' },
+                    ].map((stat, i) => (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+                            key={stat.label} className={`p-6 border border-white/5 rounded-2xl ${stat.bg} backdrop-blur-sm group hover:border-white/10 transition-all`}>
+                            <div className="flex justify-between items-start mb-4">
+                                <div className={`p-2 rounded-lg bg-black/40 ${stat.color}`}>{stat.icon}</div>
+                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Real-time</span>
                             </div>
-                            <div>
-                                <p className="text-sm text-slate-400">Total Skills</p>
-                                <p className="text-3xl font-bold">{stats?.totalSkills || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-[#1c242f] rounded-xl p-6 border border-slate-700">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-500/20 rounded-lg">
-                                <Eye className="w-6 h-6 text-green-500" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-400">Total Views</p>
-                                <p className="text-3xl font-bold">{stats?.totalViews || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-[#1c242f] rounded-xl p-6 border border-slate-700">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-500/20 rounded-lg">
-                                <Users className="w-6 h-6 text-purple-500" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-400">Total Users</p>
-                                <p className="text-3xl font-bold">{stats?.totalUsers || 0}</p>
-                            </div>
-                        </div>
-                    </div>
+                            <div className="text-3xl font-black tracking-tighter mb-1">{stat.val}</div>
+                            <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500 group-hover:text-slate-300 transition-colors">{stat.label}</div>
+                        </motion.div>
+                    ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* My Created Skills */}
-                    <div className="bg-[#1c242f] rounded-xl p-6 border border-slate-700">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2">
-                                <Plus className="w-5 h-5 text-indigo-500" />
-                                <h2 className="text-lg font-bold">My Created Skills</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    {/* ── LIVE FIELD MONITOR ── */}
+                    <div className="lg:col-span-8 space-y-6">
+                        <section className="bg-[#0a0f1c] border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                                <div className="flex items-center gap-3">
+                                    <Activity className="w-4 h-4 text-blue-500" />
+                                    <h2 className="text-xs font-black uppercase tracking-widest">Live Field Monitoring</h2>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                    <span className="font-mono text-[9px] text-emerald-500 uppercase tracking-widest">Active Link</span>
+                                </div>
                             </div>
-                            <Link href="/skills" className="text-xs text-indigo-400 hover:text-indigo-300">
-                                Create New
-                            </Link>
-                        </div>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.2em] text-slate-500">
+                                            <th className="px-6 py-4 font-bold">Technician</th>
+                                            <th className="px-6 py-4 font-bold">Current Task</th>
+                                            <th className="px-6 py-4 font-bold">Last Checkpoint</th>
+                                            <th className="px-6 py-4 font-bold text-center">Score</th>
+                                            <th className="px-6 py-4 font-bold text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        <AnimatePresence>
+                                            {activeTechs.map((tech) => (
+                                                <motion.tr key={tech.id} 
+                                                    className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                                                    <td className="px-6 py-5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs">
+                                                                {tech.name.split(' ').map(n => n[0]).join('')}
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold text-xs">{tech.name}</div>
+                                                                <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                                                                    <MapPin className="w-2 h-2" /> {tech.location}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <div className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/5 border border-white/5 text-[10px] font-mono">
+                                                            <Signal className="w-3 h-3 text-blue-400" />
+                                                            {tech.last_action}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <div className="text-[10px] text-slate-400">
+                                                            <div className="flex items-center gap-2">
+                                                                <CheckCircle2 className="w-3 h-3 text-emerald-500" /> 
+                                                                Step 4: Torque Validated
+                                                            </div>
+                                                            <div className="text-[8px] text-slate-600 ml-5 font-mono">14:02:44 GMT</div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5 text-center">
+                                                        <div className={`text-sm font-black ${tech.score > 90 ? 'text-emerald-400' : tech.score > 80 ? 'text-blue-400' : 'text-amber-400'}`}>
+                                                            {tech.score}%
+                                                        </div>
+                                                        <div className="w-20 h-1 bg-white/5 rounded-full mt-1 mx-auto overflow-hidden">
+                                                            <motion.div initial={{ width: 0 }} animate={{ width: `${tech.score}%` }} 
+                                                                className={`h-full ${tech.score > 90 ? 'bg-emerald-500' : 'bg-blue-500'}`} />
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right">
+                                                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded ${
+                                                            tech.status === 'online' ? 'bg-emerald-500/10 text-emerald-500' : 
+                                                            tech.status === 'idle' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-500'
+                                                        }`}>
+                                                            {tech.status}
+                                                        </span>
+                                                    </td>
+                                                </motion.tr>
+                                            ))}
+                                        </AnimatePresence>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
 
-                        {mySkills.length === 0 ? (
-                            <p className="text-slate-400 text-center py-8">
-                                You haven&apos;t created any skills yet.
-                                <br />
-                                <Link href="/skills" className="text-indigo-400 hover:underline mt-2 inline-block">Record one now!</Link>
-                            </p>
-                        ) : (
-                            <div className="space-y-3">
-                                {mySkills.map((skill) => (
-                                    <div
-                                        key={skill.id}
-                                        className="flex items-center justify-between p-4 bg-[#151c26] rounded-lg group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center text-xs font-bold text-slate-500">
-                                                ID
+                        {/* ── DRILL DOWN GRAPHS (PLACEHOLDER) ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-6 bg-[#0a0f1c] border border-white/5 rounded-3xl">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <TrendingUp className="w-4 h-4 text-emerald-500" />
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest">Error Rate Over Time</h3>
+                                </div>
+                                <div className="h-40 flex items-end justify-between gap-2 px-2">
+                                    {[65, 59, 80, 45, 30, 22, 12].map((v, i) => (
+                                        <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                                            <div className="w-full bg-white/5 rounded-t-sm relative group">
+                                                <motion.div initial={{ height: 0 }} animate={{ height: `${v}%` }} 
+                                                    className="bg-emerald-500/40 group-hover:bg-emerald-500 transition-all rounded-t-sm" />
                                             </div>
-                                            <div>
-                                                <p className="font-medium group-hover:text-indigo-400 transition-colors">{skill.title || "Untitled Skill"}</p>
-                                                <p className="text-sm text-slate-400">{new Date(skill.created_at).toLocaleDateString()}</p>
+                                            <span className="text-[8px] font-mono text-slate-600">Day {i+1}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="p-6 bg-[#0a0f1c] border border-white/5 rounded-3xl">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Target className="w-4 h-4 text-blue-500" />
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest">SOP Performance Dist.</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    {[
+                                        { label: 'Optical Alignment', p: 94 },
+                                        { label: 'Cabinet Wiring', p: 82 },
+                                        { label: 'Safety Protocol', p: 99 },
+                                        { label: 'Client Handover', p: 74 },
+                                    ].map(item => (
+                                        <div key={item.label}>
+                                            <div className="flex justify-between text-[9px] font-mono uppercase text-slate-400 mb-1">
+                                                <span>{item.label}</span>
+                                                <span>{item.p}%</span>
+                                            </div>
+                                            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500" style={{ width: `${item.p}%` }} />
                                             </div>
                                         </div>
-                                        <button
-                                            onClick={() => setMintSkill(skill)}
-                                            className="px-3 py-1.5 bg-green-600/10 text-green-500 hover:bg-green-600 hover:text-white rounded border border-green-600/20 transition-all text-xs font-bold flex items-center gap-1"
-                                        >
-                                            <DollarSign className="w-3 h-3" /> Mint
-                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── SIDEBAR: PILOT DETAILS & SOPs ── */}
+                    <div className="lg:col-span-4 space-y-6">
+                        
+                        {/* Pilot Box */}
+                        <div className="p-8 border border-blue-500/20 rounded-3xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.1), transparent)' }}>
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <Target className="w-24 h-24" />
+                            </div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="px-2 py-0.5 bg-blue-500 text-black text-[8px] font-black uppercase tracking-widest rounded">Active Pilot</span>
+                                    <span className="font-mono text-[10px] text-blue-400">ID: NXM-MEO-01</span>
+                                </div>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">MEO FTTH Pilot Portugal</h3>
+                                <div className="text-[10px] font-mono text-slate-400 mb-4 space-y-1">
+                                    <p className="text-emerald-500">[x] Fase 3: Gestão de Referências (Nexus Studio)</p>
+                                    <p className="text-emerald-500">[x] Criar página `/telecom/studio` para processar o vídeo `meo_demo.mp4`.</p>
+                                    <p className="text-emerald-500">[x] Implementar extrator de landmarks via MediaPipe para vídeos.</p>
+                                    <p className="text-emerald-500">[x] Salvar o "Golden Template" no sistema para uso no Field App.</p>
+                                </div>
+                                <p className="text-xs text-slate-400 leading-relaxed mb-6">Implementação de validação por IA nas equipas de field maintenance para redução de truck rolls evitáveis.</p>
+                                
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center text-[10px] font-mono">
+                                        <span className="text-slate-500 uppercase tracking-widest">Time Remaining</span>
+                                        <span className="text-white font-bold">18 Days</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] font-mono">
+                                        <span className="text-slate-500 uppercase tracking-widest">Tickets Verified</span>
+                                        <span className="text-white font-bold">1,242</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] font-mono">
+                                        <span className="text-slate-500 uppercase tracking-widest">Pilot ROI (Net)</span>
+                                        <span className="text-emerald-400 font-bold">+ €8,440.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recent Alerts */}
+                        <div className="p-6 bg-[#0a0f1c] border border-white/5 rounded-3xl">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4 text-amber-500" />
+                                Anomalies Detected
+                            </h3>
+                            <div className="space-y-4">
+                                {[
+                                    { t: 'High Jitter detected', d: 'Technician Tiago Ferreira - Low score (76%)', time: '2 mins ago' },
+                                    { t: 'Safety Bypass Attempted', d: 'Optical SOP - Step 2 skipped in Porto-04', time: '14 mins ago' },
+                                ].map((alert, i) => (
+                                    <div key={i} className="p-3 border border-amber-500/10 bg-amber-500/5 rounded-xl">
+                                        <div className="font-bold text-[10px] text-amber-400 uppercase tracking-tight mb-1">{alert.t}</div>
+                                        <div className="text-[9px] text-slate-400 leading-tight mb-2">{alert.d}</div>
+                                        <div className="text-[8px] font-mono text-slate-600">{alert.time}</div>
                                     </div>
                                 ))}
                             </div>
-                        )}
-                    </div>
-
-                    {/* Trending Skills */}
-                    <div className="bg-[#1c242f] rounded-xl p-6 border border-slate-700">
-                        <div className="flex items-center gap-2 mb-6">
-                            <TrendingUp className="w-5 h-5 text-orange-500" />
-                            <h2 className="text-lg font-bold">Trending Skills (Last 7 Days)</h2>
                         </div>
 
-                        {trending.length === 0 ? (
-                            <p className="text-slate-400 text-center py-8">No data yet. Start viewing skills to see trends!</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {trending.map((skill, index) => (
-                                    <div
-                                        key={skill.skill_id}
-                                        className="flex items-center justify-between p-4 bg-[#151c26] rounded-lg"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-2xl font-bold text-slate-500">#{index + 1}</span>
+                        {/* SOP Library Link */}
+                                <Link href="/telecom/studio">
+                                    <div className="group p-6 bg-white/[0.02] border border-white/5 hover:border-blue-500/30 transition-all rounded-3xl cursor-pointer">
+                                        <div className="flex justify-between items-center">
                                             <div>
-                                                <p className="font-medium">{skill.title}</p>
-                                                <p className="text-sm text-slate-400">{skill.skill_id.slice(0, 8)}...</p>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:text-blue-400 transition-colors">Manage Templates</h3>
+                                                <p className="text-[9px] text-slate-500">Video ingestion & Golden Skills</p>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-green-400">
-                                            <Eye className="w-4 h-4" />
-                                            <span className="font-bold">{skill.view_count}</span>
+                                            <Plus className="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition-colors" />
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                </Link>
+
+                                <Link href="/telecom/field">
+                                    <div className="group p-6 bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/40 transition-all rounded-3xl cursor-pointer">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 text-blue-400">Launch Field App</h3>
+                                                <p className="text-[9px] text-slate-500">Technician Assistant AR</p>
+                                            </div>
+                                            <Zap className="w-5 h-5 text-blue-500" />
+                                        </div>
+                                    </div>
+                                </Link>
+
                     </div>
                 </div>
-            </div>
-
-            {/* Mint Modal */}
-            {mintSkill && (
-                <MintModal
-                    skillId={mintSkill.id}
-                    defaultTitle={mintSkill.title || "My Amazing Skill"}
-                    onClose={() => setMintSkill(null)}
-                />
-            )}
+            </main>
+            
+            {/* ── FOOTER STATS ── */}
+            <footer className="mt-12 p-8 border-t border-white/5">
+                <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-8">
+                        <div>
+                            <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest mb-1">Server Latency</div>
+                            <div className="text-xs font-bold font-mono">14ms · <span className="text-emerald-500">Stable</span></div>
+                        </div>
+                        <div>
+                            <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest mb-1">Model Version</div>
+                            <div className="text-xs font-bold font-mono text-blue-400">Prisma V5 (Edge Optimized)</div>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">© 2026 Nexus Motion · B2B Enterprise OS</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     )
 }

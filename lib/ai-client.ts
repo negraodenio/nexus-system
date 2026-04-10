@@ -4,8 +4,7 @@ import OpenAI from 'openai'
 
 export type ModelId = 'gpt-4o' | 'gemini-2-flash' | 'claude-3-5-sonnet' | 'deepseek-chat' | 'minimax-m2.7'
 
-// Slugs verificados e válidos no OpenRouter (Março 2026)
-// Atualizar aqui se o OpenRouter mudar os IDs.
+// Slugs verificados e válidos no OpenRouter (Abril 2026)
 const MODELS: Record<ModelId, string> = {
     'gpt-4o':           'openai/gpt-4o',
     'gemini-2-flash':   'google/gemini-2.0-flash-001',
@@ -14,7 +13,10 @@ const MODELS: Record<ModelId, string> = {
     'minimax-m2.7':     'minimax/minimax-m2.7',
 }
 
-const FALLBACK_MODEL = 'minimax/minimax-m2.7'
+// Reads from env var to allow hot-swap without redeploy
+const DEFAULT_TEXT_MODEL = process.env.OPENROUTER_MODEL || 'minimax/minimax-m2.7'
+// Vision-capable model for image analysis (Gemini Flash is free-tier & vision-native)
+const VISION_MODEL = 'google/gemini-2.0-flash-001'
 
 interface GenerateParams {
     concept: string
@@ -26,8 +28,14 @@ interface GenerateParams {
     ragContext?: string
 }
 
-export async function generateAnalogy({ concept, audience, model = 'minimax-m2.7', image, systemPrompt, ragContext }: GenerateParams) {
-    const modelId = MODELS[model] || FALLBACK_MODEL
+export async function generateAnalogy({ concept, audience, model, image, systemPrompt, ragContext }: GenerateParams) {
+    // HYBRID ROUTING: Use vision model when image is present (M2.7 is text-only)
+    const hasImage = !!image
+    const modelId = hasImage
+        ? VISION_MODEL
+        : (model ? (MODELS[model] || DEFAULT_TEXT_MODEL) : DEFAULT_TEXT_MODEL)
+
+    console.log(`🤖 Model routing: hasImage=${hasImage} → using ${modelId}`)
 
     // Use provided system prompt or fallback to default
     let finalSystemPrompt = systemPrompt || `You are Nexus, a physical intelligence operating system. Your goal is to provide high-precision diagnoses, analogies, and technical guidance.
@@ -246,7 +254,7 @@ export async function predictMotion(currentLandmarks: any[], ragContext: string)
         RAG Context: ${ragContext}`
 
         const completion = await openRouter.chat.completions.create({
-            model: 'minimax/minimax-m2.7',
+            model: process.env.OPENROUTER_MODEL || 'minimax/minimax-m2.7',
             messages: [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content }

@@ -60,7 +60,7 @@ export function NexusEdgeProvider({ children }: { children: React.ReactNode }) {
         if (!isReady) return "Nexus Edge não está pronto.";
 
         return nexusEdge.runInference([
-            { role: "system", content: "You are a helpful technician assistant for MEO. Answer concisely." },
+            { role: "system", content: "You are a helpful technician assistant for Telecom AI. Answer concisely." },
             { role: "user", content: input }
         ]);
     }, [isReady]);

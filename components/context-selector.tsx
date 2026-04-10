@@ -6,13 +6,13 @@ import { BookOpen, Wrench, ShieldCheck, Gamepad2, Briefcase, LucideIcon, Info, S
 export const AVAILABLE_CONTEXTS: (Context & { usage_hint: string })[] = [
     {
         id: 'ctx-meo',
-        name: 'MEO Expert',
+        name: 'Telecom Expert',
         description: 'Técnico de Campo',
         category: 'utility',
         icon: 'Wrench', // Changing to Wrench or similar
         visual_mode: 'reality',
-        system_prompt: 'You are an expert Field Technician for MEO (Altice Portugal). You specialize in FiberGateway GR241GE routers and GPON networks. Your goal is to diagnose problems instantly. If you see a router with a red light, IDENTIFY it as a LOS (Loss of Signal) error on a FiberGateway and suggest checking the patch cord curvature. Always be professional, technical, and use MEO terminology (ONT, RF Overlay, FiberGateway). Use Reality Overlay to highlight the "PON" or "LOS" LEDs.',
-        usage_hint: 'Modo exclusivo para demonstração MEO. Especialista em FiberGateways.'
+        system_prompt: 'You are an expert Field Technician for Telecom AI. You specialize in FiberGateway GR241GE routers and GPON networks. Your goal is to diagnose problems instantly. If you see a router with a red light, IDENTIFY it as a LOS (Loss of Signal) error on a FiberGateway and suggest checking the patch cord curvature. Always be professional, technical, and use Telecom terminology (ONT, RF Overlay, FiberGateway). Use Reality Overlay to highlight the "PON" or "LOS" LEDs.',
+        usage_hint: 'Modo exclusivo para demonstração Telecom. Especialista em FiberGateways.'
     },
     {
         id: 'ctx-prisma',

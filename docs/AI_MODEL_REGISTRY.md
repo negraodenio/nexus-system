@@ -22,21 +22,24 @@
 
 ## 🧬 MODEL INVENTORY (Model Cards)
 
-### 1. MiniMax M2.7 (MoE)
-- **Primary Role:** Motion Intelligence Layer (Contextual Reasoning).
-- **Transparency:** 1M token context allows for deep "Logic Trace" of biomechanical decisions.
-- **Latency Target:** <200ms (Inference).
-- **Safety:** Deterministic output at Temp 0.1 for technical protocols.
+### 1. MiniMax M2.7 (MoE) — Motor de Raciocínio Principal
+- **Primary Role:** Motion Intelligence Layer (Contextual Reasoning) — análise textual e biomecânica.
+- **Activation:** Todas as queries sem imagem. Ragionamento sobre padrões EMG, geração de SOPs, Kinematic Recipes.
+- **Transparency:** Janela de 200K tokens permite "Logic Trace" completo das decisões biomecânicas.
+- **Latency:** ~1-3s (inferência cloud via OpenRouter). Execução assíncrona para não bloquear a UI.
+- **Safety:** Temperatura 0.1 para protocolos técnicos críticos.
 
-### 2. Claude 3.5 Sonnet (Anthropic)
-- **Primary Role:** PRISMA Cognitive Adapter (Advanced Explanation).
-- **Ethics:** Constitutional AI principles integrated at the weights level.
-- **Input:** Multimodal (Vision + Text).
+### 2. Google Gemini 2.0 Flash — Motor de Visão
+- **Primary Role:** Reality Overlay & Vision Diagnostics — análise de imagens em campo.
+- **Activation:** Automática quando o utilizador envia uma imagem (roteamento híbrido em `lib/ai-client.ts`).
+- **Ethics:** Processed on-the-fly via OpenRouter. Zero data retention.
+- **Input:** Multimodal (Vision + Text) — nativo.
+- **Latency:** ~800ms-1.5s (optimizado para visão mobile).
 
 ### 3. Gemma-2B (Google - Local Edge)
 - **Primary Role:** Offline Vision Diagnostics (Nexus Edge).
 - **Privacy:** Runs 100% on-device. No data transmission during field diagnostics.
-- **Latency:** Sub-100ms on modern NPU hardware.
+- **Latency:** Sub-100ms on modern NPU hardware (local pose estimation pipeline).
 
 ---
 

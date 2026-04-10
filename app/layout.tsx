@@ -1,35 +1,52 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "700", "800", "900"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const geistSans = Inter({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  weight: ["400", "700", "800"],
+  display: "swap",
+});
+
+const geistMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Nexus - Physical Graph",
-  description: "Learn by doing, not reading. Transform tacit knowledge into visual guides.",
+  title: "Nexus Motion — Physical Intelligence OS",
+  description: "The first Physical Intelligence Operating System. Vectorize neuromuscular patterns, apply real-time AI reasoning, and certify physical skills with immutable cryptographic proof.",
   manifest: "/manifest.json",
+  keywords: ["physical intelligence", "motion as code", "neuromuscular AI", "skill attestation", "blockchain certification"],
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Nexus",
+    title: "Nexus Motion",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#101822",
+  themeColor: "#0A0A0F",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false, // Prevent zoom on mobile inputs
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -41,7 +58,7 @@ export default function RootLayout({
     <html lang="en">
       {/* ... head ... */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider>
           {children}

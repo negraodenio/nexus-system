@@ -20,14 +20,14 @@ const mockCertificate = {
     role: "Técnico Especialista Nível III"
   },
   skill: {
-    name: "Fusão Óptica Padrão MEO",
+    name: "Fusão Óptica Padrão Telecom",
     id: "SKL-9021",
     category: "Telecomunicações & Infraestrutura"
   },
   issuedAt: new Date(Date.now() - 48 * 60 * 60 * 1000), // 48h ago
   issuer: {
-    name: "Altice Portugal (MEO)",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/e/e9/MEO_logo.svg"
+    name: "Nexus Telecom",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/e/e9/MEO_logo.svg" // Keeping the logo for now as it is a placeholder or replace with a generic one if available
   },
   performance: {
     syncScore: 94.2,
@@ -148,7 +148,7 @@ export default function VerificationPage() {
                 <div className="flex justify-between items-start mb-8">
                   <div className="bg-white p-2 rounded-lg inline-block shadow-inner h-12 w-24 flex items-center justify-center">
                     {/* Fallback to text if image fails or isn't perfect */}
-                    <span className="text-slate-900 font-black tracking-tighter text-lg border-b-2 border-red-600">MEO</span>
+                    <span className="text-slate-900 font-black tracking-tighter text-lg border-b-2 border-red-600">TELECOM</span>
                   </div>
                   <BadgeCheck className="w-10 h-10 text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]" />
                 </div>

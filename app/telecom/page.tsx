@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, useInView, animate } from 'framer-motion'
 import { CheckCircle, ArrowRight, Zap, Shield, TrendingUp, Phone, Mail, ChevronDown, AlertTriangle, Target } from 'lucide-react'
+import { DynamicMotionDemo } from '@/components/telecom/dynamic-motion-demo'
 
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const WHATSAPP_NUMBER = '351910000000' // ← Substitui pelo teu número real
@@ -27,7 +28,7 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; pr
       duration: 1.5,
       ease: 'easeOut',
       onUpdate: (val) => {
-        if (ref.current) ref.current.textContent = prefix + Math.round(val).toLocaleString('pt-PT') + suffix
+        if (ref.current) ref.current.textContent = prefix + Math.round(val).toLocaleString('en-US') + suffix
       }
     })
     return controls.stop
@@ -61,10 +62,10 @@ function GhostHandDemo() {
   }, [])
 
   const phaseConfig = {
-    scanning:   { label: 'A analisar equipamento…', color: '#60a5fa', ring: '#3b82f6' },
-    error:      { label: 'Desvio detectado: Cabo PON solto', color: '#f87171', ring: '#ef4444' },
-    correcting: { label: 'IA a guiar: aperte o conector LC/APC', color: '#fb923c', ring: '#f97316' },
-    ok:         { label: '✓ Procedimento validado', color: '#4ade80', ring: '#22c55e' },
+    scanning:   { label: 'Scanning equipment…', color: '#60a5fa', ring: '#3b82f6' },
+    error:      { label: 'Deviation detected: Loose PON cable', color: '#f87171', ring: '#ef4444' },
+    correcting: { label: 'AI guiding: tighten LC/APC connector', color: '#fb923c', ring: '#f97316' },
+    ok:         { label: '✓ Procedure validated', color: '#4ade80', ring: '#22c55e' },
   }
   const cfg = phaseConfig[phase]
 
@@ -179,7 +180,7 @@ function ROICalculator() {
         <div className="space-y-8">
           <div>
             <div className="flex justify-between font-mono text-xs text-blue-400 uppercase mb-3">
-              <span>Técnicos de campo</span>
+              <span>Field Technicians</span>
               <span className="text-white font-bold text-base">{techs}</span>
             </div>
             <input type="range" min="1" max="200" value={techs}
@@ -191,7 +192,7 @@ function ROICalculator() {
 
           <div>
             <div className="flex justify-between font-mono text-xs text-cyan-400 uppercase mb-3">
-              <span>Horas recuperadas/técnico/mês</span>
+              <span>Recovered hours/tech/month</span>
               <span className="text-white font-bold text-base">{extraH}h</span>
             </div>
             <input type="range" min="1" max="20" value={extraH}
@@ -203,9 +204,9 @@ function ROICalculator() {
 
           <div className="grid grid-cols-3 gap-3 text-center">
             {[
-              { label: 'Truck Rolls', val: `€${Math.round(techs * 80 * 0.30 * 150 * 0.30).toLocaleString('pt-PT')}` },
-              { label: 'Onboarding', val: `€${Math.round((techs * 0.15 / 12) * 4800 * 0.5).toLocaleString('pt-PT')}` },
-              { label: 'Produtivid.', val: `€${Math.round(techs * extraH * 20).toLocaleString('pt-PT')}` },
+              { label: 'Truck Rolls', val: `€${Math.round(techs * 80 * 0.30 * 150 * 0.30).toLocaleString('en-US')}` },
+              { label: 'Onboarding', val: `€${Math.round((techs * 0.15 / 12) * 4800 * 0.5).toLocaleString('en-US')}` },
+              { label: 'Productivity', val: `€${Math.round(techs * extraH * 20).toLocaleString('en-US')}` },
             ].map(m => (
               <div key={m.label} className="bg-white/5 rounded-xl p-3 border border-white/5">
                 <div className="font-mono text-[10px] text-white/40 uppercase mb-1">{m.label}</div>
@@ -216,25 +217,25 @@ function ROICalculator() {
         </div>
 
         <div className="text-center">
-          <div className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Poupança estimada/mês</div>
+          <div className="font-mono text-xs text-white/40 uppercase tracking-widest mb-3">Estimated monthly savings</div>
           <motion.div
             key={savings}
             initial={{ scale: 0.9, opacity: 0.7 }}
             animate={{ scale: 1, opacity: 1 }}
             className="text-5xl md:text-6xl font-black text-white mb-2"
           >
-            €{savings.toLocaleString('pt-PT')}
+            €{savings.toLocaleString('en-US')}
           </motion.div>
-          <div className="text-blue-400 font-mono text-sm">com {techs} técnicos</div>
+          <div className="text-blue-400 font-mono text-sm">with {techs} technicians</div>
           <div className="mt-6 text-xs text-white/30 leading-relaxed">
-            Baseado em: €150/truck roll · 30% taxa de 2ª visita<br />
-            15% turnover anual · €4,800 custo de onboarding
+            Based on: €150/truck roll · 30% repeat visit rate<br />
+            15% annual turnover · €4,800 onboarding cost
           </div>
 
-          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Quero+calcular+o+ROI+com+${techs}+t%C3%A9cnicos`}
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=I+would+like+to+calculate+ROI+with+${techs}+technicians`}
             target="_blank" rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm">
-            Validar com dados reais
+            Validate with actual data
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>
@@ -250,9 +251,8 @@ function LeadForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Envia para WhatsApp com dados pre-preenchidos
     const msg = encodeURIComponent(
-      `Olá! Quero iniciar um piloto Nexus Field AI.\n\nNome: ${form.name}\nEmpresa: ${form.company}\nEmail: ${form.email}\nTécnicos: ${form.techs}`
+      `Hello! I'd like to initiate a Nexus Field AI pilot.\n\nName: ${form.name}\nCompany: ${form.company}\nEmail: ${form.email}\nTechnicians: ${form.techs}`
     )
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
     setSent(true)
@@ -262,17 +262,17 @@ function LeadForm() {
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
       className="text-center py-12">
       <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-      <h3 className="text-2xl font-bold mb-2">Pedido enviado!</h3>
-      <p className="text-slate-400">Vamos entrar em contacto nas próximas 2 horas.</p>
+      <h3 className="text-2xl font-bold mb-2">Request sent!</h3>
+      <p className="text-slate-400">We will contact you within 2 hours.</p>
     </motion.div>
   )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {[
-        { label: 'Nome completo', key: 'name', type: 'text', placeholder: 'João Silva' },
-        { label: 'Empresa / Operadora', key: 'company', type: 'text', placeholder: 'MEO, NOS, Vodafone…' },
-        { label: 'Email profissional', key: 'email', type: 'email', placeholder: 'joao@empresa.pt' },
+        { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
+        { label: 'Company / Operator', key: 'company', type: 'text', placeholder: 'MEO, NOS, Vodafone…' },
+        { label: 'Work Email', key: 'email', type: 'email', placeholder: 'john@yourcompany.com' },
       ].map(f => (
         <div key={f.key}>
           <label className="block font-mono text-xs text-white/50 uppercase tracking-widest mb-2">{f.label}</label>
@@ -285,7 +285,7 @@ function LeadForm() {
         </div>
       ))}
       <div>
-        <label className="block font-mono text-xs text-white/50 uppercase tracking-widest mb-2">Nº de técnicos</label>
+        <label className="block font-mono text-xs text-white/50 uppercase tracking-widest mb-2">Number of Techs</label>
         <select value={form.techs} onChange={e => setForm(p => ({ ...p, techs: e.target.value }))}
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
           {['< 10', '10–50', '50–200', '200+'].map(o => <option key={o} value={o} className="bg-slate-900">{o}</option>)}
@@ -293,10 +293,10 @@ function LeadForm() {
       </div>
       <button type="submit"
         className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all text-sm uppercase tracking-widest hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] active:scale-95">
-        Iniciar piloto de 30 dias →
+        Start 30-Day Pilot →
       </button>
       <p className="text-center text-xs text-white/30">
-        Sem compromisso. Se não houver impacto mensurável, não continua.
+        No commitment. If there is no measurable impact, you don't continue.
       </p>
     </form>
   )
@@ -313,7 +313,6 @@ export default function TelecomLanding() {
         fontFamily: 'Inter, sans-serif',
       }}>
 
-      {/* ── HEADER ── */}
       <header className="fixed top-0 w-full z-50 border-b border-white/5"
         style={{ background: 'rgba(7,11,20,0.85)', backdropFilter: 'blur(20px)' }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -324,11 +323,11 @@ export default function TelecomLanding() {
           <div className="flex items-center gap-3">
             <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer"
               className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors px-4 py-2">
-              Ver Demo
+              View Demo
             </a>
             <a href="#piloto"
               className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-widest px-5 py-2.5 transition-all">
-              Iniciar Piloto
+              Start Pilot
             </a>
           </div>
         </div>
@@ -336,7 +335,6 @@ export default function TelecomLanding() {
 
       <main className="pt-16">
 
-        {/* ── HERO ── */}
         <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-radial-gradient from-blue-900/20 to-transparent pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(59,130,246,0.12), transparent)' }} />
 
@@ -344,47 +342,46 @@ export default function TelecomLanding() {
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 mb-8 font-mono text-[10px] tracking-[0.2em] uppercase text-blue-400 border border-blue-500/20 px-4 py-2">
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-              Nexus Field AI · Validação em Tempo Real · Telecom Edition
+              Nexus Field AI · Real-Time Validation · Telecom Edition
             </motion.div>
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
               className="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
-              Reduza erros de campo<br />
+              Reduce field errors<br />
               <span style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                em 50%
-              </span>{' '}com IA em tempo real.
+                by 50%
+              </span>{' '}with real-time AI.
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-              O técnico aponta o telemóvel para o equipamento. A IA identifica o problema,
-              guia o procedimento correto passo a passo, e regista a resolução com prova auditável.
-              Zero segundas visitas desnecessárias.
+              The technician points their phone at the equipment. The AI identifies the issue,
+              guides the correct procedure step-by-step, and logs the resolution with auditable proof.
+              Zero unnecessary truck rolls.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Quero+ver+a+demo+Nexus+Field+AI`}
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=I+would+like+to+see+the+Nexus+Field+AI+demo`}
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-10 py-5 text-sm uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] active:scale-95">
                 <Phone className="w-4 h-4" />
-                Ver demo em 10 min
+                View 10 min demo
               </a>
               <a href="#roi"
                 className="flex items-center gap-2 border border-white/10 hover:bg-white/5 font-bold px-10 py-5 text-sm uppercase tracking-widest transition-all text-slate-300">
-                Calcular ROI da equipa
+                Calculate team ROI
                 <ChevronDown className="w-4 h-4" />
               </a>
             </motion.div>
 
-            {/* KPIs */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
               className="grid grid-cols-3 gap-px border border-white/5 max-w-2xl mx-auto overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { v: '-50%', l: 'Erros de campo' },
-                { v: '-60%', l: 'Tempo de onboarding' },
-                { v: '-30%', l: 'Segundas visitas' },
+                { v: '-50%', l: 'Field Errors' },
+                { v: '-60%', l: 'Onboarding Time' },
+                { v: '-30%', l: 'Repeat Visits' },
               ].map((m, i) => (
                 <div key={i} className="py-6 text-center" style={{ background: '#070B14' }}>
                   <div className="text-2xl font-black text-blue-400 mb-1">{m.v}</div>
@@ -395,21 +392,20 @@ export default function TelecomLanding() {
           </div>
         </section>
 
-        {/* ── DEMO VISUAL ── */}
         <section className="py-24 px-6" style={{ background: '#0a101c' }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-4">Validação em Tempo Real</div>
-              <h2 className="text-4xl font-black tracking-tighter">O técnico vê. A IA corrige. Imediatamente.</h2>
+              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-4">Real-Time Validation</div>
+              <h2 className="text-4xl font-black tracking-tighter">The technician sees. The AI corrects. Instantly.</h2>
             </div>
 
-            <GhostHandDemo />
+            <DynamicMotionDemo skillId="5ca8fef5-8189-460c-9b39-cde2c40ffbb6" />
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { icon: <Zap className="w-5 h-5" />, title: 'Deteção em <100ms', desc: 'O desvio é identificado antes de causar erro.' },
-                { icon: <Target className="w-5 h-5" />, title: 'Guia passo a passo', desc: 'Feedback visual e vocal no exato momento da execução.' },
-                { icon: <Shield className="w-5 h-5" />, title: 'Log imutável', desc: 'Cada intervenção registada para auditoria ISO.' },
+                { icon: <Zap className="w-5 h-5" />, title: '<100ms Detection', desc: 'Deviation is identified before causing an error.' },
+                { icon: <Target className="w-5 h-5" />, title: 'Step-by-step guide', desc: 'Visual and vocal feedback precisely during execution.' },
+                { icon: <Shield className="w-5 h-5" />, title: 'Immutable log', desc: 'Every intervention logged for ISO auditing.' },
               ].map((f, i) => (
                 <div key={i} className="p-6 border border-white/5 hover:border-blue-500/30 transition-colors"
                   style={{ background: 'rgba(255,255,255,0.02)' }}>
@@ -422,20 +418,19 @@ export default function TelecomLanding() {
           </div>
         </section>
 
-        {/* ── PROBLEM / SOLUTION ── */}
         <section className="py-24 px-6">
           <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">O Problema Real</div>
+              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">The Real Problem</div>
               <h2 className="text-4xl font-black tracking-tighter mb-8 leading-tight">
-                Cada segunda visita<br />custa <span className="text-red-400">€150</span> e 1 cliente insatisfeito.
+                Every repeat visit<br />costs <span className="text-red-400">€150</span> and 1 unhappy customer.
               </h2>
               <ul className="space-y-4">
                 {[
-                  '30% das avarias exigem uma segunda visita evitável',
-                  'Onboarding de técnico novo: 6–8 semanas de acompanhamento presencial',
-                  'Conhecimento dos seniores não é transferível com documentos PDF',
-                  'Auditorias de qualidade sem evidência objetiva de execução',
+                  '30% of malfunctions require an avoidable repeat visit',
+                  'Onboarding a new tech: 6–8 weeks of in-person shadowing',
+                  'Senior knowledge is not transferable via PDF documents',
+                  'Quality audits lack objective evidence of execution',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="text-red-400 mt-0.5 font-bold">×</span>
@@ -445,13 +440,13 @@ export default function TelecomLanding() {
               </ul>
             </div>
             <div>
-              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">A Solução Nexus</div>
+              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">The Nexus Solution</div>
               <ul className="space-y-4">
                 {[
-                  'Técnico guiado em tempo real — sem ligar para suporte nível 2',
-                  'Novo técnico atinge performance sénior em 2–3 semanas',
-                  'O melhor especialista "ensina" uma vez → replica para 1000 técnicos',
-                  'Log blockchain de cada procedimento — pronto para auditoria',
+                  'Real-time tech guidance — without calling L2 support',
+                  'New tech reaches senior performance in 2–3 weeks',
+                  'The best expert "teaches" once → copies to 1000 techs',
+                  'Blockchain log of every procedure — audit-ready',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -463,33 +458,31 @@ export default function TelecomLanding() {
           </div>
         </section>
 
-        {/* ── ROI CALCULATOR ── */}
         <section id="roi" className="py-24 px-6" style={{ background: '#0a101c' }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-4">ROI Calculator</div>
-              <h2 className="text-4xl font-black tracking-tighter">Quanto vai poupar com {' '}
-                <span style={{ color: '#3b82f6' }}>a sua equipa?</span>
+              <h2 className="text-4xl font-black tracking-tighter">How much will you save with {' '}
+                <span style={{ color: '#3b82f6' }}>your team?</span>
               </h2>
             </div>
             <ROICalculator />
           </div>
         </section>
 
-        {/* ── SOCIAL PROOF / METRICS ── */}
         <section className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-4">Impacto Observado</div>
-              <h2 className="text-4xl font-black tracking-tighter">Resultados mensuráveis,<br />não promessas.</h2>
+              <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-4">Track Record</div>
+              <h2 className="text-4xl font-black tracking-tighter">Measurable results,<br />not promises.</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-white/5 overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { v: 50, suffix: '%', label: 'Redução de erros' },
-                { v: 60, suffix: '%', label: 'Menos onboarding' },
-                { v: 30, suffix: '%', label: 'Menos truck rolls' },
-                { v: 94, suffix: '%', label: 'Conformidade SOP' },
+                { v: 50, suffix: '%', label: 'Error reduction' },
+                { v: 60, suffix: '%', label: 'Less onboarding' },
+                { v: 30, suffix: '%', label: 'Fewer truck rolls' },
+                { v: 94, suffix: '%', label: 'SOP Compliance' },
               ].map((m, i) => (
                 <div key={i} className="p-10 text-center" style={{ background: '#070B14' }}>
                   <div className="text-4xl font-black text-blue-400 mb-2">
@@ -500,14 +493,13 @@ export default function TelecomLanding() {
               ))}
             </div>
 
-            {/* How it works */}
             <div className="mt-12 grid md:grid-cols-4 gap-px border border-white/5 overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { n: '01', title: 'Aponta', desc: 'Técnico aponta câmera para o equipamento' },
-                { n: '02', title: 'Identifica', desc: 'IA diagnostica o problema em <2 segundos' },
-                { n: '03', title: 'Guia', desc: 'Overlay AR mostra o procedimento correto' },
-                { n: '04', title: 'Regista', desc: 'Resolução guardada com prova imutável' },
+                { n: '01', title: 'Aim', desc: 'Technician points camera at equipment' },
+                { n: '02', title: 'Identify', desc: 'AI diagnoses the issue in <2 seconds' },
+                { n: '03', title: 'Guide', desc: 'AR overlay shows the correct procedure' },
+                { n: '04', title: 'Log', desc: 'Resolution saved with immutable proof' },
               ].map((s, i) => (
                 <div key={i} className="p-8" style={{ background: '#070B14' }}>
                   <div className="font-mono text-blue-500 text-xs mb-4">{s.n}</div>
@@ -519,25 +511,24 @@ export default function TelecomLanding() {
           </div>
         </section>
 
-        {/* ── OFFER / CTA ── */}
         <section id="piloto" className="py-24 px-6" style={{ background: '#0a101c' }}>
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
               <div>
-                <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">Oferta de Entrada</div>
+                <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest mb-6">Limited Offer</div>
                 <h2 className="text-4xl font-black tracking-tighter mb-6 leading-tight">
-                  Piloto de 30 dias<br />com a sua equipa.
+                  30-Day Pilot<br />with your team.
                 </h2>
                 <p className="text-slate-400 mb-8 leading-relaxed">
-                  Implementação em 1 semana. Resultados mensuráveis no final do piloto.
-                  <strong className="text-white"> Se não houver impacto demonstrável, não continua.</strong>
+                  1-week deployment. Measurable results by the end of the pilot.
+                  <strong className="text-white"> If there is no demonstrable impact, you walk away.</strong>
                 </p>
                 <ul className="space-y-3 mb-8">
                   {[
-                    'Onboarding guiado de toda a equipa',
-                    'Dashboard de métricas em tempo real',
-                    'Suporte direto via WhatsApp',
-                    'Relatório de ROI no final do piloto',
+                    'Guided onboarding for the whole team',
+                    'Real-time metric dashboard',
+                    'Direct support via dedicated channels',
+                    'ROI report by the end of the pilot',
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
                       <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0" />
@@ -546,26 +537,25 @@ export default function TelecomLanding() {
                   ))}
                 </ul>
                 <div className="p-6 border border-blue-500/20 bg-blue-500/5">
-                  <div className="font-mono text-xs text-blue-400 uppercase mb-2">Investimento do piloto</div>
-                  <div className="text-3xl font-black text-white">€1.500 <span className="text-slate-500 text-lg font-normal">/ 30 dias</span></div>
-                  <div className="text-xs text-slate-500 mt-1">ou negociação por performance</div>
+                  <div className="font-mono text-xs text-blue-400 uppercase mb-2">Pilot investment</div>
+                  <div className="text-3xl font-black text-white">€1.500 <span className="text-slate-500 text-lg font-normal">/ 30 days</span></div>
+                  <div className="text-xs text-slate-500 mt-1">or performance-based rev-share</div>
                 </div>
               </div>
 
               <div className="bg-white/[0.02] border border-white/10 p-8">
-                <div className="font-mono text-xs text-white/50 uppercase tracking-widest mb-6">Iniciar piloto</div>
+                <div className="font-mono text-xs text-white/50 uppercase tracking-widest mb-6">Start Pilot</div>
                 <LeadForm />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── DIRECT CONTACT ── */}
         <section className="py-16 px-6 border-t border-white/5">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
-              <div className="font-mono text-xs text-slate-500 uppercase tracking-widest mb-2">Prefere falar diretamente?</div>
-              <h3 className="text-2xl font-black">Resposta em menos de 2 horas.</h3>
+              <div className="font-mono text-xs text-slate-500 uppercase tracking-widest mb-2">Prefer to speak directly?</div>
+              <h3 className="text-2xl font-black">Response in under 2 hours.</h3>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer"
@@ -573,7 +563,7 @@ export default function TelecomLanding() {
                 <Phone className="w-4 h-4" />
                 WhatsApp
               </a>
-              <a href={`mailto:hello@nexusmotion.pt?subject=Piloto Nexus Field AI`}
+              <a href={`mailto:hello@nexusmotion.pt?subject=Nexus Field AI Pilot`}
                 className="flex items-center gap-2 border border-white/10 hover:bg-white/5 text-slate-300 font-bold px-6 py-4 text-sm uppercase tracking-widest transition-all">
                 <Mail className="w-4 h-4" />
                 Email
@@ -581,18 +571,17 @@ export default function TelecomLanding() {
               <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-4 text-sm uppercase tracking-widest transition-all">
                 <TrendingUp className="w-4 h-4" />
-                Agendar demo
+                Book demo
               </a>
             </div>
           </div>
         </section>
       </main>
 
-      {/* ── FOOTER ── */}
       <footer className="border-t border-white/5 py-10 px-6" style={{ background: '#070B14' }}>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="font-mono text-[10px] text-slate-600 uppercase tracking-widest">
-            © 2026 Nexus Motion · nexusmotion.pt · Todos os direitos reservados
+            © 2026 Nexus Motion · nexusmotion.pt · All rights reserved
           </div>
           <div className="font-mono text-[10px] text-slate-600 uppercase tracking-widest">
             NXM-PAT-001-2026 (PCT Pending) · EU AI Act Compliant

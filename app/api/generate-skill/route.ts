@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         - Flexion: 0.0 is open, 1.0 is fully curled.`
 
         const completion = await openRouter.chat.completions.create({
-            model: 'minimax/minimax-m2.7',
+            model: process.env.OPENROUTER_MODEL || 'minimax/minimax-m2.7',
             messages: [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: prompt }
