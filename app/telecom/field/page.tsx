@@ -1,13 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { FieldAssistant } from '@/components/telecom/field-assistant'
 import { motion } from 'framer-motion'
 import { Signal, User, Battery, Clock, ShieldCheck } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-export default function FieldPage() {
+function FieldPageContent() {
     const searchParams = useSearchParams()
     const [pilotToken, setPilotToken] = useState<string | null>(null)
 
@@ -86,5 +86,17 @@ export default function FieldPage() {
             </motion.div>
 
         </div>
+    )
+}
+
+export default function FieldPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-black flex items-center justify-center text-white" style={{ fontFamily: 'monospace' }}>
+                <span className="text-xs uppercase tracking-widest text-blue-400 animate-pulse">Loading HUD Interface...</span>
+            </div>
+        }>
+            <FieldPageContent />
+        </Suspense>
     )
 }
