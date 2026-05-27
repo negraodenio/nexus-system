@@ -410,9 +410,9 @@ export default function TelecomLanding() {
               className="grid grid-cols-3 gap-px border border-white/5 max-w-2xl mx-auto overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { v: '-50%', l: 'Erro de Campo' },
-                { v: '-60%', l: 'Tempo Onboarding' },
-                { v: '-30%', l: 'Segundas Visitas' },
+                { v: '-50%', l: 'Field Errors' },
+                { v: '-60%', l: 'Onboarding Time' },
+                { v: '-30%', l: 'Repeat Visits' },
               ].map((m, i) => (
                 <div key={i} className="py-6 text-center" style={{ background: '#070B14' }}>
                   <div className="text-2xl font-black text-blue-400 mb-1">{m.v}</div>
@@ -510,10 +510,10 @@ export default function TelecomLanding() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-white/5 overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[
-                { v: 50, suffix: '%', label: 'Error reduction' },
-                { v: 60, suffix: '%', label: 'Less onboarding' },
-                { v: 30, suffix: '%', label: 'Fewer truck rolls' },
-                { v: 94, suffix: '%', label: 'SOP Compliance' },
+                { v: 50, suffix: '%', label: 'Field Errors' },
+                { v: 60, suffix: '%', label: 'Onboarding Time' },
+                { v: 30, suffix: '%', label: 'Repeat Visits' },
+                { v: 100, suffix: '%', label: 'Audit-Ready' },
               ].map((m, i) => (
                 <div key={i} className="p-10 text-center" style={{ background: '#070B14' }}>
                   <div className="text-4xl font-black text-blue-400 mb-2">

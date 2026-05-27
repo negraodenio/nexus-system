@@ -5,7 +5,7 @@ import {
     ArrowLeft, BarChart3, Users, Eye, TrendingUp, 
     Loader2, Plus, DollarSign, Shield, Activity, 
     Target, Clock, CheckCircle2, AlertCircle, 
-    Signal, MapPin, Zap
+    Signal, MapPin, Zap, QrCode
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -299,7 +299,8 @@ export default function EnterpriseDashboard() {
                                     </tbody>
                                 </table>
                             </div>
-                        </section>
+                        </div>
+                    </section>
 
                         {/* ── DRILL DOWN GRAPHS (PLACEHOLDER) ── */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -674,6 +675,8 @@ export default function EnterpriseDashboard() {
                             </div>
                         </motion.div>
                     </div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
