@@ -3,10 +3,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 // MediaPipe now runs in Web Worker
 // import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Camera, Zap, Shield, CheckCircle2, 
     AlertTriangle, Info, ArrowLeft, 
-    Settings, Maximize2, RefreshCw 
+    Settings, Maximize2, RefreshCw,
+    Target, AlertCircle, TrendingUp, Database, CameraOff
 } from 'lucide-react'
 import { kineticEngine, Landmark } from '@/lib/kinetic-engine'
 import { supabase } from '@/lib/supabase'
@@ -133,7 +136,7 @@ export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: F
 
     // 1. Initialize Vision Worker (Professional Optimization)
     useEffect(() => {
-        const worker = new Worker(new URL('../../public/workers/vision-worker.js', import.meta.url), { type: 'module' });
+        const worker = new Worker('/workers/vision-worker.js', { type: 'module' });
         workerRef.current = worker;
 
         worker.onmessage = (e) => {
