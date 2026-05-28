@@ -122,6 +122,7 @@ export default function NexusLanding() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] text-white/50 font-bold font-mono">
+            <Link href="/public-sector" className="text-emerald-400 hover:text-emerald-300 font-extrabold tracking-widest border-r border-white/10 pr-6">Public Sector</Link>
             <a href="#technology" className="hover:text-emerald-400 transition-colors">Technology</a>
             <Link href="/operations" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
               <span>Operations</span>
