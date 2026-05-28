@@ -160,7 +160,7 @@ export default function NexusLanding() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-emerald-400 font-bold">
-                TRUSTED OPERATIONAL INTELLIGENCE · LIVE · LISBOA
+                COMPLIANT WITH PRR C19-i08 & ARPGU · LIVE · LISBOA
               </span>
             </motion.div>
 
@@ -171,14 +171,14 @@ export default function NexusLanding() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.95] mb-6 max-w-4xl"
             >
-              Trusted Operational<br />
+              Trusted Urban &<br />
               <span style={{ 
                 background: 'linear-gradient(90deg, #34d399, #10b981)', 
                 WebkitBackgroundClip: 'text', 
                 WebkitTextFillColor: 'transparent',
                 display: 'inline-block'
               }}>
-                Intelligence.
+                Operational Intelligence.
               </span>
             </motion.h1>
 
@@ -189,7 +189,7 @@ export default function NexusLanding() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg md:text-xl text-white/60 max-w-3xl mx-auto mb-10 leading-relaxed font-medium"
             >
-              The AI infrastructure that proves your operations were executed correctly — with cryptographic certainty. Real-time event processing, anomaly detection, and immutable compliance attestation.
+              The open, NGSI-LD / FIWARE-compliant Urban Management Platform (PGU) designed for Portuguese municipalities to capture 100% of C19-i08 PRR funds — with no vendor lock-in.
             </motion.p>
 
             {/* Call to Actions */}
