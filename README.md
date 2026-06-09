@@ -1,78 +1,92 @@
-# 🌀 Nexus Motion 3.0: The Physical Intelligence OS
-**Motion as Code (MaC) | Neuromuscular RAG | Biomechanical Immutability**
+# 🌀 Nexus Motion 3.0: Physical Intelligence System
 
-[![Domain](https://img.shields.io/badge/domain-nexusmotion.pt-blue)](https://nexusmotion.pt)
-[![Framework](https://img.shields.io/badge/framework-Physical--SDLC-green)]()
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://nexusmotion.pt)
-[![License](https://img.shields.io/badge/license-Proprietary-blue)](LICENSE)
-[![Security](https://img.shields.io/badge/security-95%2F100-green)]()
+AI platform that brings real-time intelligence into physical environments and operations.
 
 ---
 
-## 🌐 Strategic Context: nexusmotion.pt
+## 🚨 Problem
 
-A **Nexus Motion** é a infraestrutura de inteligência física definitiva para capturar, versionar e comercializar competência cinemática. Operando sob o paradigma **Motion as Code**, tratamos movimentos humanos como protocolos binários de alta precisão, auditáveis e monetizáveis.
+Physical environments lack real-time intelligence.
 
-**The Physical SDLC Archive:**
-- 🧠 **Motion Intelligence Layer** — Interpretação granular de contexto físico (corpo/máquina/ambiente).
-- 🧬 **Neuromuscular Memory** — Embeddings RAG de sinais EMG e biomecânicos vivos (1M tokens context).
-- ⚙️ **Motor Correction Engine** — O motor de **Diff & Patch** em tempo real para correção de drift motor.
-- ⛓️ **Biomechanical Ledger** — Atestados imutáveis (Polygon) de maestria física, garantindo conformidade ISO.
-
----
-
-## 👋 Key Capabilities
-
-### ⚡ Motion Runtime (Practice)
-- Tracking 3D em tempo real (21 landmarks) a 30fps.
-- **Neural Intent Prediction**: Antecipação de movimento via sinal BCI (EMG).
-- **Token-Gated Access**: Controle de acesso as licenças via blockchain.
-
-### 🧠 Neuromuscular RAG
-- Indexação vetorial de padrões biomecânicos.
-- **Context-Aware Inference**: Raciocínio dinâmico sobre a intenção do técnico em campo.
-- **Offline-First (Edge AI)**: Gemma-2B local para operação em áreas sem 5G.
-
-### 💰 Nexus Economy
-- **Marketplace de Habilidades**: Licenciamento B2B de expertise técnica.
-- **Automated Profit Sharing**: Divisão de royalties 80/20 (Creator/Nexus) via ledger.
-- **Nexus Credits (NC)**: Moeda nativa de utilidade para o ecossistema.
+- Decisions are reactive  
+- No visibility of human performance in real time  
+- Skills are not measurable or transferable  
+- Training and execution are inconsistent  
 
 ---
 
-## 🛠️ Tech Stack & Governance
+## 💡 Solution
 
-**Architecture:**
-- **Frontend**: Next.js 16.1, Three.js, MediaPipe, Framer Motion.
-- **Economic Backend**: Supabase, Polygon PoS, IPFS Metadata.
-- **AI Core**: MiniMax M2.7 (1M tokens), Gemma-2B (Edge), text-embedding-3.
-- **Security**: ISO 25010, EU AI Act Compliance, Multi-tenant RLS.
+Nexus transforms physical activity into data and intelligence.
 
----
+It enables:
 
-## 📊 Roadmap: The Nexus Journey
-
-- [x] **Phase 1: Foundation** — Enterprise hardening & Multi-tenant isolation.
-- [x] **Phase 2: BCI & Ghost Neural** — Muscle-to-3D prediction (EMG RAG).
-- [x] **Phase 3: Nexus Studio** — Motion GPT (Generative Cinematic Fragments).
-- [x] **Phase 4: Real-Time Sync** — 5G MEC optimization & Multi-user Stage.
-- [x] **Phase 5: Trust Protocol** — Blockchain certs & 3D Mastery Badges.
-- [x] **Phase 6: Nexus Economy** — Marketplace licensing & B2B Profit Sharing (Credits).
-- [x] **Phase 7: Governance** — EU AI Act Compliance & Motion Intelligence Manifest.
+- real-time motion analysis  
+- performance tracking  
+- adaptive correction  
+- skill standardization  
 
 ---
 
+## ⚙️ Core Capabilities
 
-**Lead Developer:** Denio Negrão  
-**GitHub:** [@negraodenio](https://github.com/negraodenio)
-
----
-
-## 📄 License
-
-Proprietary — All Rights Reserved  
-Patent-pending technology: Kinetic Engine V2.0
+- 📡 Real-time motion tracking (3D landmarks, body signals)  
+- 🧠 Context-aware AI interpretation of physical actions  
+- ⚙️ Real-time correction engine (movement feedback & optimization)  
+- 📊 Performance analysis and benchmarking  
+- 🔗 Integration with real-world operations  
 
 ---
 
-**Built with ❤️ using Next.js, Supabase, MediaPipe, Three.js, and cutting-edge AI**
+## 🧠 Architecture
+
+- Motion capture layer (vision + signals)  
+- Neuromuscular memory (RAG for motion patterns)  
+- Real-time inference engine  
+- Decision & correction system  
+
+---
+
+## 📈 Real-World Validation
+
+✅ Proof of Concept executed with **MEO (Portugal)**
+
+- Applied in real operational environment  
+- Demonstrated real-time AI support for physical tasks  
+- Validated system feasibility beyond simulation  
+
+---
+
+## 📈 Why this matters
+
+Most AI systems operate in digital environments.
+
+Nexus brings AI into the physical world.
+
+---
+
+## 🛠 Tech Stack
+
+- Next.js + TypeScript  
+- MediaPipe / Three.js  
+- Supabase (PostgreSQL + RLS)  
+- Multi-LLM (MiniMax, others)  
+- Edge AI support  
+
+---
+
+## 👥 Use Cases
+
+- Telecom field operations  
+- Industrial environments  
+- Training and skill standardization  
+- Real-time performance monitoring  
+
+---
+
+## 🔥 Positioning
+
+Not a dashboard.  
+Not a simulation.  
+
+A system for real-world intelligence.
