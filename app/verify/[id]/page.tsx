@@ -41,7 +41,7 @@ const mockCertificate = {
     totalErrors: 0
   },
   blockchain: {
-    network: "Polygon PoS",
+    network: "Distributed Ledger (Notarizado)",
     txHash: "0x8fa4c3dfbe1a20b9e8cd4f9328a1768b4499ac1029c...a3e",
     ipfsCid: "bafkreigz7fbb...2nd2xyd6x",
     blockNumber: "8492015"
@@ -101,7 +101,7 @@ export default function VerificationPage() {
             totalErrors: 0
           },
           blockchain: {
-            network: "Polygon PoS",
+            network: "Distributed Ledger (Notarizado)",
             txHash: `0x${id}${id}`.substring(0, 66),
             ipfsCid: "bafkreigz7fbb...2nd2xyd6x",
             blockNumber: "8492015"
@@ -142,8 +142,8 @@ export default function VerificationPage() {
             </div>
           </div>
           <div className="text-center space-y-2">
-            <p className="text-slate-200 font-semibold">Verificando integridade on-chain</p>
-            <p className="text-slate-500 font-mono text-xs tracking-[0.2em] uppercase animate-pulse">Polygon PoS · Bloco #8492015</p>
+            <p className="text-slate-200 font-semibold">Verificando integridade no Ledger</p>
+            <p className="text-slate-500 font-mono text-xs tracking-[0.2em] uppercase animate-pulse">Distributed Ledger · Bloco #8492015</p>
           </div>
           <div className="flex gap-1.5">
             {[0,1,2].map(i => (
@@ -176,7 +176,7 @@ export default function VerificationPage() {
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-            LIVE ON POLYGON
+            LIVE ON LEDGER
           </div>
         </div>
       </header>
@@ -245,7 +245,7 @@ export default function VerificationPage() {
               </button>
               <button className="w-full py-3.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-medium hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
                 <LinkIcon className="w-4 h-4" />
-                Ver na Polygonscan
+                Verificar Hash de Atestação
               </button>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function VerificationPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white tracking-tight">Registo Criptográfico Imutável</h3>
-                  <p className="text-xs text-slate-400">Assinado pelo Smart Contract (EIP-712)</p>
+                  <p className="text-xs text-slate-400">Assinatura de Integridade Criptográfica</p>
                 </div>
               </div>
 
@@ -384,7 +384,7 @@ export default function VerificationPage() {
                     </span>
                   </li>
                   <li className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-800/50">
-                    <span className="text-slate-500 mb-1 sm:mb-0">Transaction Hash</span>
+                    <span className="text-slate-500 mb-1 sm:mb-0">Hash de Atestação</span>
                     <span className="text-blue-400 break-all select-all flex items-center gap-2">
                       {cert?.blockchain.txHash}
                       <LinkIcon className="w-3 h-3 flex-shrink-0" />

@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: NEXUS TOGI Interoperability API
+  description: >
+    API REST documentada e alinhada com o Regulamento Nacional de Interoperabilidade Digital (RNID).
+    Permite a integração de Plataformas de Gestão Urbana (PGU) com o motor de governança NEXUS.
+  version: 2.0.0
+  contact:
+    name: Nexus Smart City Integration Team
+    url: https://nexusmotion.pt/public-sector
+servers:
+  - url: https://api.nexusmotion.pt/v2
+    description: Production Server
+  - url: https://sandbox.nexusmotion.pt/v2
+    description: Homologation Server (iAP testing)
+paths:
+  /fiware/notify:
+    post:
+      summary: Ingestão de Notificações NGSI-LD
+      description: Recebe eventos operacionais formatados em Smart Data Models e gera trilhas de auditoria criptográfica.
+      operationId: receiveNgsiLdEvent
+      tags:
+        - FIWARE
+      requestBody:
+        description: Payload NGSI-LD representando o contexto urbano
+        required: true
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/NgsiLdEntity'
+      responses:
+        '201':
+          description: Evento processado com sucesso e atestação gerada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtestationResponse'
+        '400':
+          description: Payload inválido ou schema não conforme.
+        '401':
+          description: Não autorizado (Selo temporal / CMD ausente).
+components:
+  securitySchemes:
+    OAuth2iAP:
+      type: oauth2
+      description: Integração Autenticação.gov (CMD)
+      flows:
+        authorizationCode:
+          authorizationUrl: https://autenticacao.gov.pt/oauth/askcredentials
+          tokenUrl: https://autenticacao.gov.pt/oauth/access_token
+          scopes:
+            openid: Identification
+            identification: Access to NIC and NIF
+  schemas:
+    NgsiLdEntity:
+      type: object
+      required:
+        - id
+        - type
+        - '@context'
+      properties:
+        id:
+          type: string
+          format: uri
+        type:
+          type: string
+        '@context':
+          type: array
+          items:
+            type: string
+    AtestationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        attestationHash:
+          type: string
+          description: O Integrity Digest gerado pelo sistema criptográfico
+        timestamp:
+          type: string
+          format: date-time
+security:
+  - OAuth2iAP: []

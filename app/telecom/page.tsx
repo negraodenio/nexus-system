@@ -477,7 +477,7 @@ export default function TelecomLanding() {
                   'Real-time tech guidance — without calling L2 support',
                   'New tech reaches senior performance in 2–3 weeks',
                   'The best expert "teaches" once → copies to 1000 techs',
-                  'Blockchain log of every procedure — audit-ready',
+                  'Cryptographic audit trail of every procedure — audit-ready',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />

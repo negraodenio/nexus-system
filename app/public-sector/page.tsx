@@ -64,32 +64,43 @@ export default function PublicSectorPage() {
   const [validationResult, setValidationResult] = useState<any>(null)
   const [isValidating, setIsValidating] = useState(false)
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
     setIsValidating(true)
-    setTimeout(() => {
-      try {
-        const parsed = JSON.parse(jsonInput)
-        if (!parsed.id || !parsed.type || !parsed.location) {
-          throw new Error("Missing mandatory NGSI-LD envelope parameters ('id', 'type', or 'location')")
-        }
-        
-        // Generate mock attestation hash
-        const mockHash = '0x' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
-        setValidationResult({
-          status: 'SUCCESS',
-          message: 'Valid NGSI-LD envelope compliant with ARPGU Data Schema.',
-          attestation: mockHash,
-          block: Math.floor(Math.random() * 100000) + 7400000,
-          timestamp: new Date().toISOString()
-        })
-      } catch (err: any) {
-        setValidationResult({
-          status: 'ERROR',
-          message: err.message || 'Invalid JSON format'
-        })
+    try {
+      const parsed = JSON.parse(jsonInput)
+      if (!parsed.id || !parsed.type || !parsed.location) {
+        throw new Error("Missing mandatory NGSI-LD envelope parameters ('id', 'type', or 'location')")
       }
+
+      const response = await fetch('/api/fiware/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: jsonInput
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to validate NGSI-LD')
+      }
+      
+      // Generate mock attestation hash
+      const mockHash = '0x' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+      setValidationResult({
+        status: 'SUCCESS',
+        message: result.message || 'Valid NGSI-LD envelope compliant with ARPGU Data Schema.',
+        attestation: mockHash,
+        block: Math.floor(Math.random() * 100000) + 7400000,
+        timestamp: new Date().toISOString()
+      })
+    } catch (err: any) {
+      setValidationResult({
+        status: 'ERROR',
+        message: err.message || 'Invalid JSON format'
+      })
+    } finally {
       setIsValidating(false)
-    }, 1200)
+    }
   }
 
   return (
@@ -135,11 +146,12 @@ export default function PublicSectorPage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-tight mb-6">
-            Trusted Operational Infrastructure for Smart Public Operations
+            NEXUS<br/><span className="text-emerald-500">Operational Knowledge Digital Twin</span>
           </h1>
           
           <p className="text-white/60 text-base md:text-lg leading-relaxed max-w-3xl">
-            Nexus provides the open, compliant, and cryptographically audit-ready interoperability bus that allows Portuguese municipalities to capture and deploy 100% of C19-i08 PRR funds.
+            <strong className="text-white block mb-4 text-xl">Transformamos conhecimento humano em infraestrutura digital. Preservamos a inteligência operacional que mantém cidades, empresas e infraestruturas críticas a funcionar.</strong>
+            A enfrentar a Crise Silenciosa da Continuidade Operacional Nacional: nos próximos anos, milhares de técnicos da administração pública e das utilities irão reformar-se. A Europa investe biliões em soberania digital, mas a <strong>Soberania do Conhecimento Operacional</strong> permanece vulnerável. O NEXUS converte conhecimento tácito humano em ativos digitais inalteráveis, criando uma camada soberana de memória institucional, protegida por um fosso tecnológico e institucional 100% alinhado com o EU AI Act.
           </p>
         </section>
 
@@ -180,16 +192,16 @@ export default function PublicSectorPage() {
                 <span className="font-mono text-[9px] text-emerald-500 font-bold uppercase tracking-widest mb-4 block">PORTUGAL DIGITAL DIRECTIVE</span>
                 <h3 className="text-2xl font-black uppercase text-white mb-6 tracking-tight">Estratégia Nacional para os Territórios Inteligentes</h3>
                 <p className="text-white/60 text-xs md:text-sm leading-relaxed mb-8">
-                  A ENTI determina que as candidaturas municipais ao PRR devem suportar mecanismos de interoperabilidade mínima (**MIMs**). O Nexus é construído sob esse pressuposto, unificando dados urbanos georreferenciados sem que o município precise de deitar fora a sua infraestrutura técnica pré-existente.
+                  A ENTI determina que as candidaturas municipais ao PRR devem suportar mecanismos de interoperabilidade mínima (**MIMs**). O Nexus atua como a infraestrutura de confiança das operações de utilities e de campo, unificando dados urbanos georreferenciados sob um barramento seguro sem que a autarquia precise de descartar a sua infraestrutura técnica pré-existente.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 border border-white/5 bg-white/[0.01]">
                     <h4 className="font-mono text-[11px] font-bold text-white mb-2 uppercase">MIMs 1: Context</h4>
-                    <p className="text-[10px] text-white/40 leading-relaxed">Gerenciamento dinâmico de dados geográficos e estados urbanos em tempo real.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed">Gerenciamento dinâmico de dados de utilities e estados operacionais em tempo real.</p>
                   </div>
                   <div className="p-4 border border-white/5 bg-white/[0.01]">
                     <h4 className="font-mono text-[11px] font-bold text-white mb-2 uppercase">MIMs 2: Data Models</h4>
-                    <p className="text-[10px] text-white/40 leading-relaxed">Formatos unificados e descritores abertos FIWARE sem risco de vendor lock-in.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed">Formatos unificados e descritores abertos baseados em Smart Data Models da União Europeia.</p>
                   </div>
                 </div>
               </div>
@@ -200,7 +212,7 @@ export default function PublicSectorPage() {
                 <span className="font-mono text-[9px] text-emerald-500 font-bold uppercase tracking-widest mb-4 block">PLATAFORMAS DE GESTÃO URBANA</span>
                 <h3 className="text-2xl font-black uppercase text-white mb-6 tracking-tight">Arquitetura de Referência (ARPGU) Compliance</h3>
                 <p className="text-white/60 text-xs md:text-sm leading-relaxed mb-8">
-                  Em total harmonia com os referenciais da AMA, o barramento do Nexus adota o protocolo **NGSI-LD** para a receção e partilha descentralizada de dados em tempo real, integrando verticalidades essenciais como trânsito, proteção civil e telecomunicações municipais de forma aberta.
+                  Em total harmonia com os referenciais da AMA, o barramento do Nexus adota o protocolo **NGSI-LD** para a receção e partilha descentralizada de dados operacionais em tempo real, integrando verticalidades de infraestrutura crítica (redes elétricas, saneamento e manutenção de utilities) de forma aberta e auditável.
                 </p>
                 <div className="p-4 border border-emerald-500/10 bg-emerald-950/10 flex items-start gap-4">
                   <Workflow className="w-5 h-5 text-emerald-400 mt-1 flex-shrink-0" />
@@ -217,14 +229,87 @@ export default function PublicSectorPage() {
                 <span className="font-mono text-[9px] text-emerald-500 font-bold uppercase tracking-widest mb-4 block">REGULAMENTO EUROPEU DA IA</span>
                 <h3 className="text-2xl font-black uppercase text-white mb-6 tracking-tight">IA Responsável, Explicável e Auditável</h3>
                 <p className="text-white/60 text-xs md:text-sm leading-relaxed mb-8">
-                  Os sistemas inteligentes de inteligência operacional que decidem despachos públicos ou identificam anomalias urbanas são classificados como de alta responsabilidade. O Nexus integra explicabilidade em tempo real (**AI Decision Audit**) permitindo a justificação de cada alerta emitido pela IA.
+                  Os sistemas que decidem despachos públicos ou validam a conformidade das equipes operacionais são classificados como de alta responsabilidade. O Nexus integra explicabilidade em tempo real (**AI Decision Audit**) permitindo a justificação de cada alerta e desvio de procedimento emitido pela IA.
                 </p>
                 <div className="p-4 border border-white/5 bg-white/[0.01]">
                   <h4 className="font-mono text-[11px] font-bold text-white mb-2 uppercase">Decisões Rastreáveis</h4>
-                  <p className="text-[10px] text-white/40 leading-relaxed">Registo auditável com explicabilidade dos modelos MiniMax M2.7 e Gemini 1.5 Flash na tomada de decisões urbanas.</p>
+                  <p className="text-[10px] text-white/40 leading-relaxed">Registo auditável com explicabilidade dos modelos MiniMax M2.7 e Gemini 1.5 Flash na tomada de decisões operacionais.</p>
                 </div>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* ── VISUAL INTEGRATION FLOWCHART (PRIORITY 3) ── */}
+        <section className="mb-24 max-w-5xl mx-auto">
+          <div className="text-center max-w-xl mx-auto mb-12">
+            <div className="font-mono text-[9px] text-emerald-500 uppercase tracking-widest mb-2 font-bold">INTEGRATION FLOW / ARCHITECTURE</div>
+            <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">FLUXO DE INTEGRIDADE CRIPTOGRÁFICA</h2>
+            <p className="text-white/50 text-[10px] md:text-xs leading-relaxed mt-2">
+              Demonstração de como o Nexus atua como uma camada de interoperabilidade invisível sobre a infraestrutura existente.
+            </p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 relative">
+            
+            {/* Box 1: AMA Autenticação.gov */}
+            <div className="flex-1 w-full p-6 border border-white/5 bg-[#07070B] relative hover:border-emerald-500/20 transition-all flex flex-col justify-between" style={{ minHeight: '200px' }}>
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-blue-950/20 border border-blue-500/20">
+                    <Shield className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <span className="font-mono text-[8px] text-white/30 font-bold uppercase">AMA AUTH IDP</span>
+                </div>
+                <h4 className="font-mono text-xs font-bold text-white uppercase mb-2">1. Autenticação.gov (CMD / CC)</h4>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  Valida a identidade jurídica e as atribuições do técnico de campo na gateway oficial do Estado Português, injetando o contexto legal na sessão.
+                </p>
+              </div>
+            </div>
+
+            {/* Separator 1 */}
+            <div className="flex items-center justify-center rotate-90 lg:rotate-0 text-emerald-500/30">
+              <ChevronRight className="w-8 h-8" />
+            </div>
+
+            {/* Box 2: NEXUS TOGI Layer */}
+            <div className="flex-1 w-full p-6 border border-emerald-500/20 bg-emerald-950/[0.02] relative hover:border-emerald-500/40 transition-all flex flex-col justify-between" style={{ minHeight: '200px' }}>
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-emerald-950/40 border border-emerald-500/20">
+                    <Brain className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <span className="font-mono text-[8px] text-emerald-400 font-bold uppercase">NEXUS OPERATIONAL TRUST</span>
+                </div>
+                <h4 className="font-mono text-xs font-bold text-white uppercase mb-2">2. Nexus TOGI Layer</h4>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  Processamento de biometria local no Edge (Vision Worker com descarte de frames), cálculo de conformidade (SOPs) e geração do *Integrity Digest* criptográfico.
+                </p>
+              </div>
+            </div>
+
+            {/* Separator 2 */}
+            <div className="flex items-center justify-center rotate-90 lg:rotate-0 text-emerald-500/30">
+              <ChevronRight className="w-8 h-8" />
+            </div>
+
+            {/* Box 3: SAP PM / CRM Municipal */}
+            <div className="flex-1 w-full p-6 border border-white/5 bg-[#07070B] relative hover:border-emerald-500/20 transition-all flex flex-col justify-between" style={{ minHeight: '200px' }}>
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-purple-950/20 border border-purple-500/20">
+                    <Database className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <span className="font-mono text-[8px] text-white/30 font-bold uppercase">LEGACY SYSTEMS</span>
+                </div>
+                <h4 className="font-mono text-xs font-bold text-white uppercase mb-2">3. SAP PM & CRM Municipal</h4>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  A gateway de webhook do Nexus atualiza de forma atómica a ordem de serviço existente com a inclusão da atestação assinada, conferindo imunidade legal.
+                </p>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -270,7 +355,7 @@ export default function PublicSectorPage() {
                 Testador de Interoperabilidade PGU
               </h3>
               <p className="text-white/60 text-xs leading-relaxed mb-6">
-                Teste em tempo real o nosso motor de conformidade. Insira um payload JSON representando um sensor municipal no padrão **NGSI-LD** e execute o validador. A nossa infraestrutura irá analisar a estrutura de dados e emitir uma trilha de auditoria criptográfica.
+                Teste em tempo real o nosso motor de conformidade. Insira um payload JSON representando um evento operacional de utilities no padrão **NGSI-LD** e execute o validador. A nossa infraestrutura irá analisar a estrutura de dados e emitir uma trilha de auditoria criptográfica de proveniência.
               </p>
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -312,8 +397,8 @@ export default function PublicSectorPage() {
                     <div className="font-bold uppercase tracking-wider mb-1">{validationResult.status}: {validationResult.message}</div>
                     {validationResult.attestation && (
                       <div className="space-y-1 mt-2 text-white/60 font-mono text-[9px]">
-                        <div><span className="text-emerald-500 font-bold">LEDGER HASH:</span> {validationResult.attestation}</div>
-                        <div><span className="text-emerald-500 font-bold">POLYGON BLOCK:</span> {validationResult.block}</div>
+                        <div><span className="text-emerald-500 font-bold">INTEGRITY DIGEST:</span> {validationResult.attestation}</div>
+                        <div><span className="text-emerald-500 font-bold">DISTRIBUTED LEDGER HEIGHT:</span> {validationResult.block}</div>
                         <div><span className="text-emerald-500 font-bold">TIMESTAMP:</span> {validationResult.timestamp}</div>
                       </div>
                     )}
@@ -336,11 +421,151 @@ export default function PublicSectorPage() {
           </h3>
           
           <p className="text-white/60 text-xs leading-relaxed mb-6">
-            Para acelerar a submissão de propostas, os municípios podem integrar diretamente a justificação de conformidade abaixo no formulário de candidatura da AMA:
+            Para acelerar a submissão de candidaturas e propostas, as autarquias podem integrar diretamente a justificação de conformidade abaixo no formulário de candidatura da AMA (Plataforma de Gestão Urbana):
           </p>
 
-          <div className="bg-black/40 border border-white/5 p-5 rounded-none font-mono text-[10px] text-white/70 leading-relaxed max-h-56 overflow-y-auto">
-            "A presente candidatura visa a modernização e transição digital do Município através da implementação da Plataforma de Gestão Urbana **NEXUS**. Alinhada inteiramente com os referenciais da **ARPGU** e os padrões **NGSI-LD / FIWARE**, a plataforma unifica os barramentos de tráfego, telecomunicações e sensores de proteção civil sob um mesmo painel de inteligência operacional em tempo real. Com um inovador sistema de registo de conformidade e auditoria matemática de decisões por ledger digital, a solução garante soberania total de dados municipais, conformidade absoluta com o Regulamento Europeu da IA (EU AI Act) e interoperabilidade aberta sem risco de vendor lock-in."
+          <div className="bg-black/40 border border-white/5 p-5 rounded-none font-mono text-[10px] text-white/70 leading-relaxed max-h-56 overflow-y-auto mb-6 select-all">
+            "A presente candidatura visa mitigar a perda crítica de capital intelectual municipal através da implementação da infraestrutura NEXUS (Operational Knowledge Digital Twin). Alinhada inteiramente com os referenciais da **ARPGU** e os padrões **NGSI-LD / FIWARE**, a plataforma atua como o sistema nervoso operacional da autarquia. Através de Inteligência Artificial no Edge, o sistema captura a execução física de tarefas complexas de infraestrutura (águas, energia, saneamento), transformando o conhecimento tácito dos operacionais mais experientes em padrões digitais reutilizáveis e auditáveis. Esta solução garante a retenção de conhecimento a longo prazo, conformidade absoluta com o Regulamento Europeu da IA (EU AI Act) e interoperabilidade aberta, sem risco de vendor lock-in com sistemas legados."
+          </div>
+        </section>
+
+        {/* ── INSTITUTIONAL ONE-PAGER & DYNAMIC PRR EXPORTER ── */}
+        <section className="max-w-4xl mx-auto border border-emerald-500/20 p-8 md:p-12 mb-20 relative overflow-hidden" style={{
+          background: 'linear-gradient(180deg, rgba(16,185,129,0.02) 0%, transparent 100%)'
+        }}>
+          <div className="absolute top-0 right-0 p-4 font-mono text-[9px] text-white/20 font-bold">
+            OPERATIONAL KNOWLEDGE ONE-PAGER
+          </div>
+
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-emerald-950/40 border border-emerald-500/20">
+              <Shield className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold uppercase text-white font-mono">Ficha Técnica & Enquadramento PRR</h3>
+              <p className="text-[10px] text-white/40 font-mono">Operational Knowledge Digital Twin</p>
+            </div>
+          </div>
+
+          {/* High-Impact Wording Boxes (Mandatory visual references) */}
+          <div className="space-y-4 mb-8">
+            <div className="p-5 border border-emerald-500/10 bg-emerald-950/10">
+              <span className="font-mono text-[8px] text-emerald-400 font-bold uppercase tracking-wider mb-2 block">POSITIONING STATEMENT</span>
+              <p className="text-sm font-medium text-emerald-300 leading-relaxed font-sans italic">
+                "NEXUS was designed as an operational governance and interoperability layer for municipal field operations, focused on operational compliance, AI explainability and cryptographic auditability aligned with PRR modernization requirements."
+              </p>
+            </div>
+
+            <div className="p-5 border border-white/5 bg-black/40">
+              <span className="font-mono text-[8px] text-white/30 font-bold uppercase tracking-wider mb-2 block">INTEGRATION & RISK REDUCTION PRINCIPLE</span>
+              <p className="text-xs text-white/70 leading-relaxed font-mono">
+                "NEXUS does not replace existing municipal systems. It acts as an interoperability and operational governance layer over existing infrastructure."
+              </p>
+            </div>
+          </div>
+
+          {/* Download PRR Dossier Button */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 p-4 border border-white/5 bg-white/[0.01]">
+            <div>
+              <h4 className="text-xs font-bold text-white uppercase font-mono mb-1">Dossier de Candidatura PRR (PDF/A)</h4>
+              <p className="text-[10px] text-white/40 leading-snug">Descarregue a ficha técnica oficial pronta a submeter no portal da AMA.</p>
+            </div>
+            <button 
+              onClick={() => {
+                const docText = `========================================================================
+NEXUS - FICHA DE ENQUADRAMENTO TÉCNICO E PRR (C19-i08)
+========================================================================
+Designação: Trusted Operational Governance Infrastructure (TOGI)
+Função: Camada de Interoperabilidade e Governança Criptográfica
+Classificação de Risco: EU AI Act High-Risk Compliant
+
+1. RESUMO EXECUTIVO
+NEXUS foi desenhado como uma camada de governança operacional e
+interoperabilidade para operações de utilities e manutenção municipal,
+focada em conformidade operacional (SOPs), explicabilidade de decisões
+de IA e auditabilidade criptográfica sem alteração de sistemas legados.
+
+Princípio de Integração Zero-Atrito:
+"NEXUS does not replace existing municipal systems. It acts as an
+interoperability and operational governance layer over existing infrastructure."
+
+2. CONFORMIDADE REGULATÓRIA (PORTUGAL)
+- Alinhamento ARPGU (Arquitetura de Referência Plataformas Gestão Urbana)
+- Compatibilidade OASC MIMs 1 (Contexto), 2 (Dados) e 7 (Segurança)
+- Ingestão Nativa FIWARE / NGSI-LD Smart Data Models
+- RGPD/GDPR: Processamento e descarte de biometria local no Edge.
+========================================================================`;
+                
+                const blob = new Blob([docText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'NEXUS_PRR_ENQUADRAMENTO_DOSSIER.txt');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-[10px] uppercase px-5 py-3 tracking-wider transition-all select-none border-none rounded-none w-full sm:w-auto text-center"
+            >
+              Exportar Ficha Técnica
+            </button>
+          </div>
+        </section>
+
+        {/* ── GOVTECH ENTRY GUIDE FOR INTERNAL CHAMPIONS ── */}
+        <section className="max-w-4xl mx-auto border border-white/5 p-8 md:p-12 mb-20" style={{ background: '#07070B' }}>
+          <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
+            <Workflow className="w-5 h-5 text-emerald-500" />
+            <span className="font-mono text-[10px] text-white/50 uppercase tracking-widest font-bold">INTERNAL CHAMPIONS GOVTECH GUIDE</span>
+          </div>
+
+          <h3 className="text-xl font-bold uppercase text-white mb-4 font-mono">
+            Protocolo de Entrada e Validação Tecnológica
+          </h3>
+          
+          <p className="text-white/60 text-xs leading-relaxed mb-8">
+            Para garantir uma aproximação institucional de sucesso nas Câmaras Municipais de Portugal, a equipa técnica e os champions internos devem seguir rigorosamente o protocolo de venda consultiva técnica-primeiro, mitigando o risco político:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                step: '01 / TÉCNICO',
+                title: 'Direção TI & Smart Cities',
+                desc: 'A primeira abordagem deve focar exclusivamente em DSI e Modernização. O vereador sempre perguntará se a TI validou a arquitetura. O foco é provar a interoperabilidade (FIWARE/NGSI-LD) e o princípio de não-substituição.',
+                target: ['Director SI', 'Smart City Office', 'Modernização Digital']
+              },
+              {
+                step: '02 / OPERACIONAL',
+                title: 'Utilities & Proteção Civil',
+                desc: 'Demonstração prática direcionada a diretores operacionais de campo (Águas, Saneamento, Eletricidade). O argumento principal é a redução drástica de risco operacional e a facilidade de conformidade de SOPs críticos pelas equipas.',
+                target: ['Diretor de Obras', 'Proteção Civil', 'Utilities Managers']
+              },
+              {
+                step: '03 / POLÍTICO',
+                title: 'Decisão do Vereador',
+                desc: 'O decisor político (Vereador/Presidente) é ativado apenas quando existir parecer técnico positivo, champion interno sólido e riscos de procurement mitigados. Venda baseada em blindagem jurídica (Tribunal de Contas).',
+                target: ['Vereadores de Pelouro', 'Diretoria de Candidaturas PRR']
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="p-5 border border-white/5 bg-white/[0.01] flex flex-col justify-between" style={{ minHeight: '260px' }}>
+                <div>
+                  <span className="font-mono text-[8px] font-bold text-emerald-400 tracking-wider mb-2 block">{item.step}</span>
+                  <h4 className="text-xs font-bold text-white uppercase font-mono mb-2">{item.title}</h4>
+                  <p className="text-[10px] text-white/40 leading-relaxed mb-4">{item.desc}</p>
+                </div>
+                <div className="border-t border-white/5 pt-3">
+                  <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block mb-1.5">Quem procurar:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {item.target.map((t, i) => (
+                      <span key={i} className="text-[8px] font-mono text-emerald-300 bg-emerald-950/20 px-2 py-0.5 border border-emerald-500/10">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -349,7 +574,7 @@ export default function PublicSectorPage() {
           <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">CONSORTIUM & INTEGRATION MODEL</div>
           <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white mb-6">COMO CONTRATAR O NEXUS VIA PRR</h2>
           <p className="text-white/50 text-xs leading-relaxed max-w-xl mx-auto mb-10">
-            A contratação do Nexus é idealmente feita através de consórcios liderados por consultoras de fundos europeus, integradores de smart cities ou municípios parceiros.
+            A contratação do Nexus é idealmente realizada através de consórcios liderados por consultoras de fundos europeus, integradores de smart cities ou municípios parceiros, focando prioritariamente nas autarquias de **Oeiras, Cascais, Coimbra e Braga**.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
@@ -385,6 +610,7 @@ export default function PublicSectorPage() {
           </div>
 
           <div className="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
+            <Link href="/sales" className="text-white/40 hover:text-emerald-400 transition-colors">Comercial B2B</Link>
             <Link href="/operations" className="text-white/40 hover:text-emerald-400 transition-colors">Operations</Link>
             <Link href="/verify" className="text-white/40 hover:text-emerald-400 transition-colors">Verify</Link>
             <Link href="/dashboard" className="text-white/40 hover:text-emerald-400 transition-colors">Dashboard</Link>

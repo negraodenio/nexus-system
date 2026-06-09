@@ -31,10 +31,10 @@ const geistMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Motion — Physical Intelligence OS",
-  description: "The first Physical Intelligence Operating System. Vectorize neuromuscular patterns, apply real-time AI reasoning, and certify physical skills with immutable cryptographic proof.",
+  title: "Nexus Motion — Trusted Operational Governance Infrastructure (TOGI)",
+  description: "Trusted Operational Governance Infrastructure (TOGI). Vectorize neuromuscular patterns, apply real-time AI reasoning, and audit municipal field operations with immutable cryptographic proof.",
   manifest: "/manifest.json",
-  keywords: ["physical intelligence", "motion as code", "neuromuscular AI", "skill attestation", "blockchain certification"],
+  keywords: ["physical intelligence", "motion as code", "neuromuscular AI", "skill attestation", "operational compliance", "cryptographic audit trail"],
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

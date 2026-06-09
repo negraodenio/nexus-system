@@ -1,6 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
 
-export default function Home() {
+export default function ExecutiveSummaryPage() {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-emerald-500/30">
       
@@ -52,7 +53,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-emerald-900/40 to-neutral-900 p-10 rounded-2xl border border-emerald-500/20 text-center flex flex-col justify-center">
+            <div className="bg-gradient-to-br from-emerald-900/40 to-neutral-900 p-10 rounded-2xl border border-emerald-500/20 text-center">
               <h4 className="text-lg text-emerald-400 font-semibold mb-2">Risco Financeiro Acumulado</h4>
               <p className="text-neutral-400 text-sm mb-6">(Cenário: Perda de 50 Especialistas a 5 anos)</p>
               <div className="text-6xl font-bold text-white mb-4">€3.5M</div>
@@ -124,6 +125,17 @@ export default function Home() {
               <span className="px-3 py-1 bg-neutral-900 rounded-full border border-neutral-800">Offline Edge Ready</span>
             </div>
           </div>
+        </section>
+
+        {/* SECTION 4: CTA */}
+        <section className="text-center py-12">
+          <h3 className="text-3xl font-bold text-white mb-6">Pronto para proteger o conhecimento da sua organização?</h3>
+          <p className="text-neutral-400 text-lg mb-8 max-w-2xl mx-auto">
+            Vamos desenhar o escopo do Piloto e assinar a Carta de Intenções (LOI) para bloquearmos o espaço de validação na vossa infraestrutura.
+          </p>
+          <button className="bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-emerald-400 hover:text-black transition-colors duration-300 shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:shadow-[0_0_60px_rgba(16,185,129,0.5)]">
+            Aceder à Letter of Intent
+          </button>
         </section>
 
       </main>
