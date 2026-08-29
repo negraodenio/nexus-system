@@ -8,6 +8,8 @@ import {
     Volume2, VolumeX, Layers, Activity, Brain, Info, Wifi, ShoppingCart 
 } from 'lucide-react'
 import { KineticEngine, type Landmark } from '@/lib/kinetic-engine'
+import { StepEngine, type StepState, type StepResult, DEFAULT_COMPLETION_CRITERIA } from '@/lib/core/step-engine'
+import { okemRegistry, type RegistryStep } from '@/lib/core/okem-registry'
 import { getCachedTier } from '@/lib/hardware-benchmark'
 import { HandSkeleton3D } from '@/components/hand-skeleton-3d'
 import { EMGClient, type EMGData } from '@/lib/emg-client'
@@ -27,10 +29,11 @@ interface SkillFrame {
 
 interface GhostHandPracticeProps {
     skillId: string
+    okemId?: string  // Optional: if provided, enables step-by-step mode
     onClose: () => void
 }
 
-export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) {
+export function GhostHandPractice({ skillId, okemId, onClose }: GhostHandPracticeProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const handLandmarkerRef = useRef<HandLandmarker | null>(null)
@@ -62,10 +65,26 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
     const [predictionConfidence, setPredictionConfidence] = useState(0)
     const [latency, setLatency] = useState({ rtt: 0, jitter: 0, packetLoss: 0 })
 
+    // Step Engine state
+    const [stepState, setStepState] = useState<StepState>('IDLE')
+    const [currentStepIndex, setCurrentStepIndex] = useState(0)
+    const [totalSteps, setTotalSteps] = useState(0)
+    const [stepName, setStepName] = useState('')
+    const [stepDescription, setStepDescription] = useState('')
+    const [isCritical, setIsCritical] = useState(false)
+    const [stepAttempts, setStepAttempts] = useState(0)
+    const [isStepMode, setIsStepMode] = useState(false)
+    const [skillComplete, setSkillComplete] = useState(false)
+    const [sessionResult, setSessionResult] = useState<PracticeSession | null>(null)
+    const [steps, setSteps] = useState<RegistryStep[]>([])
+
+    type PracticeSession = import('@/lib/core/step-engine').PracticeSession
+
     // RAG Buffer (window of ~200ms at 60Hz ~= 12 samples)
     const emgBufferRef = useRef<number[][]>([])
     const isPredictingRef = useRef(false)
     const syncEngineRef = useRef<NexusSyncEngine | null>(null)
+    const stepEngineRef = useRef<StepEngine | null>(null)
 
     // Performance refs
     const currentFrameRef = useRef(0)
@@ -174,6 +193,94 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         }
         loadExpertFrames()
     }, [skillId])
+
+    // 2b. Load OKEM steps for step-by-step mode (when okemId is provided)
+    useEffect(() => {
+        if (!okemId) return
+
+        const loadOKEMSteps = async () => {
+            try {
+                const response = await fetch(`/api/guidance?okemId=${okemId}&step=0`)
+                const data = await response.json()
+
+                if (data.success && data.totalSteps > 0) {
+                    // Fetch full OKEM data from registry via guidance endpoint
+                    // The OKEM has steps with referenceFrames
+                    const stepsResponse = await fetch(`/api/learn`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            okemId,
+                            kinematicFrames: [], // Empty - we just want the OKEM structure
+                            timestamps: [],
+                            currentStepIndex: 0,
+                        }),
+                    })
+
+                    // Even if learn returns error (no frames), the OKEM exists
+                    // We'll use the guidance data + expert frames for step reference
+                    setIsStepMode(true)
+                    setTotalSteps(data.totalSteps)
+
+                    // Create steps from guidance data
+                    const loadedSteps: RegistryStep[] = []
+                    for (let i = 0; i < data.totalSteps; i++) {
+                        const stepResponse = await fetch(`/api/guidance?okemId=${okemId}&step=${i}`)
+                        const stepData = await stepResponse.json()
+                        if (stepData.success) {
+                            loadedSteps.push({
+                                index: i,
+                                name: stepData.currentStep.instruction,
+                                description: stepData.currentStep.instruction,
+                                referenceFrames: [], // Will be filled from expert frames
+                                durationMs: stepData.currentStep.waitDurationMs || 3000,
+                                isCritical: stepData.currentStep.isCritical,
+                                criticalLandmarks: [4, 8, 12, 16, 20],
+                                spatialVariance: 0,
+                                actionVerb: '',
+                                targetObject: '',
+                                semanticType: 'action',
+                            })
+                        }
+                    }
+
+                    if (loadedSteps.length > 0) {
+                        setSteps(loadedSteps)
+
+                        // Initialize Step Engine
+                        const engine = new StepEngine()
+                        stepEngineRef.current = engine
+
+                        engine.init(loadedSteps, skillId, {
+                            onStateChange: (state, stepIdx) => {
+                                setStepState(state)
+                                setCurrentStepIndex(stepIdx)
+                                const info = engine.getStepInfo()
+                                setStepName(info.stepName)
+                                setStepDescription(info.stepDescription)
+                                setIsCritical(info.isCritical)
+                                setStepAttempts(info.attempts)
+                            },
+                            onStepComplete: (result: StepResult) => {
+                                // Step completed
+                            },
+                            onSkillComplete: (session: PracticeSession) => {
+                                setSkillComplete(true)
+                                setSessionResult(session)
+                            },
+                            onFeedback: (feedback, isPositive) => {
+                                speakFeedback(feedback)
+                            },
+                        })
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load OKEM steps:', err)
+            }
+        }
+
+        loadOKEMSteps()
+    }, [okemId, skillId])
 
     // 3. EMG Subscription
     useEffect(() => {
@@ -337,10 +444,27 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         const results = landmarker.detectForVideo(video, nowInMs)
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+        // ── Determine which expert frames to show ──────────────────────────
+        let activeExpertFrames = expertFrames
+        const engine = stepEngineRef.current
+        const isStepActive = isStepMode && engine && (stepState === 'STEP_ACTIVE' || stepState === 'RETRYING')
+
+        if (isStepActive && steps.length > 0) {
+            // In step mode: divide expert frames into chunks per step
+            const framesPerStep = Math.floor(expertFrames.length / steps.length)
+            const stepStart = currentStepIndex * framesPerStep
+            const stepEnd = Math.min(stepStart + framesPerStep, expertFrames.length)
+            activeExpertFrames = expertFrames.slice(stepStart, stepEnd)
+
+            if (activeExpertFrames.length === 0) {
+                activeExpertFrames = expertFrames // Fallback to all frames
+            }
+        }
+
         const elapsedMs = nowInMs - startTimeRef.current
-        const frameIndex = Math.floor(elapsedMs / (1000 / 30)) % expertFrames.length
+        const frameIndex = Math.floor(elapsedMs / (1000 / 30)) % activeExpertFrames.length
         currentFrameRef.current = frameIndex
-        const expertFrame = expertFrames[frameIndex]
+        const expertFrame = activeExpertFrames[frameIndex]
 
         if (expertFrame?.landmarks?.[0]) expertLiveLandmarksRef.current = expertFrame.landmarks[0]
 
@@ -366,13 +490,21 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
             })
         }
 
-        // 2. Draw User (BLUE)
+        // 2. Draw User (BLUE) + Compute alignment + Feed to Step Engine
         if (results.landmarks?.length > 0) {
             const user = results.landmarks[0]
             userLiveLandmarksRef.current = user
+            let alignment = 0
+
             if (expertFrame?.landmarks) {
                 analyzeFeedback(results.landmarks, expertFrame.landmarks)
-                alignmentScoreRef.current = calculateAlignment(results.landmarks, expertFrame.landmarks)
+                alignment = calculateAlignment(results.landmarks, expertFrame.landmarks)
+                alignmentScoreRef.current = alignment
+
+                // Feed alignment to Step Engine
+                if (isStepActive && engine) {
+                    engine.processAlignment(alignment, performance.now())
+                }
             }
 
             ctx.strokeStyle = 'rgba(0, 150, 255, 0.8)'
@@ -401,7 +533,7 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         }
 
         animationRef.current = requestAnimationFrame(animate)
-    }, [expertFrames, isNeuralMode, isCollaborativeMode, predictionConfidence, calculateAlignment, skillId])
+    }, [expertFrames, isNeuralMode, isCollaborativeMode, predictionConfidence, calculateAlignment, skillId, isStepMode, stepState, currentStepIndex, steps])
 
     useEffect(() => {
         if (isPlaying && expertFrames.length > 0) {
@@ -420,7 +552,15 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
         return () => clearInterval(uiUpdateInterval)
     }, [isPlaying])
 
-    const handleStart = () => { startTimeRef.current = Date.now(); setIsPlaying(true) }
+    const handleStart = () => {
+        startTimeRef.current = Date.now()
+        setIsPlaying(true)
+
+        // Start Step Engine if in step mode
+        if (isStepMode && stepEngineRef.current) {
+            stepEngineRef.current.start()
+        }
+    }
     
     const handleStop = async () => { 
         setIsPlaying(false) 
@@ -460,8 +600,19 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                 <div className="flex items-center gap-4">
                     <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-lg"><X className="w-6 h-6" /></button>
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Target className="w-6 h-6 text-green-500" /> Ghost Hand Practice
+                        <Target className="w-6 h-6 text-green-500" />
+                        {isStepMode ? 'Skill Execution' : 'Ghost Hand Practice'}
                     </h2>
+                    {isStepMode && totalSteps > 0 && (
+                        <span className="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+                            Step {currentStepIndex + 1} / {totalSteps}
+                        </span>
+                    )}
+                    {isStepMode && isCritical && (
+                        <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20">
+                            CRITICAL
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-3">
                     <button onClick={() => setIsCollaborativeMode(!isCollaborativeMode)} className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${isCollaborativeMode ? 'bg-cyan-500 text-black shadow-lg' : 'bg-slate-700 text-slate-300'}`}>
@@ -492,6 +643,40 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                     <>
                         <video ref={videoRef} className="absolute inset-0 w-full h-full object-contain bg-black" playsInline muted />
                         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+
+                        {/* Step instruction overlay */}
+                        {isStepMode && (stepState === 'STEP_ACTIVE' || stepState === 'RETRYING') && stepName && (
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-black/80 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/10">
+                                <div className="text-center">
+                                    <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+                                        Step {currentStepIndex + 1} of {totalSteps}
+                                    </div>
+                                    <div className="text-white font-medium text-sm">{stepDescription || stepName}</div>
+                                    {stepAttempts > 1 && (
+                                        <div className="text-amber-400 text-xs mt-1">Attempt {stepAttempts}</div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Skill Complete overlay */}
+                        {skillComplete && sessionResult && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-30">
+                                <div className="bg-[#101822] p-8 rounded-2xl border border-green-500/30 text-center max-w-sm">
+                                    <div className="text-4xl mb-4">🎯</div>
+                                    <h3 className="text-xl font-bold text-white mb-2">Skill Complete!</h3>
+                                    <div className="text-3xl font-bold text-green-400 mb-4">{sessionResult.overallScore}%</div>
+                                    <div className="text-sm text-slate-400 space-y-1">
+                                        <div>Steps: {sessionResult.stepResults.filter(r => r.completed).length} / {sessionResult.stepResults.length}</div>
+                                        <div>Duration: {Math.round((sessionResult.completedAt! - sessionResult.startedAt) / 1000)}s</div>
+                                    </div>
+                                    <button onClick={onClose} className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {isNeuralMode && (
                             <div className="absolute top-4 left-4 z-20 w-64">
                                 <EMGVisualizer channels={emgData.channels} quality={emgData.quality} />
@@ -541,7 +726,32 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
                     {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />} {isPlaying ? 'Pause' : 'Start'}
                 </button>
                 <button onClick={handleRestart} className="px-6 py-3 bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2"><RotateCcw className="w-5 h-5" /> Restart</button>
+                {isStepMode && stepState === 'INCORRECT' && (
+                    <button onClick={() => stepEngineRef.current?.retry()} className="px-6 py-3 bg-amber-500 text-white rounded-xl font-bold flex items-center gap-2">
+                        Retry Step
+                    </button>
+                )}
             </div>
+
+            {/* Step progress bar */}
+            {isStepMode && totalSteps > 0 && (
+                <div className="px-4 pb-2 bg-[#101822]">
+                    <div className="flex gap-1">
+                        {Array.from({ length: totalSteps }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-1 flex-1 rounded-full transition-all ${
+                                    i < currentStepIndex
+                                        ? 'bg-green-500'
+                                        : i === currentStepIndex
+                                        ? 'bg-blue-500'
+                                        : 'bg-slate-700'
+                                }`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

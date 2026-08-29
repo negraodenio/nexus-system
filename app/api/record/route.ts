@@ -15,6 +15,7 @@
 import { NextResponse } from 'next/server'
 import { autoOKEMGenerator, OKEMGenerationInput } from '@/lib/core/okem-generator'
 import { Landmark } from '@/lib/kinetic-engine'
+import { okemRegistry } from '@/lib/core/okem-registry'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -123,6 +124,9 @@ export async function POST(request: Request) {
 
         // ── Generate procedure steps ───────────────────────────────────────
         const guidance = autoOKEMGenerator.generateGuidance(okem)
+
+        // ── Store OKEM in shared registry ──────────────────────────────────
+        okemRegistry.storeOKEM(okem, guidance)
 
         // ── Response ───────────────────────────────────────────────────────
         return NextResponse.json({

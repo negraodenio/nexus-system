@@ -9,32 +9,7 @@
  */
 
 import { NextResponse } from 'next/server'
-
-// ─────────────────────────────────────────────────────────────────────────────
-// In-memory OKEM store (same as /api/learn)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const okemStore = new Map<string, {
-    id: string
-    procedureName: string
-    steps: Array<{
-        index: number
-        name: string
-        description: string
-        referenceFrames: unknown[][]
-        durationMs: number
-        isCritical: boolean
-        actionVerb: string
-        targetObject: string
-    }>
-    guidance: Array<{
-        stepNumber: number
-        instruction: string
-        waitDurationMs: number
-        passThreshold: number
-        isCritical: boolean
-    }>
-}>()
+import { okemRegistry } from '@/lib/core/okem-registry'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/guidance
@@ -55,7 +30,7 @@ export async function GET(request: Request) {
         }
 
         // ── Retrieve OKEM ──────────────────────────────────────────────────
-        const okem = okemStore.get(okemId)
+        const okem = okemRegistry.getOKEM(okemId)
         if (!okem) {
             return NextResponse.json(
                 { error: 'OKEM not found. Please record a procedure first.' },
@@ -95,43 +70,6 @@ export async function GET(request: Request) {
         console.error('Guidance error:', error)
         return NextResponse.json(
             { error: 'Failed to retrieve guidance' },
-            { status: 500 }
-        )
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/guidance - Store OKEM (called after /api/record)
-// ─────────────────────────────────────────────────────────────────────────────
-
-export async function POST(request: Request) {
-    try {
-        const body = await request.json()
-
-        if (!body.okemId || !body.guidance) {
-            return NextResponse.json(
-                { error: 'okemId and guidance are required' },
-                { status: 400 }
-            )
-        }
-
-        // Store OKEM for later retrieval
-        okemStore.set(body.okemId, {
-            id: body.okemId,
-            procedureName: body.procedureName ?? 'Unknown',
-            steps: body.steps ?? [],
-            guidance: body.guidance,
-        })
-
-        return NextResponse.json({
-            success: true,
-            message: 'OKEM guidance stored successfully',
-        })
-
-    } catch (error) {
-        console.error('Store guidance error:', error)
-        return NextResponse.json(
-            { error: 'Failed to store guidance' },
             { status: 500 }
         )
     }

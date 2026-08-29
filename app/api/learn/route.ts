@@ -16,32 +16,7 @@
 import { NextResponse } from 'next/server'
 import { audioKinematicEngine } from '@/lib/core/audio-kinematic'
 import { Landmark } from '@/lib/kinetic-engine'
-
-// ─────────────────────────────────────────────────────────────────────────────
-// In-memory OKEM store (production: use Supabase)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const okemStore = new Map<string, {
-    id: string
-    procedureName: string
-    steps: Array<{
-        index: number
-        name: string
-        description: string
-        referenceFrames: Landmark[][]
-        durationMs: number
-        isCritical: boolean
-        actionVerb: string
-        targetObject: string
-    }>
-    guidance: Array<{
-        stepNumber: number
-        instruction: string
-        waitDurationMs: number
-        passThreshold: number
-        isCritical: boolean
-    }>
-}>()
+import { okemRegistry } from '@/lib/core/okem-registry'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -82,7 +57,7 @@ export async function POST(request: Request) {
         }
 
         // ── Retrieve OKEM ──────────────────────────────────────────────────
-        const okem = okemStore.get(body.okemId)
+        const okem = okemRegistry.getOKEM(body.okemId)
         if (!okem) {
             return NextResponse.json(
                 { error: 'OKEM not found. Please record a procedure first.' },
@@ -172,15 +147,4 @@ export async function POST(request: Request) {
             { status: 500 }
         )
     }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper: Store OKEM (called after /api/record)
-// ─────────────────────────────────────────────────────────────────────────────
-
-export function storeOKEM(
-    okemId: string,
-    data: typeof okemStore extends Map<string, infer V> ? V : never
-): void {
-    okemStore.set(okemId, data)
 }
