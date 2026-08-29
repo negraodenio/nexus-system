@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { supabaseAdmin as adminClient } from '@/lib/supabase'
-
-const supabaseAdmin = adminClient as any
 
 export async function POST(req: Request) {
     try {

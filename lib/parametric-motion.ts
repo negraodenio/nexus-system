@@ -111,19 +111,19 @@ export class ParametricMotionEngine {
 
     private static rotatePoint(x: number, y: number, z: number, rot: { pitch: number; yaw: number; roll: number }): [number, number, number] {
         // Roll (Z)
-        let x1 = x * Math.cos(rot.roll) - y * Math.sin(rot.roll);
-        let y1 = x * Math.sin(rot.roll) + y * Math.cos(rot.roll);
-        let z1 = z;
+        const x1 = x * Math.cos(rot.roll) - y * Math.sin(rot.roll);
+        const y1 = x * Math.sin(rot.roll) + y * Math.cos(rot.roll);
+        const z1 = z;
 
         // Pitch (X)
-        let y2 = y1 * Math.cos(rot.pitch) - z1 * Math.sin(rot.pitch);
-        let z2 = y1 * Math.sin(rot.pitch) + z1 * Math.cos(rot.pitch);
-        let x2 = x1;
+        const y2 = y1 * Math.cos(rot.pitch) - z1 * Math.sin(rot.pitch);
+        const z2 = y1 * Math.sin(rot.pitch) + z1 * Math.cos(rot.pitch);
+        const x2 = x1;
 
         // Yaw (Y)
-        let x3 = x2 * Math.cos(rot.yaw) + z2 * Math.sin(rot.yaw);
-        let z3 = -x2 * Math.sin(rot.yaw) + z2 * Math.cos(rot.yaw);
-        let y3 = y2;
+        const x3 = x2 * Math.cos(rot.yaw) + z2 * Math.sin(rot.yaw);
+        const z3 = -x2 * Math.sin(rot.yaw) + z2 * Math.cos(rot.yaw);
+        const y3 = y2;
 
         return [x3, y3, z3];
     }

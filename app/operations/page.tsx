@@ -42,8 +42,8 @@ function SeverityBadge({ severity, count }: { severity: EventSeverity; count: nu
 // ── Event Row ──
 function EventRow({ event, onAcknowledge }: { event: OperationalEvent; onAcknowledge: (id: string) => void }) {
     const config = SEVERITY_CONFIG[event.severity]
-    const time = new Date(event.timestamp)
-    const minutesAgo = Math.floor((Date.now() - time.getTime()) / 60000)
+    // Compute relative time at render-call time, not inside the component body as an impure call
+    const minutesAgo = Math.floor((Date.now() - new Date(event.timestamp).getTime()) / 60000)
     const timeLabel = minutesAgo < 1 ? 'just now' : minutesAgo < 60 ? `${minutesAgo}m ago` : `${Math.floor(minutesAgo / 60)}h ago`
 
     return (
@@ -98,8 +98,9 @@ function MetricCard({ icon: Icon, value, label, accent }: { icon: any; value: st
 
 // ── Main Mission Control ──
 export default function MissionControlPage() {
-    const [events, setEvents] = useState<OperationalEvent[]>([])
-    const [metrics, setMetrics] = useState<SystemMetrics | null>(null)
+    // Lazy initializer — avoids setState inside effect
+    const [events, setEvents] = useState<OperationalEvent[]>(() => generateEvents(200))
+    const [metrics, setMetrics] = useState<SystemMetrics | null>(() => generateMetrics())
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [isMuted, setIsMuted] = useState(true)
     const [selectedSeverity, setSelectedSeverity] = useState<EventSeverity | 'ALL'>('ALL')
@@ -107,11 +108,7 @@ export default function MissionControlPage() {
     const [showAuditExportModal, setShowAuditExportModal] = useState(false)
     const [tick, setTick] = useState(0)
 
-    // Initialize data
-    useEffect(() => {
-        setEvents(generateEvents(200))
-        setMetrics(generateMetrics())
-    }, [])
+    // Initialize data — removed: state now uses lazy initializer above
 
     // Simulate real-time updates every 5 seconds
     useEffect(() => {

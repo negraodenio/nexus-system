@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase/server'
-
+import { createClient } from '@/lib/supabase-server'
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
@@ -94,7 +93,9 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'skillId is required' }, { status: 400 })
         }
 
-        const { error } = await (supabaseAdmin as any)
+        const adminClient = await getAdminClient()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (adminClient as any)
             .from('skill_views')
             .insert({
                 skill_id: skillId,

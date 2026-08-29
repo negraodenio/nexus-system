@@ -12,7 +12,7 @@ const MAX_REQUESTS_PER_WINDOW = 60; // 60 requests per minute per IP/Tenant
  * Next.js Edge Middleware for GovTech API Security Hardening (Phase 5)
  */
 export function middleware(request: NextRequest) {
-  const ip = request.headers.get('cf-connecting-ip') || request.ip || '127.0.0.1';
+  const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
   const tenantId = request.headers.get('x-tenant-id') || 'anonymous-municipality';
   const path = request.nextUrl.pathname;
 

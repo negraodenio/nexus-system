@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useLocalBrain } from '@/hooks/use-local-brain'
 import { ShieldAlert, ShieldCheck } from 'lucide-react'
 
@@ -17,8 +17,6 @@ interface SafetyMonitorProps {
 
 export function SafetyMonitor({ landmarks, isActive }: SafetyMonitorProps) {
     const { initializeBrain, isReady, isLoading, progress } = useLocalBrain()
-    const [safetyStatus, setSafetyStatus] = useState<'SAFE' | 'DANGER' | 'Analyzing...'>('Analyzing...')
-    const [reason, setReason] = useState('')
 
     // Load brain when component activates
     useEffect(() => {
@@ -28,32 +26,23 @@ export function SafetyMonitor({ landmarks, isActive }: SafetyMonitorProps) {
     }, [isActive, isReady, isLoading, initializeBrain])
 
     // 3D Danger Zone Definition (Relative to camera frame)
-    // Adjust these values based on field testing
     const DANGER_ZONE = useMemo(() => ({
-        yMin: 0.0,  // Top of screen
-        yMax: 0.3,  // Upper 30%
+        yMin: 0.0,
+        yMax: 0.3,
     }), [])
 
-    // Hybrid Analysis Loop
-    useEffect(() => {
-        if (!isActive || landmarks.length === 0) return
-
-        // 1. FAST CHECK (Math / Spatial Geometry) - Runs every frame (or throttled slightly)
-        // Using logic for immediate feedback (Zero Latency)
-        const wrist = landmarks[0]
-
-        if (!wrist) return
-
-        // Check if wrist is in Danger Zone (Top of screen)
-        const inDangerZone = wrist.y >= DANGER_ZONE.yMin && wrist.y <= DANGER_ZONE.yMax
-
-        if (inDangerZone) {
-            setSafetyStatus('DANGER')
-            setReason('Wrist entered restricted upper zone')
-        } else {
-            setSafetyStatus('SAFE')
-            setReason('Posture within safety limits')
+    // Derive safety status directly — no setState needed, avoids cascading renders
+    const { safetyStatus, reason } = useMemo(() => {
+        if (!isActive || landmarks.length === 0) {
+            return { safetyStatus: 'Analyzing...' as const, reason: '' }
         }
+        const wrist = landmarks[0]
+        if (!wrist) return { safetyStatus: 'Analyzing...' as const, reason: '' }
+
+        const inDangerZone = wrist.y >= DANGER_ZONE.yMin && wrist.y <= DANGER_ZONE.yMax
+        return inDangerZone
+            ? { safetyStatus: 'DANGER' as const, reason: 'Wrist entered restricted upper zone' }
+            : { safetyStatus: 'SAFE' as const, reason: 'Posture within safety limits' }
     }, [isActive, landmarks, DANGER_ZONE])
 
     if (!isActive) return null

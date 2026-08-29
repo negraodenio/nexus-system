@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateAnalogy, generateEmbedding, ModelId } from '@/lib/ai-client'
-import { supabaseAdmin as adminClient } from '@/lib/supabase'
-
-const supabaseAdmin = adminClient as any
+import { getAdminClient } from '@/lib/supabase/server'
 
 // Similarity threshold for RAG match (0-1). 0.82 = "very similar concept"
 const RAG_THRESHOLD = 0.82
@@ -20,7 +18,10 @@ export async function POST(req: Request) {
         // =========================================================
         if (concept && !image) {
             try {
-                const { data: exactMatch } = await supabaseAdmin
+                const supabaseAdmin = await getAdminClient()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const db = supabaseAdmin as any
+                const { data: exactMatch } = await db
                     .rpc('get_exact_analogy', {
                         p_concept_name: concept.toLowerCase().trim(),
                         p_audience: audience
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
                 if (exactMatch && exactMatch.length > 0) {
                     const hit = exactMatch[0]
                     // Increment usage counter (fire-and-forget)
-                    supabaseAdmin
+                    db
                         .from('analogies')
                         .update({ usage_count: (hit.usage_count || 0) + 1 })
                         .eq('id', hit.id)
@@ -56,7 +57,10 @@ export async function POST(req: Request) {
                 const queryEmbedding = await generateEmbedding(concept)
 
                 if (queryEmbedding) {
-                    const { data: similarMatches } = await supabaseAdmin
+                    const supabaseAdmin = await getAdminClient()
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const db = supabaseAdmin as any
+                    const { data: similarMatches } = await db
                         .rpc('match_analogies', {
                             query_embedding: queryEmbedding,
                             target_audience: audience,
@@ -101,9 +105,12 @@ export async function POST(req: Request) {
         if (concept && !image) {
             try {
                 const normalizedName = concept.toLowerCase().trim()
+                const supabaseAdmin = await getAdminClient()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const db = supabaseAdmin as any
 
                 // Upsert concept
-                const { data: conceptRow } = await supabaseAdmin
+                const { data: conceptRow } = await db
                     .from('concepts')
                     .upsert(
                         { name: concept, normalized_name: normalizedName, category: 'general' },
@@ -115,7 +122,7 @@ export async function POST(req: Request) {
                 if (conceptRow?.id) {
                     // Generate and save embedding asynchronously
                     generateEmbedding(generated.analogy).then(async (embedding) => {
-                        await supabaseAdmin.from('analogies').insert({
+                        await db.from('analogies').insert({
                             concept_id: conceptRow.id,
                             audience,
                             analogy_text: generated.analogy,
@@ -139,9 +146,9 @@ export async function POST(req: Request) {
             ...generated
         })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('API Error:', error)
-        const msg = error?.message || JSON.stringify(error)
+        const msg = error instanceof Error ? error.message : JSON.stringify(error)
         return NextResponse.json({ error: `API Error: ${msg}` }, { status: 500 })
     }
 }

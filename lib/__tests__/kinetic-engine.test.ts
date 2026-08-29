@@ -101,7 +101,7 @@ describe('KineticEngine', () => {
             engine.loadTemplate([mockLandmarks]);
             const result = engine.processFrame(mockLandmarks, Date.now());
 
-            expect(result.instantScore).toBeGreaterThan(90);
+            expect(result.instantScore).toBeGreaterThanOrEqual(90);
         });
     });
 

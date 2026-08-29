@@ -9,18 +9,18 @@ import { useState, useEffect } from 'react'
 
 function FieldPageContent() {
     const searchParams = useSearchParams()
-    const [pilotToken, setPilotToken] = useState<string | null>(null)
+
+    // Lazy initializer reads localStorage once at mount — no setState inside effect
+    const [pilotToken, setPilotToken] = useState<string | null>(() => {
+        if (typeof window === 'undefined') return null
+        return localStorage.getItem('nexus_pilot_token')
+    })
 
     useEffect(() => {
-        // 1. Check URL for new token
         const newToken = searchParams.get('token')
         if (newToken) {
             localStorage.setItem('nexus_pilot_token', newToken)
             setPilotToken(newToken)
-        } else {
-            // 2. Check localStorage for existing
-            const savedToken = localStorage.getItem('nexus_pilot_token')
-            setPilotToken(savedToken)
         }
     }, [searchParams])
 

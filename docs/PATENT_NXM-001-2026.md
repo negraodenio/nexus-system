@@ -1,250 +1,184 @@
-# PEDIDO PROVISÓRIO DE PATENTE
-## "SISTEMA DE INTELIGÊNCIA FÍSICA DISTRIBUÍDA COM MEMÓRIA NEUROMUSCULAR VETORIAL E ATESTAÇÃO CRIPTOGRÁFICA DE COMPETÊNCIA FÍSICA"
+# PEDIDO PROVISÓRIO DE PATENTE (PPP)
+
+## SYSTEM AND METHOD FOR CAPTURING, FORMALIZING, VALIDATING AND AUDITING OPERATIONAL KNOWLEDGE DERIVED FROM PHYSICAL TASK EXECUTION
+
+### Requerente
+NEXUS (Entidade a designar)
+
+### Inventor(es)
+Denio Negrão
+
+### Referência Interna
+NXM-PAT-002-2026
+
+### Jurisdição Inicial
+INPI Portugal (Pedido Provisório de Patente)
+
+### Estratégia Internacional
+Prioridade INPI seguida de extensão internacional via PCT e eventual depósito no European Patent Office (EPO).
 
 ---
 
-**Requerente:** [NOME DO TITULAR / EMPRESA]  
-**Inventor:** Denio Negrão  
-**Data de Depósito:** 2026-04-06  
-**Referência Interna:** NXM-PAT-001-2026  
-**Jurisdição Sugerida:** PCT (Patent Cooperation Treaty) — Cobertura EU + US + BR  
-**Classificação IPC:** G06F 40/58 · G06N 3/04 · A61B 5/0488 · G06Q 50/20
+# 1. CAMPO TÉCNICO
+
+A presente invenção insere-se nos domínios da inteligência operacional, sistemas ciberfísicos, modelação computacional de procedimentos industriais, monitorização de execução física assistida por inteligência artificial e auditoria operacional verificável.
+
+Mais especificamente, a invenção descreve um método computacional capaz de transformar a execução física de tarefas operacionais complexas em modelos digitais executáveis, permitindo a validação em tempo real de execuções subsequentes, a mitigação de risco operacional e a geração de evidência auditável.
 
 ---
 
-## CAMPO DA INVENÇÃO
+# 2. PROBLEMA TÉCNICO
 
-A presente invenção refere-se a um sistema computacional distribuído denominado **Physical Intelligence OS**, que compreende:
+Infraestruturas críticas dependem fortemente de conhecimento operacional não documentado.
 
-1. Um motor de captura e vectorização de padrões neuromusculares humanos;
-2. Um sistema de busca semântica em memória física baseado em embeddings vectoriais;
-3. Um motor de raciocínio de inteligência artificial de grande escala contextual para análise e correção de execução física em tempo quasi-real;
-4. Um subsistema de atestação criptográfica imutável de competência física via registo em cadeia de blocos.
+Grande parte das decisões que garantem segurança, eficiência e continuidade operacional reside na experiência acumulada de especialistas humanos.
 
----
+Os sistemas atualmente disponíveis apresentam limitações fundamentais:
 
-## ANTECEDENTES DA INVENÇÃO (Prior Art)
+* Sistemas ERP e CMMS dependem de documentação textual e formulários.
+* Sistemas de gestão de conhecimento dependem de conhecimento explicitamente documentado.
+* Sistemas de visão computacional limitam-se à observação de movimentos sem compreender a estrutura operacional subjacente.
+* Sistemas de auditoria registam eventos administrativos mas não validam a conformidade da execução física.
 
-As soluções existentes no estado da arte apresentam as seguintes limitações que a presente invenção supera:
-
-**a) Sistemas de rastreio de movimento óptico** (ex: Google MediaPipe, OpenPose):
-- Limitados a tracking 2D/3D visual sem capacidade cognitiva
-- Sem memória de padrões anteriores; sem raciocínio semântico sobre qualidade de execução
-
-**b) Plataformas de e-learning e LMS** (ex: Cornerstone, Docebo):
-- Focadas em conhecimento declarativo sem captura de competência física
-- Sem certificação verificável criptograficamente
-
-**c) Sistemas de captura de movimento profissional** (ex: Vicon, Xsens):
-- Hardware dedicado com custo proibitivo (>$50.000)
-- Sem integração com modelos de linguagem para raciocínio contextual
-
-**d) Large Language Models multimodais** (ex: GPT-4o, Gemini):
-- Sem estrutura de dados persistente para padrões físicos
-- Sem pipeline de captura física em tempo real; sem certificação de competência
-
-**Conclusão:** Nenhum sistema do estado da arte integra o pipeline completo de captura física → vectorização neuromuscular → raciocínio semântico → correção motora → atestação imutável.
+Consequentemente, não existe atualmente um mecanismo computacional capaz de capturar, formalizar, validar e auditar conhecimento operacional derivado da execução física humana.
 
 ---
 
-## SUMÁRIO DA INVENÇÃO
+# 3. SUMÁRIO DA INVENÇÃO
 
-A presente invenção fornece um sistema e método para criação, armazenamento, recuperação e validação de padrões de competência física humana através de:
+A invenção introduz um processo técnico integrado composto por cinco etapas principais:
 
-- **RAG Neuromuscular:** Padrões físicos convertidos em embeddings vectoriais com busca por similaridade coseno para recuperar o "Gold Master Build" relevante.
-- **Motor de Raciocínio Físico:** LLM com janela de contexto alargada produz análise JSON estruturada com desvios, correções e risco ergonómico.
-- **Roteamento Dinâmico de Modelos:** Selecção automática de modelo baseada em modalidade de input (visão vs. texto).
-- **Ledger de Competência:** Registo imutável com hash IPFS + transação blockchain auditável.
-
----
-
-## DESCRIÇÃO DETALHADA DA INVENÇÃO
-
-### 1. Arquitectura Geral do Sistema
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                PHYSICAL INTELLIGENCE OS                  │
-│                                                         │
-│  ┌──────────────┐    ┌─────────────────┐                │
-│  │  CAPTURE     │    │ NEUROMUSCULAR   │                │
-│  │  MODULE      │───▶│ RAG ENGINE      │                │
-│  │              │    │                 │                │
-│  │ · MediaPipe  │    │ · EMG Embedding │                │
-│  │ · EMG Signal │    │ · pgvector DB   │                │
-│  │ · Camera     │    │ · IVFFLAT Index │                │
-│  └──────────────┘    └────────┬────────┘                │
-│                               ▼                         │
-│  ┌──────────────────────────────────────────────┐       │
-│  │         HYBRID AI ROUTING ENGINE             │       │
-│  │  input has image?                            │       │
-│  │    YES → Vision Model (Gemini Flash)         │       │
-│  │    NO  → Reasoning Model (MiniMax M2.7)      │       │
-│  └─────────────────────────┬────────────────────┘       │
-│              ┌─────────────┴─────────────┐              │
-│              ▼                           ▼              │
-│  ┌─────────────────┐         ┌─────────────────────┐    │
-│  │ COGNITIVE       │         │ KINEMATIC RECIPE    │    │
-│  │ ADAPTER (PRISMA)│         │ GEN (Motion GPT)    │    │
-│  └────────┬────────┘         └──────────┬──────────┘    │
-│           └──────────────┬──────────────┘               │
-│                          ▼                              │
-│  ┌────────────────────────────────────────────────┐     │
-│  │         ATTESTATION & ECONOMY LAYER            │     │
-│  │  · skill_attestations (SQL imutável / RLS)     │     │
-│  │  · IPFS Hash + Polygon TX Hash                 │     │
-│  │  · Nexus Credits (80/20 royalty split)         │     │
-│  └────────────────────────────────────────────────┘     │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 2. Vectorização Neuromuscular
-
-O pipeline converte sinais físicos em vectores de 1536 dimensões:
-
-```
-Inputs: pose landmarks 3D | sinais EMG | imagens de campo
-  → Normalização e calibração por utilizador
-  → Geração de embedding (1536-dim)
-  → Armazenamento em emg_patterns com índice IVFFLAT cosine
-  → Isolamento por company_id (multi-tenant)
-```
-
-### 3. Motor RAG — Busca de Padrão de Referência
-
-```sql
-SELECT id, label, 1 - (embedding <=> query_embedding) AS similarity
-FROM emg_patterns
-WHERE company_id = p_company_id
-  AND 1 - (embedding <=> query_embedding) > match_threshold
-ORDER BY embedding <=> query_embedding
-LIMIT match_count;
-```
-
-O padrão mais similar é injectado como contexto RAG no LLM para raciocínio biomecânico.
-
-### 4. Roteamento Dinâmico de Modelos (Motion Intelligence Router)
-
-```typescript
-const hasImage = !!image
-const modelId = hasImage
-    ? VISION_MODEL   // google/gemini-2.0-flash-001 — análise visual
-    : DEFAULT_TEXT_MODEL  // minimax/minimax-m2.7 — raciocínio profundo
-```
-
-Configurável via variável de ambiente (`OPENROUTER_MODEL`) sem redeploy.
-
-### 5. Atestação Imutável por RLS + Blockchain
-
-```sql
--- Imutabilidade garantida a nível de base de dados:
-CREATE POLICY "Attestations immutable no update"
-  ON skill_attestations FOR UPDATE USING (false);
-
-CREATE POLICY "Attestations immutable no delete"
-  ON skill_attestations FOR DELETE USING (false);
-```
-
-Cada registo contém: `user_id`, `skill_id`, `score`, `ipfs_hash`, `transaction_hash`, `network`, `created_at`.
-
-### 6. Economia de Competência — Função Atómica de Divisão
-
-```
-Compra de Skill (processo_skill_purchase):
-  creator_cut = amount × (royalty_split / 100)  -- default: 80%
-  platform_fee = amount - creator_cut           -- default: 20%
-  batch_size multiplica o valor total para licenciamento corporativo
-```
+### Etapa 1 – Captura Física
+Aquisição de informação multimodal durante a execução de uma tarefa de referência por um operador experiente.
+Os dados podem incluir:
+* vídeo;
+* profundidade;
+* telemetria espacial;
+* postura corporal;
+* cinemática;
+* utilização de ferramentas;
+* sinais contextuais adicionais.
 
 ---
 
-## REIVINDICAÇÕES
+### Etapa 2 – Formalização Operacional
+Transformação dos dados observados num **Operational Knowledge Execution Model (OKEM)**.
 
-### Reivindicação 1 — Sistema (Independente)
+*Definição Formal do OKEM:* Representação computacional estruturada composta por:
+* estados operacionais;
+* transições válidas;
+* dependências causais;
+* limiares de conformidade;
+* regras de intervenção.
 
-Um sistema computacional de inteligência física distribuída compreendendo:
-
-**(a)** módulo de captura para receber sinais físicos humanos (pose 3D, EMG, imagem);
-
-**(b)** motor de vectorização para converter sinais em embeddings de alta dimensão e armazená-los em base de dados vectorial com índice de similaridade coseno e isolamento multi-tenant;
-
-**(c)** motor RAG neuromuscular para recuperar, dado um sinal de entrada, o padrão de referência mais similar por vizinho mais próximo aproximado;
-
-**(d)** motor de raciocínio de inteligência artificial com roteamento dinâmico baseado em modalidade de input, seleccionando modelo de visão para input visual e modelo de raciocínio para input textual/estruturado;
-
-**(e)** módulo de atestação imutável que regista prova criptográfica de competência física com hash de conteúdo e identificador de transação em cadeia de blocos.
+O sistema diferencia automaticamente:
+* componentes determinísticos da tarefa (invariantes críticas);
+* componentes variáveis associados ao estilo individual do operador.
 
 ---
 
-### Reivindicação 2 — Método (Independente)
-
-Método implementado por computador para avaliação e certificação de competência física, compreendendo:
-
-**(a)** capturar sinais físicos durante execução de habilidade;
-
-**(b)** vectorizar sinais e recuperar padrão de referência por similaridade coseno;
-
-**(c)** injectar padrão recuperado como contexto em LLM e gerar análise JSON estruturada com desvios, correções e risco ergonómico;
-
-**(d)** quando qualidade superar limiar, emitir atestação imutável com prova criptográfica em cadeia de blocos.
+### Etapa 3 – Avaliação de Conformidade
+Observação da execução subsequente por um segundo operador.
+O sistema compara continuamente:
+* geometria da execução;
+* sequência temporal;
+* contexto operacional;
+* utilização de ferramentas;
+contra o OKEM previamente construído.
 
 ---
 
-### Reivindicação 3 — Roteamento Dinâmico (Dependente de 1)
-
-O sistema da Reivindicação 1 em que o motor de raciocínio compreende módulo de roteamento que selecciona automaticamente modelo de visão computacional quando input contém imagem, e modelo de raciocínio textual caso contrário, sendo o modelo configurável via variável de ambiente sem redeploy.
-
----
-
-### Reivindicação 4 — Isolamento Multi-Tenant (Dependente de 1)
-
-O sistema da Reivindicação 1 em que a base de dados vectorial aplica política de isolamento por identificador de empresa (tenant), de modo que padrões de um tenant não são acessíveis a outros, preservando propriedade intelectual industrial.
-
----
-
-### Reivindicação 5 — Imutabilidade por RLS (Dependente de 1)
-
-O sistema da Reivindicação 1 em que o módulo de atestação implementa imutabilidade combinada: políticas RLS a nível de base de dados relacional que proíbem UPDATE e DELETE, e registo externo em cadeia de blocos para verificação independente.
+### Etapa 4 – Intervenção de Risco
+Quando a divergência operacional ultrapassa limiares definidos pelo OKEM, o sistema produz uma resposta operacional.
+A resposta pode incluir:
+* alerta;
+* bloqueio;
+* suspensão;
+* escalonamento;
+* recomendação operacional.
+Esta intervenção ocorre antes da ocorrência do dano físico ou incumprimento operacional.
 
 ---
 
-### Reivindicação 6 — Economia de Competência (Dependente de 2)
-
-O método da Reivindicação 2 compreendendo adicionalmente divisão automática de receita em que o criador recebe percentagem pré-configurada (default 80%) de cada transação de licenciamento, suportando licenciamento em lote para empresas.
-
----
-
-### Reivindicação 7 — Motion as Code Paradigm (Dependente de 1 e 2)
-
-O sistema das Reivindicações 1 e 2 em que o pipeline físico opera sob paradigma "Motion as Code" em que: sinais EMG constituem source code, motor de vectorização constitui compiler, desvios detectados constituem diffs, correções geradas constituem patches, e atestações emitidas constituem commits no ledger de competência.
-
----
-
-## VANTAGENS TÉCNICAS
-
-| Vantagem | Descrição |
-|---|---|
-| Acessibilidade | Hardware de consumo vs. $50k+ de sistemas profissionais |
-| Privacidade Enterprise | RAG multi-tenant — dados proprietários nunca saem do tenant |
-| Auditabilidade Regulatória | SQL imutável + blockchain = prova matemática de competência |
-| Escalabilidade Económica | Custo de inferência -90% vs. soluções anteriores |
-| Modularidade Multi-Vertical | Uma infra, múltiplos sectores via configuração de tenant |
+### Etapa 5 – Auditoria Verificável
+A conformidade observada é convertida num registo verificável.
+O registo incorpora:
+* identidade operacional;
+* contexto;
+* histórico de execução;
+* desvios autorizados;
+* resultado da validação contra o OKEM.
+O resultado é uma prova auditável da execução física observada.
 
 ---
 
-## ABSTRACT
+# 4. CONTRIBUIÇÃO INVENTIVA E FÍSICA APLICADA
 
-Sistema computacional de inteligência física distribuída que converte habilidades físicas humanas em activos digitais verificáveis. Compreende: captura de sinais físicos; vectorização e armazenamento com isolamento multi-tenant; RAG neuromuscular por similaridade coseno; motor de IA com roteamento dinâmico por modalidade; sistema de atestação criptográfica imutável com blockchain. Opera sob o paradigma "Motion as Code", permitindo versionar, auditar, corrigir e monetizar competências físicas como activos digitais.
+A presente invenção não reivindica visão computacional, grafos de conhecimento, inteligência artificial, blockchain ou criptografia de forma isolada. A contribuição inventiva reside no **método integrado que converte observação física humana em conhecimento operacional executável, validável e auditável.**
+
+### 4.1. Physical Execution Normalization
+O sistema aplica transformações matemáticas destinadas a normalizar a execução física observada relativamente à posição da câmara, orientação espacial do operador, vibração do sensor e ruído de captura. As transformações incluem métodos de projeção vetorial, normalização espacial, filtragem temporal e alinhamento elástico de sequências cinemáticas (ex: *Dynamic Time Warping*). Esta etapa permite comparar execuções realizadas em ambientes físicos distintos, mantendo a equivalência operacional.
+
+O sistema cria uma ponte computacional rigorosa entre:
+Execução Física → Normalização Cinemática → OKEM → Conformidade → Intervenção → Evidência Auditável
 
 ---
 
-> [!IMPORTANT]
-> **Próximos Passos para Depósito:**
-> 1. Preencher dados do requerente (nome completo, morada, NIF)
-> 2. Contactar INPI Portugal: www.inpi.pt / Tel. +351 213 819 000
-> 3. Alternativamente, solicitar pedido PCT via EPO: www.epo.org
-> 4. **Prazo crítico:** Depositar o pedido provisório antes de qualquer divulgação pública. A data de depósito define a prioridade.
-> 5. Custo estimado pedido provisório INPI: €500–1.500
-> 6. Custo conversão PCT (12 meses): €3.000–8.000
+# 5. EFEITO TÉCNICO
 
-*Documento v1.0 — 2026-04-06 | Referência NXM-PAT-001-2026*
+A invenção produz efeitos técnicos mensuráveis na operação de campo:
+* redução de desvios operacionais;
+* redução de dependência de especialistas;
+* aumento da conformidade de execução;
+* prevenção de erros críticos e físicos;
+* criação de evidência auditável da execução mecânica/física.
+
+O sistema não apenas observa uma operação. O sistema **influencia, valida e governa fisicamente a operação em tempo real**.
+
+---
+
+# 6. REIVINDICAÇÕES
+
+## Reivindicação 1 (Independente de Método)
+Método implementado por computador para captura, formalização, validação e auditoria de conhecimento operacional derivado da execução física de tarefas, compreendendo:
+a) aquisição de dados físicos representativos da execução de uma tarefa de referência;
+b) construção de um Operational Knowledge Execution Model (OKEM) representativo da sequência operacional;
+c) observação de uma execução subsequente e respetiva normalização espacial da telemetria capturada;
+d) comparação entre a execução observada e o OKEM;
+e) determinação de conformidade operacional;
+f) geração de evidência auditável da execução.
+
+## Reivindicação 2
+Método de acordo com a reivindicação 1, caracterizado por incluir um mecanismo de intervenção operacional em tempo real quando a divergência observada excede limites definidos pelo OKEM.
+
+## Reivindicação 3
+Método de acordo com a reivindicação 1, caracterizado por identificar automaticamente componentes invariantes da tarefa física e distingui-los de componentes variáveis associados ao estilo individual do operador, utilizando essa distinção para determinar a conformidade operacional.
+
+## Reivindicação 4
+Método de acordo com a reivindicação 1, caracterizado por gerar um registo criptograficamente verificável representativo da conformidade operacional observada.
+
+## Reivindicação 5
+Método de acordo com a reivindicação 1, caracterizado por operar através de observação passiva da execução física sem exigir interação contínua através de interfaces gráficas.
+
+## Reivindicação 6 (Independente de Sistema)
+Sistema computacional para captura, formalização, validação e auditoria de conhecimento operacional derivado de execução física, compreendendo:
+a) um módulo de captura multimodal;
+b) um módulo de formalização com capacidade de normalização cinemática para geração do OKEM;
+c) um módulo de validação de geometria e sequência de execução;
+d) um módulo de intervenção de risco;
+e) um módulo de auditoria criptográfica;
+configurados em rede para executar autonomamente os passos metodológicos descritos na reivindicação 1.
+
+## Reivindicação 7
+Método de acordo com a reivindicação 1, caracterizado por a comparação temporal entre execuções recorrer a alinhamento elástico de sequências cinemáticas para suprimir a variabilidade estocástica da velocidade de execução.
+
+## Reivindicação 8
+Método de acordo com a reivindicação 1, em que os dados físicos observados são previamente normalizados num espaço de coordenadas absoluto para neutralizar discrepâncias de posição de câmara, orientação espacial do operador e ruído de captura.
+
+---
+
+> [!TIP]
+> ### POSICIONAMENTO INSTITUCIONAL E GOVERNANÇA
+> A NEXUS encontra-se a estruturar proteção de propriedade intelectual sobre um método proprietário de captura, formalização, validação e auditoria de conhecimento operacional derivado da execução física assistida por inteligência artificial, assente na sua arquitetura "OKEM".
+> 
+> O objetivo consiste na criação de uma nova infraestrutura tecnológica dedicada à preservação e governança de conhecimento operacional em infraestruturas críticas, assegurando Soberania Operacional a nível Europeu.

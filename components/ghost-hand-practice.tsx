@@ -122,8 +122,10 @@ export function GhostHandPractice({ skillId, onClose }: GhostHandPracticeProps) 
 
         return () => {
             if (handLandmarkerRef.current) handLandmarkerRef.current.close()
-            if (videoRef.current?.srcObject) {
-                (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop())
+            // Capture ref value at cleanup scheduling time to avoid stale ref bug
+            const video = videoRef.current
+            if (video?.srcObject) {
+                (video.srcObject as MediaStream).getTracks().forEach(t => t.stop())
             }
             if (animationRef.current) cancelAnimationFrame(animationRef.current)
             EMGClient.getInstance().stopSimulation()

@@ -6,7 +6,10 @@ import { getAdminClient } from '@/lib/supabase/server'
  * 🤖 NEXUS MOTION PREDICTION (ENFORCED ZERO TRUST)
  */
 export const POST = withSecurity(async ({ ctx, body }) => {
-    const { emgEmbedding, currentLandmarks, prompt, companyId: inputCompanyId } = body
+    const emgEmbedding    = body.emgEmbedding    as number[] | undefined
+    const currentLandmarks = body.currentLandmarks as unknown[] | undefined
+    const prompt           = body.prompt           as string  | undefined
+    const inputCompanyId   = body.companyId        as string  | undefined
 
     // 1. Mandatory Tenant Enforcement (Prevent accidental leakage)
     enforceTenant(ctx.companyId, inputCompanyId);
@@ -26,16 +29,18 @@ export const POST = withSecurity(async ({ ctx, body }) => {
     let ragContext = "No similar patterns found in database."
     try {
         const supabase = await getAdminClient()
-        const { data: patterns, error } = await supabase
+        // match_emg_patterns is a custom RPC not in the generated schema — cast required
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: patterns, error } = await (supabase as any)
             .rpc('match_emg_patterns', {
                 query_embedding: emgEmbedding,
-                p_company_id: ctx.companyId, // USE CONTEXT ID
+                p_company_id: ctx.companyId,
                 match_threshold: 0.75,
                 match_count: 3
             })
 
         if (!error && patterns && patterns.length > 0) {
-            ragContext = patterns.map((p: any) => 
+            ragContext = patterns.map((p: { label: string; metadata: unknown }) =>
                 `Pattern: ${p.label}. Metadata: ${JSON.stringify(p.metadata)}`
             ).join('\n')
         }

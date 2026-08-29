@@ -7,7 +7,10 @@ import { Wifi, WifiOff, RefreshCw } from 'lucide-react'
 import { useLiveQuery } from 'dexie-react-hooks'
 
 export function SyncManager() {
-    const [isOnline, setIsOnline] = useState(true)
+    // Initialise with the real value — avoids setState inside useEffect
+    const [isOnline, setIsOnline] = useState(() =>
+        typeof navigator !== 'undefined' ? navigator.onLine : true
+    )
     const [isSyncing, setIsSyncing] = useState(false)
 
     // Watch pending skills count
@@ -106,8 +109,6 @@ export function SyncManager() {
     }, [isSyncing, uploadSkill])
 
     useEffect(() => {
-        setIsOnline(navigator.onLine)
-
         const handleOnline = () => {
             setIsOnline(true)
             syncPendingSkills()

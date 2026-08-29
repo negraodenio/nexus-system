@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Play, Pause, RotateCcw } from 'lucide-react'
 
@@ -76,7 +76,7 @@ export function SkillPlayer({ skillId }: { skillId: string }) {
     }, [skillId])
 
     // 2. Draw skeleton on canvas synced with video
-    const drawSkeleton = () => {
+    const drawSkeleton = useCallback(() => {
         const video = videoRef.current
         const canvas = canvasRef.current
         if (!video || !canvas || frames.length === 0) return
@@ -142,7 +142,7 @@ export function SkillPlayer({ skillId }: { skillId: string }) {
         }
 
         animationRef.current = requestAnimationFrame(drawSkeleton)
-    }
+    }, [frames, setCurrentFrameIndex])
 
     // 3. Start/Stop animation loop
     useEffect(() => {
@@ -152,7 +152,7 @@ export function SkillPlayer({ skillId }: { skillId: string }) {
         return () => {
             if (animationRef.current) cancelAnimationFrame(animationRef.current)
         }
-    }, [isPlaying, frames])
+    }, [isPlaying, frames, drawSkeleton])
 
     const handlePlay = () => {
         if (videoRef.current) {

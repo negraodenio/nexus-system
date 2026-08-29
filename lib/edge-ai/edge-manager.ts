@@ -45,7 +45,7 @@ export class EdgeManager {
         }
 
         // 3. Check Network (only relevant for download)
-        // @ts-ignore - navigator.connection is experimental
+        // @ts-expect-error - navigator.connection is experimental and not in all TS lib definitions
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         if (connection) {
             if (connection.saveData) {

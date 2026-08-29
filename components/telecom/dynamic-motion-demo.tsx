@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { AlertTriangle, CheckCircle, Loader2 } from 'lucide-react'
 
@@ -30,7 +30,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
                     .from('skills')
                     .select('video_url')
                     .eq('id', skillId)
-                    .single()
+                    .single() as { data: { video_url: string | null } | null; error: unknown }
 
                 if (skillError) throw skillError
                 if (skillData) setVideoUrl(skillData.video_url)
@@ -54,8 +54,9 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
     }, [skillId])
 
     // 2. Playback Sync Loop
-    // We synchronize the frame index with the video's current time for 1:1 match
-    const handleTimeUpdate = () => {
+    const handleTimeUpdate = useCallback(() => {
+        const video = videoRef.current
+        if (!video) return
         const duration = video.duration
         if (!duration || frames.length === 0) return
 
@@ -84,7 +85,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         }
         
         setCurrentFrameIndex(bestMatchIdx)
-    }
+    }, [frames])
 
     // Also use requestAnimationFrame for sub-second smoothness if needed
     useEffect(() => {
@@ -98,7 +99,7 @@ export function DynamicMotionDemo({ skillId, fallback }: DynamicMotionDemoProps)
         
         const animId = requestAnimationFrame(sync)
         return () => cancelAnimationFrame(animId)
-    }, [frames])
+    }, [frames, handleTimeUpdate])
 
     // 3. Dynamic Metadata simulation (Instant & Direct)
     useEffect(() => {

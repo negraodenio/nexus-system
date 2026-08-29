@@ -369,6 +369,23 @@ export class KineticEngine {
     }
 
     /**
+     * Load an audio-kinematic binding as reference template.
+     * This enables the "invisible first" paradigm where a specialist
+     * narrates while performing, and the system extracts the reference.
+     *
+     * @param binding - Audio-kinematic binding from AudioKinematicEngine
+     */
+    loadAudioKinematicBinding(binding: { segments: Array<{ kinematic: { frames: Landmark[][] } }> }): void {
+        const allFrames: Landmark[][] = []
+        for (const seg of binding.segments) {
+            allFrames.push(...seg.kinematic.frames)
+        }
+        if (allFrames.length > 0) {
+            this.loadTemplate(allFrames)
+        }
+    }
+
+    /**
      * Process a single frame and return real-time feedback
      */
     processFrame(landmarks: Landmark[], timestamp: number): {

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Activity, AlertTriangle, Cpu, TrendingUp, Settings, Navigation, Eye, CheckCircle, Database, Thermometer, Zap, Gauge, Award } from 'lucide-react'
 import { CertificateCard } from '@/components/certificate-card'
 
@@ -46,6 +47,9 @@ const EQUIPMENT_DATA = [
 ]
 
 export default function PredictiveDashboard() {
+    const router = useRouter()
+    // Stable timestamp — computed once at mount, not on every render
+    const [mountTime] = useState(() => Date.now())
     const [currentTime, setCurrentTime] = useState('')
     const [thermalTemp, setThermalTemp] = useState(42.5)
     const [torqueNm, setTorqueNm] = useState(45)
@@ -69,10 +73,8 @@ export default function PredictiveDashboard() {
     }, [])
 
     const handleActionClick = (equipment: typeof EQUIPMENT_DATA[0]) => {
-        // Redireciona para o Nexus (Adaptador Cognitivo) injetando o contexto do equipamento
-        // O ideal é passar o ID do equipamento via query parameter ou estado
         const query = encodeURIComponent(`The ${equipment.name} (${equipment.id}) has a ${equipment.failureProbability}% failure probability due to ${equipment.deviationContext}. What is the mitigation procedure?`)
-        window.location.href = `/nexus?q=${query}`
+        router.push(`/nexus?q=${query}`)
     }
 
     return (
@@ -320,7 +322,7 @@ export default function PredictiveDashboard() {
                                     score: 94,
                                     ipfsHash: "a1b2c3d4-1234-5678-abcd-ef0123456789",
                                     transactionHash: "0xebd6678..." ,
-                                    timestamp: Date.now(),
+                                    timestamp: mountTime,
                                     network: "Polygon Amoy"
                                 }}
                             />

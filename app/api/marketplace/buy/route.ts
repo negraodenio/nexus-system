@@ -52,10 +52,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'You already own this skill' }, { status: 400 })
         }
 
-        // 6. Record Transaction (Mock Payment Success)
-        // Using supabaseAdmin to bypass RLS "insert" policy if needed, 
-        // and to act as the "System" verifying the payment.
-        const { data: transaction, error: txError } = await supabaseAdmin
+        // 6. Record Transaction — cast required until schema is generated via `supabase gen types`
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const adminDb = supabaseAdmin as any
+        const { data: transaction, error: txError } = await adminDb
             .from('transactions')
             .insert({
                 listing_id: listing.id,

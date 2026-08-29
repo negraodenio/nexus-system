@@ -22,6 +22,33 @@ interface FieldAssistantProps {
     referenceSkillId?: string
 }
 
+// Pure helper — defined outside component to avoid hoisting issues and re-creation on every render
+function drawHandOverlay(ctx: CanvasRenderingContext2D, landmarks: Landmark[], currentScore: number, w: number, h: number) {
+    const color = currentScore > 80 ? '#10b981' : currentScore > 50 ? '#3b82f6' : '#ef4444'
+    const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]]
+
+    ctx.lineWidth = 3
+    ctx.lineCap = 'round'
+    ctx.shadowBlur = 10
+    ctx.shadowColor = color
+    ctx.strokeStyle = `${color}88`
+    connections.forEach(([a, b]) => {
+        const start = landmarks[a]
+        const end = landmarks[b]
+        if (!start || !end) return
+        ctx.beginPath()
+        ctx.moveTo(start.x * w, start.y * h)
+        ctx.lineTo(end.x * w, end.y * h)
+        ctx.stroke()
+    })
+    landmarks.forEach((lm, i) => {
+        ctx.fillStyle = i === 8 ? '#FFFFFF' : color
+        ctx.beginPath()
+        ctx.arc(lm.x * w, lm.y * h, i === 8 ? 6 : 3, 0, Math.PI * 2)
+        ctx.fill()
+    })
+}
+
 export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: FieldAssistantProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -88,7 +115,7 @@ export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: F
                     .from('profiles')
                     .select('company_id')
                     .eq('id', user.id)
-                    .single();
+                    .single() as { data: { company_id: string | null } | null; error: unknown };
                 if (profile?.company_id) {
                     setCompanyId(profile.company_id);
                 }
@@ -134,7 +161,47 @@ export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: F
     const config = MODULE_CONFIGS[activeModuleId] || MODULE_CONFIGS['m1']
     const STEPS = config.steps
 
-    // 1. Initialize Vision Worker (Professional Optimization)
+    // 1. Initialize Vision Worker — worker setup AFTER handleWorkerResults is defined below
+    // (useEffect runs after render, so useCallback declarations above are always ready)
+    const handleWorkerResults = useCallback((results: { landmarks?: Landmark[][] }, _timestamp: number) => {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
+        if (!canvas || !video || !results) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // FPS Calculation — uses ref to avoid stale closure, no setState during render
+        const frameNow = performance.now();
+        setLastFrameTime(prev => {
+            const delta = frameNow - prev;
+            if (delta > 0) setFps(Math.round(1000 / delta));
+            return frameNow;
+        });
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (results.landmarks && results.landmarks.length > 0) {
+            const hand = results.landmarks[0];
+            const analysis = kineticEngine.processFrame(hand as Landmark[], performance.now());
+            setScore(analysis.instantScore);
+            
+            if (analysis.feedback.length > 0) {
+                setFeedback(analysis.feedback[0].message);
+            } else if (analysis.instantScore > 85) {
+                setFeedback(`[STEP ${currentStep}] Perfect ${STEPS[currentStep-1].title}. Hold 3s to lock.`);
+            } else {
+                setFeedback(STEPS[currentStep-1].task);
+            }
+
+            drawHandOverlay(ctx, hand, analysis.instantScore, canvas.width, canvas.height);
+        } else {
+            setScore(0);
+            setFeedback('Show equipment & hands');
+        }
+     
+    }, [currentStep, STEPS]);
+
     useEffect(() => {
         const worker = new Worker('/workers/vision-worker.js', { type: 'module' });
         workerRef.current = worker;
@@ -159,43 +226,7 @@ export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: F
             worker.terminate();
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
         };
-    }, [])
-
-    const handleWorkerResults = (results: any, timestamp: number) => {
-        const canvas = canvasRef.current;
-        const video = videoRef.current;
-        if (!canvas || !video || !results) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // FPS Calculation
-        const frameNow = Date.now();
-        const delta = frameNow - lastFrameTime;
-        if (delta > 0) setFps(Math.round(1000 / delta));
-        setLastFrameTime(frameNow);
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (results.landmarks && results.landmarks.length > 0) {
-            const hand = results.landmarks[0];
-            const analysis = kineticEngine.processFrame(hand as any[], Date.now());
-            setScore(analysis.instantScore);
-            
-            if (analysis.feedback.length > 0) {
-                setFeedback(analysis.feedback[0].message);
-            } else if (analysis.instantScore > 85) {
-                setFeedback(`[STEP ${currentStep}] Perfect ${STEPS[currentStep-1].title}. Hold 3s to lock.`);
-            } else {
-                setFeedback(STEPS[currentStep-1].task);
-            }
-
-            drawHandOverlay(ctx, hand, analysis.instantScore, canvas.width, canvas.height);
-        } else {
-            setScore(0);
-            setFeedback('Show equipment & hands');
-        }
-    };
+    }, [handleWorkerResults])
 
     // 2. Camera Management
     useEffect(() => {
@@ -255,37 +286,6 @@ export function FieldAssistant({ pilotId = 'NX-GLOBAL-01', referenceSkillId }: F
         if (isReady) requestRef.current = requestAnimationFrame(animate)
         return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current) }
     }, [isReady, animate])
-
-    const drawHandOverlay = (ctx: CanvasRenderingContext2D, landmarks: any[], currentScore: number, w: number, h: number) => {
-        const color = currentScore > 80 ? '#10b981' : currentScore > 50 ? '#3b82f6' : '#ef4444'
-        
-        // Connections for the hand skeleton
-        const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]]
-        
-        ctx.lineWidth = 3
-        ctx.lineCap = 'round'
-        ctx.shadowBlur = 10
-        ctx.shadowColor = color
-
-        // Draw Glow Lines
-        ctx.strokeStyle = `${color}88`
-        connections.forEach(([a, b]) => {
-            const start = landmarks[a]
-            const end = landmarks[b]
-            ctx.beginPath()
-            ctx.moveTo(start.x * w, start.y * h)
-            ctx.lineTo(end.x * w, end.y * h)
-            ctx.stroke()
-        })
-
-        // Draw Joints
-        landmarks.forEach((lm, i) => {
-            ctx.fillStyle = i === 8 ? '#FFFFFF' : color
-            ctx.beginPath()
-            ctx.arc(lm.x * w, lm.y * h, i === 8 ? 6 : 3, 0, Math.PI * 2)
-            ctx.fill()
-        })
-    }
 
     return (
         <div className="relative w-full h-full bg-black overflow-hidden flex flex-col font-sans">
