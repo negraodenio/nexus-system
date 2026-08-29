@@ -40,6 +40,7 @@ export interface RegistryOKEM {
     id: string
     procedureName: string
     specialistId: string
+    skillId?: string
     totalDurationMs: number
     stepCount: number
     confidence: number
@@ -59,7 +60,7 @@ class OKEMRegistry {
     /**
      * Store an OKEM from AutoOKEM + guidance
      */
-    storeOKEM(okem: AutoOKEM, guidance: RegistryGuidance[]): void {
+    storeOKEM(okem: AutoOKEM, guidance: RegistryGuidance[], skillId?: string): void {
         const steps: RegistryStep[] = okem.steps.map(s => ({
             index: s.index,
             name: s.name,
@@ -78,6 +79,7 @@ class OKEMRegistry {
             id: okem.id,
             procedureName: okem.procedureName,
             specialistId: okem.specialistId,
+            skillId,
             totalDurationMs: okem.totalDurationMs,
             stepCount: okem.stepCount,
             confidence: okem.confidence,
@@ -100,6 +102,16 @@ class OKEMRegistry {
      */
     hasOKEM(id: string): boolean {
         return this.store.has(id)
+    }
+
+    /**
+     * Retrieve an OKEM by skill ID
+     */
+    getOKEMBySkillId(skillId: string): RegistryOKEM | undefined {
+        for (const okem of this.store.values()) {
+            if (okem.skillId === skillId) return okem
+        }
+        return undefined
     }
 
     /**

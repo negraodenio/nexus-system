@@ -172,15 +172,21 @@ export class StepEngine {
         const stableFrames = recentScores.filter(s => s >= effectiveCriteria.minScore).length
 
         if (stableFrames >= effectiveCriteria.minStableFrames) {
-            // Step completed!
+            // Step completed successfully!
             this.completeStep(true, alignmentScore)
             return this.state
         }
 
-        // Check if too many attempts
+        // Check if max attempts exceeded → force progression
         if (this.stepAttemptCount >= effectiveCriteria.maxAttempts) {
-            // Force progression with current score
             this.completeStep(false, alignmentScore)
+            return this.state
+        }
+
+        // Check if step has been running too long without success → INCORRECT
+        const maxStepDuration = effectiveCriteria.stabilityWindowMs * 3
+        if (elapsed > maxStepDuration && stableFrames < effectiveCriteria.minStableFrames / 2) {
+            this.transitionTo('INCORRECT')
             return this.state
         }
 
@@ -244,6 +250,7 @@ export class StepEngine {
         this.stepAttemptCount++
         this.frameScores = []
         this.stepAlignments = []
+        this.stepStartTime = performance.now()
         this.transitionTo('RETRYING')
         // Immediately go back to active
         setTimeout(() => {

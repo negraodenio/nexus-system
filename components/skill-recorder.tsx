@@ -33,6 +33,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
     const [isRecording, setIsRecording] = useState(false)
     const [frameCount, setFrameCount] = useState(0)
     const [lastSavedId, setLastSavedId] = useState<string | null>(null)
+    const [lastOkemId, setLastOkemId] = useState<string | null>(null)
     const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
     const [isReady, setIsReady] = useState(false)
     const [uploadProgress, setUploadProgress] = useState<string | null>(null)
@@ -374,7 +375,44 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
 
         console.log(`Saved ${payload.length} frames + video to Skill ${skill.id}`)
         
-        // 5. Trigger Semantic Search Embedding
+        // 5. Generate OKEM from recording
+        let okemId: string | null = null
+        try {
+            setUploadProgress('Generating OKEM (skill model)...')
+
+            // Extract kinematic frames as Landmark[][] (first hand only)
+            const kinematicFrames = frames
+                .filter(f => f.landmarks && f.landmarks.length > 0)
+                .map(f => f.landmarks[0])
+
+            // Extract timestamps from frame indices (30fps)
+            const timestamps = frames.map(f => f.frame_index * 33)
+
+            if (kinematicFrames.length >= 10) {
+                const recordResponse = await fetch('/api/record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        procedureName: title,
+                        specialistId: user?.id || 'anonymous',
+                        skillId: skill.id,
+                        audioSegments: [], // No audio captured in this recorder
+                        kinematicFrames,
+                        timestamps,
+                    }),
+                })
+
+                const recordData = await recordResponse.json()
+                if (recordData.success) {
+                    okemId = recordData.okem.id
+                    console.log(`OKEM generated: ${okemId} with ${recordData.okem.stepCount} steps`)
+                }
+            }
+        } catch (err) {
+            console.error('OKEM generation error (non-blocking):', err)
+        }
+
+        // 6. Trigger Semantic Search Embedding
         try {
             setUploadProgress('Indexing for Semantic Search...')
             await fetch('/api/skills/semantic-search', {
@@ -393,7 +431,8 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
         }
 
         setLastSavedId(skill.id)
-        setStatus('✅ Habilidade Salva com IA!')
+        setLastOkemId(okemId)
+        setStatus(okemId ? '✅ Skill + OKEM Salva!' : '✅ Habilidade Salva com IA!')
         setUploadProgress(null)
     }
 
@@ -574,7 +613,7 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
                 </div>
 
                 <div className="mt-4 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 p-3 rounded-lg border border-indigo-500/50 text-center">
-                    <span className="text-xs text-indigo-300 uppercase font-bold">✅ Skill Asset Created (Video + Skeleton)</span>
+                    <span className="text-xs text-indigo-300 uppercase font-bold">✅ Skill Asset Created (Video + Skeleton + OKEM)</span>
                     <code
                         onClick={() => {
                             navigator.clipboard.writeText(lastSavedId!)
@@ -585,6 +624,18 @@ export function SkillRecorder({ onSave }: SkillRecorderProps) {
                     >
                         {lastSavedId}
                     </code>
+                    {lastOkemId && (
+                        <code
+                            onClick={() => {
+                                navigator.clipboard.writeText(lastOkemId)
+                                showToast('OKEM ID copied!', 'success')
+                            }}
+                            className="block bg-black/50 px-3 py-1 rounded text-green-400 font-mono text-xs mt-1 select-all cursor-pointer hover:bg-black/70 transition-colors"
+                            title="Click to copy OKEM ID"
+                        >
+                            OKEM: {lastOkemId}
+                        </code>
+                    )}
                     <p className="text-gray-400 text-xs mt-1">Click ID to copy • Tag for Nexus</p>
                 </div>
             </div>

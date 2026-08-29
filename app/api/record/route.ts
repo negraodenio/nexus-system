@@ -26,6 +26,8 @@ interface RecordRequest {
     procedureName: string
     /** Specialist/parent ID */
     specialistId: string
+    /** Optional: link OKEM to an existing skill */
+    skillId?: string
     /** Language spoken (default: 'pt') */
     language?: string
     /** Audio transcription segments */
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
         const guidance = autoOKEMGenerator.generateGuidance(okem)
 
         // ── Store OKEM in shared registry ──────────────────────────────────
-        okemRegistry.storeOKEM(okem, guidance)
+        okemRegistry.storeOKEM(okem, guidance, body.skillId)
 
         // ── Response ───────────────────────────────────────────────────────
         return NextResponse.json({

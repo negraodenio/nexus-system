@@ -76,6 +76,7 @@ export default function Nexus() {
     const [history, setHistory] = useState<HistoryItem[]>([])
     const [showHistory, setShowHistory] = useState(false)
     const [matchedSkillId, setMatchedSkillId] = useState<string | null>(null)
+    const [matchedOkemId, setMatchedOkemId] = useState<string | null>(null)
     const [showPractice, setShowPractice] = useState(false) // NEW: State for interactive practice
 
     // Metrics
@@ -88,12 +89,13 @@ export default function Nexus() {
             return
         }
 
-        setLoading(true)
-        setError(null)
-        setResponse(null)
-        setUnderstood(false)
-        setMatchedSkillId(null)
-        setStartTime(Date.now())
+            setLoading(true)
+            setError(null)
+            setResponse(null)
+            setUnderstood(false)
+            setMatchedSkillId(null)
+            setMatchedOkemId(null)
+            setStartTime(Date.now())
 
         try {
             const res = await fetch('/api/generate', {
@@ -128,7 +130,24 @@ export default function Nexus() {
                     })
                     const skillData = await skillRes.json()
                     if (skillData.results?.length > 0) {
-                        setMatchedSkillId(skillData.results[0].id)
+                        const skillId = skillData.results[0].id
+                        setMatchedSkillId(skillId)
+
+                        // Look up OKEM for this skill
+                        try {
+                            const { supabase } = await import('@/lib/supabase')
+                            const { data: okemData } = await supabase
+                                .from('okems' as any)
+                                .select('id')
+                                .eq('skill_id', skillId)
+                                .limit(1)
+                                .maybeSingle()
+                            if (okemData) {
+                                setMatchedOkemId((okemData as any).id)
+                            }
+                        } catch {
+                            // OKEM not found — legacy skill, no step mode
+                        }
                     }
                 } catch (skillErr) {
                     console.error('Semantic Skill search failed:', skillErr)
@@ -474,7 +493,7 @@ export default function Nexus() {
                         )}
 
                         {showPractice && matchedSkillId && (
-                            <GhostHandPractice skillId={matchedSkillId} onClose={() => setShowPractice(false)} />
+                            <GhostHandPractice skillId={matchedSkillId} okemId={matchedOkemId ?? undefined} onClose={() => setShowPractice(false)} />
                         )}
 
                         {/* Limits */}

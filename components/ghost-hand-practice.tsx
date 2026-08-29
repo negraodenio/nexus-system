@@ -200,80 +200,69 @@ export function GhostHandPractice({ skillId, okemId, onClose }: GhostHandPractic
 
         const loadOKEMSteps = async () => {
             try {
-                const response = await fetch(`/api/guidance?okemId=${okemId}&step=0`)
-                const data = await response.json()
+                // Load full OKEM from Supabase (has referenceFrames per step)
+                const { data: okemRow, error } = await supabase
+                    .from('okems' as any)
+                    .select('id, steps, guidance')
+                    .eq('id', okemId)
+                    .single()
 
-                if (data.success && data.totalSteps > 0) {
-                    // Fetch full OKEM data from registry via guidance endpoint
-                    // The OKEM has steps with referenceFrames
-                    const stepsResponse = await fetch(`/api/learn`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            okemId,
-                            kinematicFrames: [], // Empty - we just want the OKEM structure
-                            timestamps: [],
-                            currentStepIndex: 0,
-                        }),
-                    })
-
-                    // Even if learn returns error (no frames), the OKEM exists
-                    // We'll use the guidance data + expert frames for step reference
-                    setIsStepMode(true)
-                    setTotalSteps(data.totalSteps)
-
-                    // Create steps from guidance data
-                    const loadedSteps: RegistryStep[] = []
-                    for (let i = 0; i < data.totalSteps; i++) {
-                        const stepResponse = await fetch(`/api/guidance?okemId=${okemId}&step=${i}`)
-                        const stepData = await stepResponse.json()
-                        if (stepData.success) {
-                            loadedSteps.push({
-                                index: i,
-                                name: stepData.currentStep.instruction,
-                                description: stepData.currentStep.instruction,
-                                referenceFrames: [], // Will be filled from expert frames
-                                durationMs: stepData.currentStep.waitDurationMs || 3000,
-                                isCritical: stepData.currentStep.isCritical,
-                                criticalLandmarks: [4, 8, 12, 16, 20],
-                                spatialVariance: 0,
-                                actionVerb: '',
-                                targetObject: '',
-                                semanticType: 'action',
-                            })
-                        }
-                    }
-
-                    if (loadedSteps.length > 0) {
-                        setSteps(loadedSteps)
-
-                        // Initialize Step Engine
-                        const engine = new StepEngine()
-                        stepEngineRef.current = engine
-
-                        engine.init(loadedSteps, skillId, {
-                            onStateChange: (state, stepIdx) => {
-                                setStepState(state)
-                                setCurrentStepIndex(stepIdx)
-                                const info = engine.getStepInfo()
-                                setStepName(info.stepName)
-                                setStepDescription(info.stepDescription)
-                                setIsCritical(info.isCritical)
-                                setStepAttempts(info.attempts)
-                            },
-                            onStepComplete: (result: StepResult) => {
-                                // Step completed
-                            },
-                            onSkillComplete: (session: PracticeSession) => {
-                                setSkillComplete(true)
-                                setSessionResult(session)
-                            },
-                            onFeedback: (feedback, isPositive) => {
-                                speakFeedback(feedback)
-                            },
-                        })
-                    }
+                if (error || !okemRow) {
+                    console.error('Failed to load OKEM from Supabase:', error)
+                    return
                 }
+
+                const rawSteps = (okemRow as any).steps
+                const rawGuidance = (okemRow as any).guidance
+
+                if (!Array.isArray(rawSteps) || rawSteps.length === 0) return
+
+                // Deserialize steps with real referenceFrames
+                const loadedSteps: RegistryStep[] = rawSteps.map((s: any, i: number) => ({
+                    index: s.index ?? i,
+                    name: s.name ?? `Step ${i + 1}`,
+                    description: s.description ?? '',
+                    referenceFrames: typeof s.referenceFramesJson === 'string'
+                        ? JSON.parse(s.referenceFramesJson)
+                        : (s.referenceFrames ?? []),
+                    durationMs: s.durationMs ?? 3000,
+                    isCritical: s.isCritical ?? false,
+                    criticalLandmarks: s.criticalLandmarks ?? [4, 8, 12, 16, 20],
+                    spatialVariance: s.spatialVariance ?? 0,
+                    actionVerb: s.actionVerb ?? '',
+                    targetObject: s.targetObject ?? '',
+                    semanticType: s.semanticType ?? 'action',
+                }))
+
+                setIsStepMode(true)
+                setTotalSteps(loadedSteps.length)
+                setSteps(loadedSteps)
+
+                // Initialize Step Engine
+                const engine = new StepEngine()
+                stepEngineRef.current = engine
+
+                engine.init(loadedSteps, skillId, {
+                    onStateChange: (state, stepIdx) => {
+                        setStepState(state)
+                        setCurrentStepIndex(stepIdx)
+                        const info = engine.getStepInfo()
+                        setStepName(info.stepName)
+                        setStepDescription(info.stepDescription)
+                        setIsCritical(info.isCritical)
+                        setStepAttempts(info.attempts)
+                    },
+                    onStepComplete: (result: StepResult) => {
+                        // Step completed
+                    },
+                    onSkillComplete: (session: PracticeSession) => {
+                        setSkillComplete(true)
+                        setSessionResult(session)
+                    },
+                    onFeedback: (feedback, isPositive) => {
+                        speakFeedback(feedback)
+                    },
+                })
             } catch (err) {
                 console.error('Failed to load OKEM steps:', err)
             }
@@ -450,11 +439,20 @@ export function GhostHandPractice({ skillId, okemId, onClose }: GhostHandPractic
         const isStepActive = isStepMode && engine && (stepState === 'STEP_ACTIVE' || stepState === 'RETRYING')
 
         if (isStepActive && steps.length > 0) {
-            // In step mode: divide expert frames into chunks per step
-            const framesPerStep = Math.floor(expertFrames.length / steps.length)
-            const stepStart = currentStepIndex * framesPerStep
-            const stepEnd = Math.min(stepStart + framesPerStep, expertFrames.length)
-            activeExpertFrames = expertFrames.slice(stepStart, stepEnd)
+            const currentStep = steps[currentStepIndex]
+            if (currentStep && currentStep.referenceFrames.length > 0) {
+                // Use real referenceFrames from OKEM step
+                activeExpertFrames = currentStep.referenceFrames.map((landmarks, idx) => ({
+                    frame_index: idx,
+                    landmarks: [landmarks],
+                }))
+            } else {
+                // Fallback: divide expert frames into chunks per step
+                const framesPerStep = Math.floor(expertFrames.length / steps.length)
+                const stepStart = currentStepIndex * framesPerStep
+                const stepEnd = Math.min(stepStart + framesPerStep, expertFrames.length)
+                activeExpertFrames = expertFrames.slice(stepStart, stepEnd)
+            }
 
             if (activeExpertFrames.length === 0) {
                 activeExpertFrames = expertFrames // Fallback to all frames
