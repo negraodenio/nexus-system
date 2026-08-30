@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48" fill="none">
+  <defs>
+    <linearGradient id="nGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <!-- N icon: clean folded ribbon -->
+  <path d="M4 44V4h8l16 24V4h8v40h-8L12 24v20H4z" fill="url(#nGrad)"/>
+  <!-- NEXUS wordmark -->
+  <text x="54" y="32" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" letter-spacing="3" fill="white">NEXUS</text>
+</svg>

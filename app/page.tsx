@@ -66,8 +66,8 @@ export default function NexusLanding() {
         <div className="flex justify-between items-center px-6 md:px-12 h-20 w-full max-w-screen-2xl mx-auto">
           <Link href="/" className="flex items-center gap-3 group">
             <img
-              src="/images/nexus/nexus-brand-logo.png"
-              alt="Nexus Motion"
+              src="/images/nexus/nexus-logo.svg"
+              alt="Nexus"
               className="h-8 w-auto"
             />
           </Link>
@@ -257,14 +257,44 @@ export default function NexusLanding() {
         </section>
 
         {/* 4. USE CASES */}
-        <section id="niches" className="py-16 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
+        <section id="niches" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto">
-            <div className="w-full overflow-hidden">
-              <img
-                src="/images/nexus/Comofazer.png"
-                alt="Nexus Motion use cases: Professionals, Small businesses, Enterprises, Technicians, Everyday tasks, Training"
-                className="w-full h-auto"
-              />
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Use Cases</div>
+              <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-black tracking-tight leading-none uppercase">
+                ONE PLATFORM.<br />
+                <span style={{
+                  background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>EVERY SKILL.</span>
+              </h2>
+              <p className="text-white/60 text-sm leading-relaxed mt-4 max-w-2xl mx-auto">
+                From family knowledge to professional training. Nexus adapts to any practical skill.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
+              {NICHES.map((niche, i) => (
+                <div
+                  key={i}
+                  className={`p-8 transition-all group hover:bg-white/[0.02] ${
+                    activeNiche === i ? 'bg-white/[0.03] border-blue-500/20' : ''
+                  }`}
+                  style={{ background: '#0D1321' }}
+                >
+                  <div className="text-3xl mb-4">{niche.icon}</div>
+                  <div className="font-mono text-xs font-bold uppercase tracking-wider mb-2" style={{ color: niche.color }}>
+                    {niche.title}
+                  </div>
+                  <div className="text-white/70 text-sm font-medium mb-3 leading-snug">
+                    {niche.tagline}
+                  </div>
+                  <div className="text-white/40 text-xs leading-relaxed">
+                    {niche.desc}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -548,8 +578,8 @@ export default function NexusLanding() {
           <div className="flex flex-col items-center md:items-start gap-2">
             <Link href="/" className="flex items-center gap-3 group">
               <img
-                src="/images/nexus/nexus-brand-logo.png"
-                alt="Nexus Motion"
+                src="/images/nexus/nexus-logo.svg"
+                alt="Nexus"
                 className="h-6 w-auto"
               />
             </Link>
