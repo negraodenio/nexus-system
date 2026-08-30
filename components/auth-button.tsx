@@ -54,6 +54,23 @@ export function AuthButton({ onAuthChange }: AuthButtonProps) {
         }
     }
 
+    const handlePasswordReset = async () => {
+        if (!email) {
+            showToast('Introduza o email primeiro', 'error')
+            return
+        }
+        setLoading(true)
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/dashboard`
+        })
+        if (error) {
+            showToast(`Erro: ${error.message}`, 'error')
+        } else {
+            showToast('Email de redefinição enviado! Verifique a sua caixa de entrada.', 'success')
+        }
+        setLoading(false)
+    }
+
     const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
@@ -190,6 +207,16 @@ export function AuthButton({ onAuthChange }: AuthButtonProps) {
                                 {loading ? 'Entrando...' : 'Entrar com Email'}
                             </button>
                         </form>
+
+                        <div className="mt-4 text-center">
+                            <button
+                                type="button"
+                                onClick={handlePasswordReset}
+                                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                                Esqueceu a senha?
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
