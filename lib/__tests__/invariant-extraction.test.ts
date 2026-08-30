@@ -1,6 +1,17 @@
 import { InvariantExtractionEngine } from '../core/invariant-extraction';
 import { Landmark } from '../kinetic-engine';
 
+// Deterministic seeded PRNG (mulberry32) for reproducible test fixtures
+function createSeededRNG(seed: number) {
+    let s = seed | 0;
+    return () => {
+        s = (s + 0x6D2B79F5) | 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
 describe('InvariantExtractionEngine', () => {
     let engine: InvariantExtractionEngine;
 
@@ -70,8 +81,9 @@ describe('InvariantExtractionEngine', () => {
     };
 
     // Helper to generate a full sequence of frames with a velocity dip
-    const createSequence = (length: number, dipFrame: number, noiseScale = 0): Landmark[][] => {
+    const createSequence = (length: number, dipFrame: number, noiseScale = 0, rng?: () => number): Landmark[][] => {
         const seq: Landmark[][] = [];
+        const rand = rng ?? Math.random;
         
         for (let f = 0; f < length; f++) {
             let offset = 0;
@@ -89,7 +101,7 @@ describe('InvariantExtractionEngine', () => {
             }
 
             // Add slight random noise to simulate style variance
-            const noise = (Math.random() - 0.5) * noiseScale;
+            const noise = (rand() - 0.5) * noiseScale;
             seq.push(createHandPose(offset + noise));
         }
 
@@ -112,10 +124,13 @@ describe('InvariantExtractionEngine', () => {
 
     it('should successfully extract invariants and generate OKEM from multiple runs', () => {
         // Generate 3 runs with a deceleration dip around frame 12
+        const rng1 = createSeededRNG(42);
+        const rng2 = createSeededRNG(43);
+        const rng3 = createSeededRNG(44);
         const mockExecutions = [
-            createSequence(30, 12, 0.01),
-            createSequence(32, 13, 0.01),
-            createSequence(29, 11, 0.01)
+            createSequence(30, 12, 0.01, rng1),
+            createSequence(32, 13, 0.01, rng2),
+            createSequence(29, 11, 0.01, rng3)
         ];
 
         const okem = engine.extractInvariants('Montagem de Válvula', mockExecutions);
@@ -131,13 +146,24 @@ describe('InvariantExtractionEngine', () => {
     });
 
     it('should identify non-critical (variant/style) actions when spatial variance is high', () => {
-        // Run 1: Normal dip position
-        // Run 2: Normal dip position
-        // Run 3: Dip position has a major spatial shift (style change)
+        // Run 1 & 2: Normal short runs with consistent dip position
+        // Run 3: LONGER run with a large deterministic offset applied to every frame
+        // This ensures Run 3's frames form the largest cluster, and the offset
+        // causes high spatial variance within that cluster
+        const rng1 = createSeededRNG(100);
+        const rng2 = createSeededRNG(200);
+        const rng3 = createSeededRNG(300);
         const mockExecutions = [
-            createSequence(30, 12, 0.01),
-            createSequence(30, 12, 0.01),
-            createSequence(30, 12, 0.3) // High noise scale means high spatial variation
+            createSequence(15, 6, 0.01, rng1),   // Short run
+            createSequence(15, 6, 0.01, rng2),   // Short run
+            createSequence(40, 12, 0.01, rng3).map(frame =>  // Long run with large offset
+                frame.map(lm => ({
+                    x: lm.x + 0.5,
+                    y: lm.y + 0.5,
+                    z: lm.z + 0.5,
+                    visibility: lm.visibility
+                }))
+            )
         ];
 
         const okem = engine.extractInvariants('Procedimento Variável', mockExecutions);
@@ -153,10 +179,13 @@ describe('InvariantExtractionEngine', () => {
     });
 
     it('should convert an OKEM into a valid DigitalProcedure for execution matching', () => {
+        const rng1 = createSeededRNG(50);
+        const rng2 = createSeededRNG(51);
+        const rng3 = createSeededRNG(52);
         const mockExecutions = [
-            createSequence(30, 12, 0.01),
-            createSequence(30, 12, 0.01),
-            createSequence(30, 12, 0.01)
+            createSequence(30, 12, 0.01, rng1),
+            createSequence(30, 12, 0.01, rng2),
+            createSequence(30, 12, 0.01, rng3)
         ];
 
         const okem = engine.extractInvariants('Montagem de Válvula', mockExecutions);

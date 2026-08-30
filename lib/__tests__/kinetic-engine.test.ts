@@ -1,4 +1,5 @@
-import { KineticEngine, OrthonormalNormalizer } from '../kinetic-engine';
+import { KineticEngine, OrthonormalNormalizer, ConstrainedDTW } from '../kinetic-engine';
+import { Landmark } from '../kinetic-engine';
 
 describe('KineticEngine', () => {
     let engine: KineticEngine;
@@ -125,6 +126,66 @@ describe('KineticEngine', () => {
             ]];
 
             expect(() => engine.loadTemplate(invalidFrames)).toThrow();
+        });
+    });
+
+    describe('dt=0 edge case', () => {
+        it('should not produce NaN or Infinity when all timestamps are identical', () => {
+            const mockFrames = Array(5).fill(null).map(() =>
+                Array(21).fill(null).map((_, i) => ({
+                    x: i * 0.1,
+                    y: i * 0.1,
+                    z: i * 0.01,
+                    visibility: 1
+                }))
+            );
+
+            engine.loadTemplate(mockFrames);
+
+            const fixedTimestamp = 1000;
+            const result = engine.processFrame(mockFrames[0], fixedTimestamp);
+
+            expect(result.kinematics.velocity).toBeDefined();
+            expect(result.kinematics.acceleration).toBeDefined();
+
+            // Check no NaN or Infinity in velocity
+            for (const lm of result.kinematics.velocity) {
+                expect(isFinite(lm.x)).toBe(true);
+                expect(isFinite(lm.y)).toBe(true);
+                expect(isFinite(lm.z)).toBe(true);
+            }
+
+            // Check no NaN or Infinity in acceleration
+            for (const lm of result.kinematics.acceleration) {
+                expect(isFinite(lm.x)).toBe(true);
+                expect(isFinite(lm.y)).toBe(true);
+                expect(isFinite(lm.z)).toBe(true);
+            }
+        });
+    });
+
+    describe('DTW band constraint', () => {
+        it('should respect Sakoe-Chiba band in alignment path', () => {
+            const dtw = new ConstrainedDTW(0.2);
+            const bandwidth = 0.2;
+
+            const makeFrame = (offset: number): Landmark[] =>
+                Array(21).fill(null).map((_, i) => ({
+                    x: i * 0.1 + offset,
+                    y: i * 0.1,
+                    z: 0,
+                    visibility: 1
+                }));
+
+            const sequence = Array(20).fill(null).map((_, i) => makeFrame(i * 0.05));
+            const template = Array(25).fill(null).map((_, i) => makeFrame(i * 0.04));
+
+            const result = dtw.compute(sequence, template);
+            const band = Math.max(1, Math.floor(bandwidth * Math.max(sequence.length, template.length)));
+
+            for (const [i, j] of result.alignmentPath) {
+                expect(Math.abs(i - j)).toBeLessThanOrEqual(band);
+            }
         });
     });
 });
