@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" fill="none">
+  <rect width="400" height="600" fill="#0A0A0F"/>
+  <defs>
+    <radialGradient id="phglow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0A0A0F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#phglow)"/>
+  <!-- Phone -->
+  <g transform="translate(120, 50)">
+    <rect x="0" y="0" width="160" height="320" rx="20" stroke="#10b981" stroke-width="2" fill="none" opacity="0.5"/>
+    <rect x="10" y="30" width="140" height="260" rx="4" stroke="#10b981" stroke-width="0.5" fill="#10b981" fill-opacity="0.03"/>
+    <!-- Notch -->
+    <rect x="55" y="8" width="50" height="6" rx="3" fill="#10b981" opacity="0.2"/>
+    <!-- Screen content - hand skeleton overlay -->
+    <g stroke="#10b981" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6" transform="translate(30, 60)">
+      <!-- Simplified hand -->
+      <path d="M50,180 L40,130 L30,90 L20,60"/>
+      <path d="M50,180 L60,130 L65,90 L70,55"/>
+      <path d="M50,180 L50,130 L48,80 L45,50"/>
+      <path d="M50,180 L75,140 L85,100 L90,65"/>
+      <path d="M50,180 L25,145 L15,110 L10,75"/>
+      <!-- Joint dots -->
+      <circle cx="30" cy="90" r="2.5" fill="#10b981" opacity="0.7"/>
+      <circle cx="65" cy="90" r="2.5" fill="#10b981" opacity="0.7"/>
+      <circle cx="48" cy="80" r="2.5" fill="#10b981" opacity="0.7"/>
+      <circle cx="85" cy="100" r="2.5" fill="#10b981" opacity="0.7"/>
+      <circle cx="15" cy="110" r="2.5" fill="#10b981" opacity="0.7"/>
+    </g>
+    <!-- Guide overlay text -->
+    <text x="80" y="200" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="8" font-weight="bold" opacity="0.6">ALIGN YOUR HAND</text>
+    <text x="80" y="212" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="7" opacity="0.4">FOLLOW THE SKELETON</text>
+    <!-- Score indicator -->
+    <rect x="30" y="230" width="100" height="4" rx="2" fill="#10b981" fill-opacity="0.1"/>
+    <rect x="30" y="230" width="75" height="4" rx="2" fill="#10b981" opacity="0.6"/>
+    <text x="80" y="250" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="8" opacity="0.5">ALIGNMENT: 87%</text>
+    <!-- Home indicator -->
+    <rect x="60" y="298" width="40" height="4" rx="2" fill="#10b981" opacity="0.3"/>
+  </g>
+  <!-- Guide arrow -->
+  <g stroke="#10b981" stroke-width="1" opacity="0.3" stroke-dasharray="4 3">
+    <path d="M200,390 L200,430"/>
+    <path d="M192,422 L200,430 L208,422"/>
+  </g>
+  <text x="200" y="460" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="10" font-weight="bold" opacity="0.6">REAL-TIME GUIDANCE</text>
+  <text x="200" y="480" text-anchor="middle" fill="#ffffff" font-family="monospace" font-size="8" opacity="0.3">YOUR PHONE IS THE GUIDE</text>
+</svg>

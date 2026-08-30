@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0A0A0F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bone" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="#0A0A0F"/>
+  <circle cx="400" cy="300" r="250" fill="url(#glow)"/>
+  <!-- Hand skeleton - stylized -->
+  <g transform="translate(280, 120)" stroke="url(#bone)" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.85">
+    <!-- Palm -->
+    <path d="M120,350 L100,280 L80,220 L60,180"/>
+    <path d="M120,350 L140,280 L150,220 L145,170"/>
+    <path d="M120,350 L120,280 L115,200 L110,150"/>
+    <path d="M120,350 L160,290 L175,220 L180,160"/>
+    <path d="M120,350 L80,300 L50,250 L35,200"/>
+    <!-- Fingertips -->
+    <circle cx="60" cy="180" r="4" fill="#10b981" opacity="0.9"/>
+    <circle cx="145" cy="170" r="4" fill="#10b981" opacity="0.9"/>
+    <circle cx="110" cy="150" r="4" fill="#10b981" opacity="0.9"/>
+    <circle cx="180" cy="160" r="4" fill="#10b981" opacity="0.9"/>
+    <circle cx="35" cy="200" r="4" fill="#10b981" opacity="0.9"/>
+    <!-- Joint dots -->
+    <circle cx="80" cy="220" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="150" cy="220" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="115" cy="200" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="175" cy="220" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="50" cy="250" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="100" cy="280" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="140" cy="280" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="120" cy="280" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="160" cy="290" r="3" fill="#10b981" opacity="0.6"/>
+    <circle cx="80" cy="300" r="3" fill="#10b981" opacity="0.6"/>
+    <!-- Wrist -->
+    <path d="M80,350 L160,350" stroke-width="3"/>
+    <path d="M90,370 L150,370" stroke-width="2" opacity="0.5"/>
+    <path d="M100,390 L140,390" stroke-width="1.5" opacity="0.3"/>
+  </g>
+  <!-- Smartphone outline -->
+  <g transform="translate(520, 180)" stroke="#10b981" stroke-width="1.5" fill="none" opacity="0.4">
+    <rect x="0" y="0" width="100" height="200" rx="12"/>
+    <rect x="8" y="20" width="84" height="160" rx="2" stroke-opacity="0.3"/>
+    <circle cx="50" cy="192" r="4" stroke-opacity="0.3"/>
+  </g>
+  <!-- Connection lines -->
+  <g stroke="#10b981" stroke-width="0.5" opacity="0.2" stroke-dasharray="4 4">
+    <line x1="380" y1="250" x2="520" y2="280"/>
+    <line x1="400" y1="300" x2="520" y2="320"/>
+    <line x1="360" y1="280" x2="520" y2="260"/>
+  </g>
+  <!-- Data particles -->
+  <g fill="#10b981" opacity="0.4">
+    <circle cx="450" cy="260" r="2"/>
+    <circle cx="470" cy="290" r="1.5"/>
+    <circle cx="460" cy="275" r="1"/>
+    <circle cx="480" cy="310" r="2"/>
+    <circle cx="490" cy="270" r="1.5"/>
+  </g>
+</svg>

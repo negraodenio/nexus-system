@@ -4,114 +4,91 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { AuthButton } from '@/components/auth-button'
-import { 
-  Brain, 
-  Shield, 
-  Activity, 
-  Cpu, 
-  Database, 
-  Layers, 
-  Lock, 
-  ChevronRight, 
-  ArrowRight, 
-  Check, 
-  AlertTriangle, 
-  Terminal, 
-  RefreshCw, 
-  Sparkles, 
+import {
+  Brain,
+  Shield,
+  Activity,
+  Cpu,
+  Database,
+  Layers,
+  Lock,
+  ChevronRight,
+  ArrowRight,
+  Check,
+  AlertTriangle,
+  Terminal,
+  RefreshCw,
+  Sparkles,
   HelpCircle,
-  FileText
+  FileText,
+  Eye,
+  Hand,
+  Smartphone,
+  Camera,
+  Target,
+  Zap,
+  BookOpen,
+  Wrench,
+  Building,
+  GraduationCap,
+  Hammer,
+  Car,
+  Plug,
+  Store,
 } from 'lucide-react'
 
 // ── Verticals Data ──
 const VERTICALS = [
-  {
-    id: 'smart-cities',
-    name: 'Smart Cities',
-    tag: 'URBAN MONITORING · TRAFFIC · CROWD DENSITY',
-    description: 'Nexus transforms dense urban telemetry into actionable operational intelligence. Streamlining municipal response, public safety, and energy grid utilization across multiple departments.',
-    metrics: [
-      { label: 'MTTR reduction', value: '-50%' },
-      { label: 'Fewer Site Visits', value: '67%' },
-      { label: 'Audit Compliance', value: '100%' }
-    ],
-    diagram: 'Ingesting 1,200+ events/sec → Anomaly Correlator → Localized AI Insight → Immutable Ledger'
-  },
-  {
-    id: 'telecom-ops',
-    name: 'Telecom Ops',
-    tag: 'NETWORK EVENTS · FIELD OPERATIONS · SLA MONITORING',
-    description: 'Keep complex infrastructure online. Correlate cellular tower telemetry, local weather anomalies, and technician dispatch actions in real-time, preventing SLA penalties before they trigger.',
-    metrics: [
-      { label: 'Dispatch Speed', value: '4.5x' },
-      { label: 'Field Errors', value: '-90%' },
-      { label: 'SLA Monitoring', value: 'Real-time' }
-    ],
-    diagram: '5G Cell Tower Telemetry → Predictive AI Router → Corrective Action Dispatch → Attestation Signed'
-  },
-  {
-    id: 'facilities',
-    name: 'Facilities',
-    tag: 'OCCUPANCY · ENERGY · MAINTENANCE · INCIDENTS',
-    description: 'Maximize corporate real estate utilization. Monitor workplace occupancy patterns, dynamic HVAC usage, and structural safety incidents, turning buildings into low-energy smart spaces.',
-    metrics: [
-      { label: 'Workplace Injuries', value: '-40%' },
-      { label: 'Energy Compliance', value: '94%' },
-      { label: 'Hardware Cost', value: '$0 extra' }
-    ],
-    diagram: 'IoT Sensor Array → Cosine Similarity Search → AI Spatial Analysis → Building Automation Trigger'
-  },
-  {
-    id: 'industrial',
-    name: 'Industrial',
-    tag: 'SAFETY MONITORING · PPE COMPLIANCE · QUALITY CONTROL',
-    description: 'Proactively enforce strict factory safety and quality standard operating procedures. Record operational pipelines, verify PPE compliance, and flag assembly defects at the edge with absolute speed.',
-    metrics: [
-      { label: 'System Uptime', value: '99.9%' },
-      { label: 'Defect Detection', value: '<2s' },
-      { label: 'Standard Compliance', value: 'ISO-Ready' }
-    ],
-    diagram: 'Edge Video Ingestion → RAG Pattern Matching → Immediate Severity Warning → SQL RLS Immutability'
-  }
+  { id: 'plumbing', name: 'Plumbing', icon: Wrench, tag: 'PIPE JOINTS · LEAK DETECTION · PRESSURE TESTS' },
+  { id: 'telecom', name: 'Telecom', icon: Plug, tag: 'FIBER SPLICING · 5G DEPLOYMENT · TOWER MAINTENANCE' },
+  { id: 'maintenance', name: 'Maintenance', icon: Hammer, tag: 'HVAC · ELECTRICAL · PREVENTIVE SCHEDULES' },
+  { id: 'retail', name: 'Retail', icon: Store, tag: 'STOCK MANAGEMENT · SHELF AUDIT · STORE SETUP' },
+  { id: 'automotive', name: 'Automotive', icon: Car, tag: 'DIAGNOSTICS · BRAKE SERVICE · ENGINE REBUILD' },
+  { id: 'construction', name: 'Construction', icon: Building, tag: 'FRAMING · WELDING · CONCRETE POUR' },
+  { id: 'industrial', name: 'Industrial', icon: Cpu, tag: 'ASSEMBLY · QUALITY CONTROL · PPE COMPLIANCE' },
+  { id: 'education', name: 'Education', icon: GraduationCap, tag: 'LAB TECHNIQUES · SAFETY PROTOCOLS · EQUIPMENT' },
+  { id: 'home', name: 'Home / DIY', icon: Home, tag: 'FURNITURE ASSEMBLY · PAINTING · GARDENING' },
 ]
+
+function Home(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    </svg>
+  )
+}
 
 export default function NexusLanding() {
   const { scrollYProgress } = useScroll()
   const [activeVertical, setActiveVertical] = useState(0)
-  const [isAutoPlay, setIsAutoPlay] = useState(true)
-  const autoPlayRef = useRef<(() => void) | null>(null)
+  const [activeStep, setActiveStep] = useState(0)
 
-  // Rotating Verticals Tab Logic
-  useEffect(() => {
-    autoPlayRef.current = () => {
-      setActiveVertical((prev) => (prev + 1) % VERTICALS.length)
-    }
-  })
+  const STEPS = ['Record', 'Understand', 'Create', 'Guide', 'Execute', 'Verify']
 
   useEffect(() => {
-    if (!isAutoPlay) return
     const timer = setInterval(() => {
-      if (autoPlayRef.current) autoPlayRef.current()
-    }, 3000)
+      setActiveStep((prev) => (prev + 1) % STEPS.length)
+    }, 2500)
     return () => clearInterval(timer)
-  }, [isAutoPlay])
-
-  const activeV = VERTICALS[activeVertical]
+  }, [])
 
   return (
     <div className="min-h-screen text-white selection:bg-emerald-500 selection:text-black overflow-x-hidden" style={{
       backgroundColor: '#0A0A0F',
-      backgroundImage: 'linear-gradient(rgba(16, 185, 129, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.015) 1px, transparent 1px)',
-      backgroundSize: '45px 45px',
+      backgroundImage: 'linear-gradient(rgba(16, 185, 129, 0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.012) 1px, transparent 1px)',
+      backgroundSize: '50px 50px',
       fontFamily: 'Inter, sans-serif'
     }}>
       {/* ── Scroll Progress Bar ── */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-[2px] bg-emerald-500 z-[100] origin-left" 
-        style={{ scaleX: scrollYProgress }} 
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[2px] bg-emerald-500 z-[100] origin-left"
+        style={{ scaleX: scrollYProgress }}
       />
 
-      {/* ── HEADER ── */}
+      {/* ════════════════════════════════════════════════════════════════════
+          HEADER
+          ════════════════════════════════════════════════════════════════════ */}
       <header className="fixed top-0 w-full z-50 border-b border-white/5" style={{ background: 'rgba(10, 10, 15, 0.85)', backdropFilter: 'blur(24px)' }}>
         <div className="flex justify-between items-center px-6 md:px-12 h-20 w-full max-w-screen-2xl mx-auto">
           <Link href="/" className="flex items-center gap-2 group">
@@ -122,14 +99,14 @@ export default function NexusLanding() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] text-white/50 font-bold font-mono">
-            <Link href="/public-sector" className="text-emerald-400 hover:text-emerald-300 font-extrabold tracking-widest border-r border-white/10 pr-6">Public Sector</Link>
-            <a href="#technology" className="hover:text-emerald-400 transition-colors">Technology</a>
+            <a href="#knowledge" className="hover:text-emerald-400 transition-colors">Knowledge</a>
+            <a href="#platform" className="hover:text-emerald-400 transition-colors">Platform</a>
+            <a href="#worlds" className="hover:text-emerald-400 transition-colors">Worlds</a>
             <Link href="/operations" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-              <span>Operations</span>
+              <span>Mission Control</span>
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             </Link>
-            <a href="#verticals" className="hover:text-emerald-400 transition-colors">Verticals</a>
-            <a href="#patent" className="hover:text-emerald-400 transition-colors">Patent</a>
+            <a href="#enterprise" className="hover:text-emerald-400 transition-colors">Enterprise</a>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -143,16 +120,18 @@ export default function NexusLanding() {
         </div>
       </header>
 
-      {/* ── HERO SECTION ── */}
       <main className="pt-20">
-        <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 text-center overflow-hidden border-b border-white/5">
+
+        {/* ════════════════════════════════════════════════════════════════════
+            1. HERO — FROM KNOWLEDGE TO EXECUTION
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="relative min-h-[95vh] flex flex-col items-center justify-center px-6 text-center overflow-hidden border-b border-white/5">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06),transparent_60%)] pointer-events-none" />
-          
-          <div className="max-w-5xl z-10 flex flex-col items-center pt-12 pb-16">
-            {/* Live Kicker Badge */}
-            <motion.div 
-              initial={{ opacity: 0, y: 12 }} 
-              animate={{ opacity: 1, y: 0 }} 
+
+          <div className="max-w-5xl z-10 flex flex-col items-center pt-16 pb-20">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 mb-8 border border-emerald-500/20 px-4 py-2 bg-emerald-950/20 backdrop-blur-sm rounded-none"
             >
@@ -161,42 +140,41 @@ export default function NexusLanding() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-emerald-400 font-bold">
-                COMPLIANT WITH PRR C19-i08 & ARPGU · LIVE · LISBOA
+                PHYSICAL SKILL PLATFORM
               </span>
             </motion.div>
 
-            {/* Headline */}
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.95] mb-6 max-w-4xl"
+              className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.92] mb-6 max-w-5xl"
             >
-              Trusted Urban &<br />
-              <span style={{ 
-                background: 'linear-gradient(90deg, #34d399, #10b981)', 
-                WebkitBackgroundClip: 'text', 
+              FROM KNOWLEDGE
+              <br />
+              <span style={{
+                background: 'linear-gradient(90deg, #34d399, #10b981)',
+                WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 display: 'inline-block'
               }}>
-                Operational Intelligence.
+                TO EXECUTION.
               </span>
             </motion.h1>
 
-            {/* Subheadline */}
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-white/60 max-w-3xl mx-auto mb-10 leading-relaxed font-medium"
+              className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed font-medium"
             >
-              The open, NGSI-LD / FIWARE-compliant Urban Management Platform (PGU) designed for Portuguese municipalities to capture 100% of C19-i08 PRR funds — with no vendor lock-in.
+              The knowledge of experts should be executable.
+              Nexus transforms physical skills into digital guidance that anyone can follow.
             </motion.p>
 
-            {/* Call to Actions */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mb-16"
             >
@@ -205,335 +183,392 @@ export default function NexusLanding() {
                   Enter Mission Control
                 </button>
               </Link>
-              <Link href="/operations" className="w-full sm:w-auto">
+              <a href="#knowledge" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border border-white/10 hover:bg-white/5 font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all text-white/80 rounded-none hover:border-emerald-500/30">
-                  View Smart City Demo →
+                  See How It Works →
                 </button>
-              </Link>
+              </a>
             </motion.div>
 
-            {/* Pipeline Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            {/* Hero Visual */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
-              className="w-full max-w-4xl border border-white/5 p-6 md:p-8" 
-              style={{ background: 'rgba(255,255,255,0.01)' }}
+              className="w-full max-w-4xl border border-white/5 overflow-hidden relative"
+              style={{ background: 'rgba(255,255,255,0.01)', aspectRatio: '16/7' }}
             >
-              <div className="text-[10px] font-mono font-bold text-emerald-500 uppercase tracking-[0.3em] mb-6 text-left border-b border-white/5 pb-3 flex items-center justify-between">
-                <span>System Pipeline Execution Sequence</span>
-                <span className="text-white/20 font-normal">NXM-CORE-v1.4</span>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-left">
-                {[
-                  { step: '01', name: 'detect()', desc: 'IoT & Telemetry Ingest' },
-                  { step: '02', name: 'correlate()', desc: 'RAG Pattern Match' },
-                  { step: '03', name: 'analyze()', desc: 'Hybrid AI Reasoning' },
-                  { step: '04', name: 'orchestrate()', desc: 'Automated Dispatch' },
-                  { step: '05', name: 'attest()', desc: 'Immutable Ledger Sign' },
-                ].map((item, idx) => (
-                  <div key={idx} className="p-3 border border-white/5 hover:border-emerald-500/20 transition-all group" style={{ background: '#07070B' }}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-[9px] text-white/30 group-hover:text-emerald-500 transition-colors font-bold">{item.step}</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/20 group-hover:bg-emerald-500 transition-colors" />
-                    </div>
-                    <div className="font-mono font-bold text-[13px] text-emerald-400 group-hover:text-emerald-300 transition-colors mb-1">{item.name}</div>
-                    <div className="text-[10px] text-white/40 leading-tight">{item.desc}</div>
-                  </div>
-                ))}
-              </div>
+              <img
+                src="/images/nexus/hero-skeleton.svg"
+                alt="Nexus hand skeleton with smartphone"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-transparent to-transparent pointer-events-none" />
             </motion.div>
           </div>
         </section>
 
-        {/* ── THE PROBLEM SECTION ── */}
-        <section className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
+        {/* ════════════════════════════════════════════════════════════════════
+            2. THE KNOWLEDGE OF EXPERTS SHOULD BE EXECUTABLE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section id="knowledge" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
           <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            
-            {/* The Left Side Column */}
-            <div className="lg:col-span-5">
-              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Operational Vulnerability</div>
+            <div className="lg:col-span-6">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Core Principle</div>
               <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-8">
-                Operations fail silently.<br />Compliance fails loudly.
+                THE KNOWLEDGE OF EXPERTS SHOULD BE EXECUTABLE.
               </h2>
               <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-lg">
-                Without cryptographic linkage between sensors, real-time context, and frontline decisions, enterprise operations remain highly vulnerable to unchecked blind spots, high MTTR, and catastrophic liability issues.
+                Every trade, every craft, every procedure lives in the hands and minds of experts. Nexus captures that knowledge and turns it into something anyone can follow — step by step, in real time, with verification.
               </p>
-              
-              <ul className="space-y-4">
+
+              <div className="space-y-4">
                 {[
-                  'Invisible Failures: Systems crash, SLAs trigger, and telemetry stays uncorrelated for hours.',
-                  'Unverified Action: Technician reports are handwritten, lack validation, and prompt repeat visits.',
-                  'Silent Compliance Breaches: Zero cryptographic proof that safety protocols were executed.',
-                  'Siloed Telemetry: IoT arrays, camera streams, and incident tickets never merge into a unified timeline.'
+                  { label: 'Record', desc: 'Capture an expert performing the skill — video, motion, spatial data.' },
+                  { label: 'Understand', desc: 'AI decomposes the performance into discrete steps and reference frames.' },
+                  { label: 'Create', desc: 'Generate a Golden Skeleton — the perfect execution reference.' },
+                  { label: 'Guide', desc: 'Overlay the Golden Skeleton on the learner in real time.' },
+                  { label: 'Execute', desc: 'The learner follows the guide, performing the physical action.' },
+                  { label: 'Verify', desc: 'Compare learner execution against the Golden Skeleton. Prove it was done correctly.' },
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="text-red-500 mt-1 font-mono text-[12px] font-bold">✕</span>
-                    <p className="text-white/70 text-xs leading-relaxed font-medium">{item}</p>
-                  </li>
+                  <div key={i} className="flex items-start gap-4 group">
+                    <div className="w-8 h-8 flex items-center justify-center border border-emerald-500/20 bg-emerald-950/20 font-mono text-[10px] text-emerald-400 font-bold flex-shrink-0 group-hover:border-emerald-500/40 transition-colors">
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div>
+                      <div className="font-mono text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">{item.label}</div>
+                      <div className="text-white/50 text-xs leading-relaxed">{item.desc}</div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            </div>
-
-            {/* Comparison Table / Matrix Column */}
-            <div className="lg:col-span-7 border border-white/5 p-6 md:p-8" style={{ background: 'rgba(255,255,255,0.01)' }}>
-              <div className="font-mono text-[10px] text-emerald-500 mb-6 uppercase tracking-widest font-bold flex items-center justify-between">
-                <span>BUSINESS ACCELERATION MATRIX</span>
-                <span className="text-white/20">VS LEGACY</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-white/5 text-[10px] text-white/30 uppercase tracking-widest font-bold">
-                      <th className="pb-4 font-mono">OPERATIONAL VECTOR</th>
-                      <th className="pb-4 font-mono">LEGACY APPROACH</th>
-                      <th className="pb-4 font-mono text-emerald-400">NEXUS CAPABILITY</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-xs">
-                    {[
-                      ['Record Veracity', 'Manual logs & paper reports', 'Immutable attestation signed at edge'],
-                      ['Alert Strategy', 'Reactive sirens & notifications', 'Predictive AI cross-correlation'],
-                      ['Audit Readiness', 'Subjective paper trail compilation', 'Mathematical proof via Polygon ledger'],
-                      ['Data Utilization', 'Siloed database & single-stream logs', 'Unified real-time event pipeline'],
-                    ].map(([indicator, old, now], i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.01]">
-                        <td className="py-4 font-bold text-white/70 font-mono text-[11px]">{indicator}</td>
-                        <td className="py-4 text-white/40 font-mono line-through pr-4">{old}</td>
-                        <td className="py-4 text-emerald-400 font-bold flex items-center gap-1.5">
-                          <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                          <span>{now}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
             </div>
 
-          </div>
-        </section>
-
-        {/* ── TECH STACK (2x2 GRID) ── */}
-        <section id="technology" className="py-24 px-6 border-b border-white/5">
-          <div className="max-w-screen-2xl mx-auto">
-            <div className="max-w-3xl mb-16">
-              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Architecture & Design</div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Cryptographically Proving Operations.</h2>
-              <p className="text-white/50 text-sm leading-relaxed mt-4">
-                The Nexus system core integrates state-of-the-art AI orchestration with immutable database security. Every physical event is verified, compiled, and recorded permanently.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/5 border border-white/5">
-              {[
-                {
-                  step: '01',
-                  category: 'DETECT',
-                  title: 'Real-Time Event Ingestion',
-                  desc: 'Unify your distributed operations. Seamlessly ingest massive data streams from IoT node arrays, legacy SCADA networks, environmental sensors, IP cameras, and proprietary software APIs directly into a ultra-low-latency unified event bus.',
-                  techs: ['Kafka Event Bus', 'HTTP/MQTT Webhook Gateways', 'SCADA Integrators']
-                },
-                {
-                  step: '02',
-                  category: 'CORRELATE',
-                  title: 'Neuromuscular RAG Engine',
-                  desc: 'Search, map, and isolate events in real-time. Power your incident detection with high-dimension pgvector, IVFFLAT indexing, and high-performance cosine similarity searches, safely isolated with strict multi-tenant Row Level Security (RLS).',
-                  techs: ['SupaBase PostgreSQL', 'pgvector & IVFFLAT', 'Cosine Similarity Model']
-                },
-                {
-                  step: '03',
-                  category: 'ANALYZE',
-                  title: 'Hybrid AI Router',
-                  desc: 'Scale intelligence dynamically. Nexus orchestrates queries using MiniMax M2.7 for complex linguistic reasoning and logic checks, paired with Google Gemini 1.5 Flash for vision-native telemetry analysis, customizable directly from the dashboard.',
-                  techs: ['MiniMax M2.7 Reasoning', 'Gemini 1.5 Flash Vision', 'Hot-swappable AI Router']
-                },
-                {
-                  step: '04',
-                  category: 'ATTEST',
-                  title: 'Immutable Compliance Ledger',
-                  desc: 'Absolute proof of operational compliance. Row Level Security prevents manual updates or deletion, while every key incident triggers a cryptographic content-hash anchored to IPFS and committed securely onto the Polygon blockchain.',
-                  techs: ['PostgreSQL RLS Lockouts', 'IPFS Decentralized Storage', 'Polygon Blockchain Anchor']
-                }
-              ].map((tech, idx) => (
-                <div key={idx} className="p-8 md:p-12 hover:bg-white/[0.01] transition-all flex flex-col justify-between" style={{ backgroundColor: '#0A0A0F' }}>
-                  <div>
-                    <div className="flex items-center justify-between mb-8">
-                      <span className="font-mono text-emerald-500 text-xs font-bold tracking-widest bg-emerald-950/40 px-3 py-1 border border-emerald-500/10">
-                        {tech.step} // {tech.category}
-                      </span>
-                      <span className="text-white/10 font-mono text-[10px] font-bold">SECURE_NODE_{idx+1}</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-4 font-mono uppercase">{tech.title}</h3>
-                    <p className="text-white/50 text-xs leading-relaxed mb-8">{tech.desc}</p>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-3 font-bold">INTEGRATIONS</div>
-                    <div className="flex flex-wrap gap-2">
-                      {tech.techs.map((t, i) => (
-                        <span key={i} className="text-[9px] font-mono font-bold text-white/60 bg-white/5 px-2.5 py-1 border border-white/5">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            <div className="lg:col-span-6">
+              <div className="border border-white/5 p-6 md:p-8 relative" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-6 font-bold flex items-center justify-between">
+                  <span>SKILL CAPTURE PIPELINE</span>
+                  <span className="text-white/20">NXM-CORE-v2.0</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── MISSION CONTROL PREVIEW SECTION ── */}
-        <section className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
-          <div className="max-w-screen-2xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-              
-              <div className="lg:col-span-5">
-                <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">OPERATIONAL INTELLIGENCE</div>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
-                  Mission Control.<br />The Palantir for cities and telecom.
-                </h2>
-                <p className="text-white/50 text-xs leading-relaxed mb-8">
-                  Nexus Mission Control merges complex city-scale telemetry, incident tracking, and AI anomaly engines into one unified, low-latency operating system. Proactively alert dispatched crews, isolate degradation trends, and secure compliance proof with ease.
-                </p>
-
-                <div className="space-y-4 mb-8">
+                <div className="space-y-3">
                   {[
-                    'Interactive maps tracking physical coordinates',
-                    'Dynamic operational timelines updating live',
-                    'Manual action acknowledgement overrides',
-                    'Cryptographic hash generation for compliance audits'
-                  ].map((feat, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-none" />
-                      <span className="text-white/80 text-xs font-mono">{feat}</span>
+                    { step: 'detect()', desc: 'Hand tracking + pose estimation', icon: Hand },
+                    { step: 'decompose()', desc: 'AI step segmentation', icon: Cpu },
+                    { step: 'skeletonize()', desc: 'Golden Skeleton generation', icon: Sparkles },
+                    { step: 'align()', desc: 'Real-time pose matching', icon: Target },
+                    { step: 'verify()', desc: 'Execution comparison + proof', icon: Shield },
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-4 border border-white/5 hover:border-emerald-500/20 transition-all group flex items-center gap-4" style={{ background: '#07070B' }}>
+                      <item.icon className="w-4 h-4 text-emerald-500/40 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="font-mono font-bold text-[13px] text-emerald-400 group-hover:text-emerald-300 transition-colors">{item.step}</div>
+                        <div className="text-[10px] text-white/40 leading-tight mt-0.5">{item.desc}</div>
+                      </div>
+                      <span className="font-mono text-[9px] text-white/20 group-hover:text-emerald-500/40 transition-colors font-bold">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
                     </div>
                   ))}
                 </div>
-
-                <Link href="/operations">
-                  <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-[11px] uppercase px-6 py-4 tracking-widest rounded-none shadow-[0_4px_25px_rgba(16,185,129,0.15)] flex items-center gap-2 group">
-                    <span>Launch Mission Control</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </Link>
               </div>
-
-              {/* Graphical Terminal Interface Representation */}
-              <div className="lg:col-span-7 border border-emerald-500/20 p-4 md:p-6" style={{ background: '#020205' }}>
-                <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/20" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 animate-pulse" />
-                    <span className="font-mono text-[10px] text-white/30 ml-2 font-bold uppercase tracking-wider">LISBOA_DASHBOARD_LIVE // NXM-PREVIEW</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                    <span className="font-mono text-[9px] text-emerald-400 font-bold">ONLINE</span>
-                  </div>
-                </div>
-
-                <div className="font-mono text-[11px] text-white/80 space-y-3 leading-relaxed">
-                  <div className="text-white/30">[20:14:15] INGESTING IoT DATA STREAMS FROM 20 ZONES...</div>
-                  
-                  <div className="p-3 bg-red-950/20 border border-red-500/20 text-red-400 flex items-start gap-3">
-                    <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="font-bold text-xs uppercase tracking-wider">ALERT: POWER GRID ANOMALY [CRITICAL]</div>
-                      <div className="text-[10px] text-red-400/80 mt-1">Sensor SNS-0024 in Marquês de Pombal reported voltage drop of 18%.</div>
-                      <div className="text-[9px] text-white/30 mt-2 font-bold">AI ROUTER MATCH: SEVERITY ENGINE OVERRIDE TRIGGERED</div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-emerald-950/20 border border-emerald-500/10 text-emerald-400 flex items-start gap-3">
-                    <Brain className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="font-bold text-xs uppercase tracking-wider">AI INSIGHT GENERATED [MINIMAX-M2.7]</div>
-                      <div className="text-[10px] text-emerald-300/80 mt-1 font-sans">"Voltage pattern matches 98.4% prior grid failure signature FM-1294 from 14 days ago. Automatic crew routing suggested. Compliance attestation queued."</div>
-                    </div>
-                  </div>
-
-                  <div className="p-2 border border-white/5 bg-white/[0.01] flex justify-between items-center text-[10px] text-white/40">
-                    <div className="flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5 text-emerald-500/60" />
-                      <span>POLYGON TX BLOCKCHAIN SIGNATURE QUEUED: 0x48e11a...</span>
-                    </div>
-                    <span className="text-emerald-500/80 font-bold">READY</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </section>
 
-        {/* ── VERTICALS TAB SECTION ── */}
-        <section id="verticals" className="py-24 px-6 border-b border-white/5">
+        {/* ════════════════════════════════════════════════════════════════════
+            3. FROM VIDEO TO SKILL
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5">
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">OPERATIONAL DIVERSITY</div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">ENGINEERED FOR MULTIPLE VERTICALS</h2>
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Transformation</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">FROM VIDEO TO SKILL</h2>
               <p className="text-white/50 text-sm leading-relaxed mt-4">
-                Nexus powers infrastructure, operations, and compliance tracking globally across crucial industries. Select an operations sector below to inspect real-time performance indicators.
+                A video is passive. A skill is executable. Nexus transforms raw expert performance into a structured, verifiable, teachable digital asset.
               </p>
             </div>
 
-            {/* Vertical Select Buttons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 border border-white/5 mb-8">
-              {VERTICALS.map((v, idx) => (
-                <button
-                  key={v.id}
-                  onClick={() => {
-                    setActiveVertical(idx)
-                    setIsAutoPlay(false) // Pause auto-rotation when user clicks
-                  }}
-                  className="py-5 font-mono text-[11px] font-bold uppercase tracking-widest text-center transition-all rounded-none border-none outline-none"
-                  style={{
-                    backgroundColor: activeVertical === idx ? '#07070B' : '#0A0A0F',
-                    color: activeVertical === idx ? '#10b981' : 'rgba(255,255,255,0.4)',
-                    borderBottom: activeVertical === idx ? '2px solid #10b981' : 'none'
-                  }}
-                >
-                  {v.name}
-                </button>
-              ))}
+            {/* Pipeline visual */}
+            <div className="w-full max-w-5xl mx-auto border border-white/5 p-6 md:p-8 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.01)' }}>
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-6 font-bold">PIPELINE</div>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                {STEPS.map((step, idx) => (
+                  <div key={idx} className={`text-center p-4 border transition-all ${idx === activeStep ? 'border-emerald-500/40 bg-emerald-950/20' : 'border-white/5 bg-white/[0.01]'}`}>
+                    <div className={`font-mono text-[10px] font-bold mb-2 ${idx === activeStep ? 'text-emerald-400' : 'text-white/30'}`}>
+                      {String(idx + 1).padStart(2, '0')}
+                    </div>
+                    <div className={`font-mono text-xs font-bold uppercase tracking-wider ${idx === activeStep ? 'text-emerald-400' : 'text-white/50'}`}>
+                      {step}
+                    </div>
+                    {idx < STEPS.length - 1 && (
+                      <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                        <ChevronRight className="w-3 h-3 text-emerald-500/30" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            4. THE EXPERT BECOMES THE GUIDE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
+          <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-5">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Golden Skeleton</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+                THE EXPERT BECOMES THE GUIDE.
+              </h2>
+              <p className="text-white/50 text-xs leading-relaxed mb-8">
+                Nexus captures the expert&apos;s physical performance and creates a Golden Skeleton — a precise 3D reference of how the skill should be executed. The learner sees this skeleton overlaid on their own body in real time.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {[
+                  'Expert performs the skill once — captured with spatial depth',
+                  'AI generates the Golden Skeleton reference',
+                  'Learner sees the skeleton overlaid on their body',
+                  'Real-time alignment scoring guides perfect execution',
+                  'Verification proves the skill was performed correctly',
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-none" />
+                    <span className="text-white/80 text-xs font-mono">{feat}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Active Vertical Details Panel */}
-            <div className="border border-white/5 p-8 md:p-12 relative overflow-hidden" style={{ background: '#07070B' }}>
-              <div className="absolute top-0 right-0 p-3 font-mono text-[9px] text-white/10 uppercase tracking-widest font-bold">
-                VERTICAL_ENGINE_SYS
+            <div className="lg:col-span-7 border border-emerald-500/20 overflow-hidden" style={{ background: '#020205' }}>
+              <img
+                src="/images/nexus/golden-skeleton.svg"
+                alt="Golden Skeleton vs Learner Skeleton"
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            5. NOT ANOTHER VIDEO PLATFORM
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5">
+          <div className="max-w-screen-2xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Differentiation</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">NOT ANOTHER VIDEO PLATFORM.</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/5 border border-white/5 max-w-5xl mx-auto">
+              {/* WATCH (Legacy) */}
+              <div className="p-8 md:p-12" style={{ background: '#07070B' }}>
+                <div className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4 font-bold">Traditional Approach</div>
+                <h3 className="text-3xl font-black text-white/30 mb-6 line-through">WATCH</h3>
+                <ul className="space-y-3">
+                  {[
+                    'Passive video viewing',
+                    'No real-time feedback',
+                    'No measurement of execution',
+                    'No verification of skill transfer',
+                    'Knowledge stays in the video',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-red-500/50 mt-1 font-mono text-[12px] font-bold">✕</span>
+                      <p className="text-white/30 text-xs leading-relaxed">{item}</p>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                <div className="lg:col-span-7">
-                  <div className="font-mono text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-3">
-                    {activeV.tag}
-                  </div>
-                  <h3 className="text-3xl font-bold uppercase text-white mb-6 tracking-tight">
-                    Optimizing {activeV.name} Operations
-                  </h3>
-                  <p className="text-white/60 text-sm leading-relaxed mb-8">
-                    {activeV.description}
-                  </p>
+              {/* EXECUTE (Nexus) */}
+              <div className="p-8 md:p-12 border-l border-emerald-500/20" style={{ background: '#07070B' }}>
+                <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Nexus Approach</div>
+                <h3 className="text-3xl font-black mb-6" style={{
+                  background: 'linear-gradient(90deg, #34d399, #10b981)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>UNDERSTAND → FOLLOW → EXECUTE → VERIFY</h3>
+                <ul className="space-y-3">
+                  {[
+                    'Interactive skeleton guidance',
+                    'Real-time alignment scoring',
+                    '3D measurement of every movement',
+                    'Cryptographic proof of execution',
+                    'Knowledge becomes an executable Skill',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-white/70 text-xs leading-relaxed font-medium">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                  <div className="p-4 border border-emerald-500/10 bg-emerald-950/10 flex flex-col md:flex-row items-center gap-4">
-                    <Terminal className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                    <div>
-                      <div className="font-mono text-[9px] uppercase tracking-widest text-white/30 font-bold">ATTESATION TRANSACTION PIPELINE</div>
-                      <div className="font-mono text-[11px] text-emerald-400 font-medium leading-relaxed">{activeV.diagram}</div>
-                    </div>
+        {/* ════════════════════════════════════════════════════════════════════
+            6. ONE PLATFORM. MANY WORLDS.
+            ════════════════════════════════════════════════════════════════════ */}
+        <section id="worlds" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
+          <div className="max-w-screen-2xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Verticals</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">ONE PLATFORM. MANY WORLDS.</h2>
+              <p className="text-white/50 text-sm leading-relaxed mt-4">
+                Plumbing. Telecom. Maintenance. Retail. Automotive. Construction. Industrial. Education. Home.
+                One platform that understands the physical world across every trade.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-px bg-white/5 border border-white/5">
+              {VERTICALS.map((v) => (
+                <div key={v.id} className="p-6 md:p-8 text-center hover:bg-white/[0.02] transition-all group cursor-pointer border border-transparent hover:border-emerald-500/20">
+                  <v.icon className="w-8 h-8 text-emerald-500/40 group-hover:text-emerald-400 mx-auto mb-4 transition-colors" />
+                  <div className="font-mono text-xs text-white/70 group-hover:text-emerald-400 font-bold uppercase tracking-wider mb-2 transition-colors">
+                    {v.name}
+                  </div>
+                  <div className="font-mono text-[8px] text-white/25 uppercase tracking-wider leading-relaxed">
+                    {v.tag}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <div className="lg:col-span-5 grid grid-cols-1 gap-4">
-                  <div className="text-[10px] font-mono font-bold text-white/30 uppercase tracking-widest mb-1">REALIZED METRICS SUMMARY</div>
-                  
-                  {activeV.metrics.map((metric, i) => (
-                    <div key={i} className="p-4 border border-white/5 bg-white/[0.01] flex justify-between items-center">
-                      <span className="font-mono text-white/50 text-[11px] uppercase tracking-wider">{metric.label}</span>
-                      <span className="text-2xl font-black text-emerald-400 font-mono tracking-tighter">{metric.value}</span>
+        {/* ════════════════════════════════════════════════════════════════════
+            7. YOUR PHONE BECOMES THE GUIDE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5">
+          <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Mobile First</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+                YOUR PHONE BECOMES THE GUIDE.
+              </h2>
+              <p className="text-white/50 text-xs leading-relaxed mb-8">
+                No special hardware required. The learner opens Nexus on their phone, points the camera at their hands, and sees the Golden Skeleton overlaid on their body in real time. Step-by-step guidance, alignment scoring, and verification — all from the device in their pocket.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Real-time tracking', desc: '21-point hand skeleton at 30fps' },
+                  { label: 'Live scoring', desc: 'Alignment % shown on screen' },
+                  { label: 'Step guidance', desc: 'Next action displayed contextually' },
+                  { label: 'Proof of execution', desc: 'Cryptographic verification record' },
+                ].map((item, i) => (
+                  <div key={i} className="p-4 border border-white/5 bg-white/[0.01]">
+                    <div className="font-mono text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">{item.label}</div>
+                    <div className="text-[10px] text-white/40">{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 order-1 lg:order-2 flex justify-center">
+              <img
+                src="/images/nexus/phone-guide.svg"
+                alt="Phone as guide with hand skeleton"
+                className="w-full max-w-sm h-auto"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            8. WHEN THE DEVICE CAN SEE MORE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
+          <div className="max-w-screen-2xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Spatial Intelligence</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">WHEN THE DEVICE CAN SEE MORE, NEXUS CAN UNDERSTAND MORE.</h2>
+              <p className="text-white/50 text-sm leading-relaxed mt-4">
+                Standard cameras see pixels. Depth cameras see the world. Nexus leverages spatial data when available — but works with any camera.
+              </p>
+            </div>
+
+            <div className="w-full max-w-5xl mx-auto border border-white/5 overflow-hidden" style={{ background: 'rgba(255,255,255,0.01)' }}>
+              <img
+                src="/images/nexus/standard-vs-spatial.svg"
+                alt="Standard camera vs spatial depth comparison"
+                className="w-full h-auto"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 border border-white/5 mt-8 max-w-5xl mx-auto">
+              {[
+                { title: 'Standard Camera', desc: 'Works everywhere. 2D hand tracking via MediaPipe. Enough for basic guidance.', badge: 'UNIVERSAL' },
+                { title: 'Depth / LiDAR', desc: 'When available: 3D metric hand tracking. Spatial reference frames. Richer verification.', badge: 'ENHANCED' },
+                { title: 'Stera SDK', desc: 'Professional spatial capture. MCAP recordings. Camera pose. Depth maps. Full pipeline.', badge: 'PROFESSIONAL' },
+              ].map((item, i) => (
+                <div key={i} className="p-6 md:p-8" style={{ background: '#07070B' }}>
+                  <div className="font-mono text-[9px] text-emerald-500 font-bold uppercase tracking-widest mb-3 bg-emerald-950/40 px-2 py-1 inline-block border border-emerald-500/10">
+                    {item.badge}
+                  </div>
+                  <h4 className="font-mono text-sm text-white font-bold mb-2">{item.title}</h4>
+                  <p className="text-white/40 text-xs leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            9. FOR EVERYONE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5">
+          <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-6">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Accessibility</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+                FOR EVERYONE.
+              </h2>
+              <p className="text-white/50 text-xs leading-relaxed mb-8">
+                You don&apos;t need a LiDAR phone or special hardware. Nexus works with any smartphone camera. The more advanced the device, the richer the experience — but the core platform works everywhere.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: Smartphone, label: 'Any Smartphone', desc: 'iOS, Android, any camera' },
+                  { icon: Eye, label: 'No Hardware Required', desc: 'Standard camera works' },
+                  { icon: Zap, label: 'Instant Setup', desc: 'Open browser, start learning' },
+                  { icon: BookOpen, label: 'Any Skill', desc: 'If hands do it, Nexus can teach it' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 border border-white/5 bg-white/[0.01]">
+                    <item.icon className="w-5 h-5 text-emerald-500/50 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-mono text-[11px] text-white/70 font-bold">{item.label}</div>
+                      <div className="text-[10px] text-white/40 mt-0.5">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-6">
+              <div className="border border-emerald-500/20 p-8 relative" style={{ background: 'rgba(16,185,129,0.02)' }}>
+                <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">PLATFORM TIERS</div>
+                <div className="space-y-3">
+                  {[
+                    { tier: 'BASIC', desc: 'Standard camera + 2D skeleton', hardware: 'Any smartphone', color: 'white' },
+                    { tier: 'SPATIAL', desc: 'Depth camera + 3D skeleton', hardware: 'LiDAR / ToF device', color: 'emerald' },
+                    { tier: 'PROFESSIONAL', desc: 'Full Stera SDK capture', hardware: 'Stera-compatible device', color: 'emerald' },
+                  ].map((item, i) => (
+                    <div key={i} className="p-4 border border-white/5 bg-white/[0.01] flex items-center justify-between">
+                      <div>
+                        <div className={`font-mono text-[11px] font-bold uppercase tracking-wider ${item.color === 'emerald' ? 'text-emerald-400' : 'text-white/60'}`}>
+                          {item.tier}
+                        </div>
+                        <div className="text-[10px] text-white/40 mt-1">{item.desc}</div>
+                      </div>
+                      <div className="font-mono text-[9px] text-white/30 text-right">
+                        {item.hardware}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -542,88 +577,172 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ── METRICS STRIP ── */}
-        <section className="py-12 px-6 border-b border-white/5" style={{ background: '#0A0A0F' }}>
-          <div className="max-w-screen-2xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center font-mono">
-            {[
-              { title: 'OPERATIONAL SECTORS', val: '4 Verticais' },
-              { title: 'LIVE DEPLOYED NODES', val: '264 Sensores' },
-              { title: 'AVERAGE NODE HEALTH', val: '99.2% Uptime' },
-              { title: 'COMPLIANCE AUDIT RATE', val: '100% Imutável' }
-            ].map((m, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <span className="text-[9px] text-white/30 uppercase tracking-[0.25em] font-bold mb-2">{m.title}</span>
-                <span className="text-xl font-black text-white">{m.val}</span>
+        {/* ════════════════════════════════════════════════════════════════════
+            10. FOR BUSINESS — TURN EXPERTISE INTO SCALE
+            ════════════════════════════════════════════════════════════════════ */}
+        <section id="enterprise" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
+          <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-6">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">Enterprise</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+                TURN EXPERTISE INTO SCALE.
+              </h2>
+              <p className="text-white/50 text-xs leading-relaxed mb-8">
+                Your best technicians hold irreplaceable knowledge. Nexus captures their expertise once and scales it across your entire workforce. Train faster. Verify everything. Prove compliance.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Training Speed', value: '5x faster', desc: 'New hires reach competence faster' },
+                  { label: 'Error Reduction', value: '-80%', desc: 'Guided execution prevents mistakes' },
+                  { label: 'Compliance', value: '100%', desc: 'Every execution is verified and logged' },
+                  { label: 'Knowledge Loss', value: '$0', desc: 'Expertise captured before retirement' },
+                ].map((item, i) => (
+                  <div key={i} className="p-4 border border-white/5 bg-white/[0.01]">
+                    <div className="font-mono text-[9px] text-white/30 uppercase tracking-widest mb-1">{item.label}</div>
+                    <div className="text-2xl font-black text-emerald-400 font-mono">{item.value}</div>
+                    <div className="text-[10px] text-white/40 mt-1">{item.desc}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="lg:col-span-6">
+              <div className="border border-white/5 p-6 md:p-8 relative" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-6 font-bold flex items-center justify-between">
+                  <span>ENTERPRISE CAPABILITIES</span>
+                  <span className="text-white/20">NXM-ENT-v1.0</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    'Skill Library — organize hundreds of procedures across teams',
+                    'Expert Capture — record top performers building your knowledge base',
+                    'Learner Dashboard — track progress, scores, and certifications',
+                    'Compliance Reports — cryptographic proof of skill execution',
+                    'Integration API — connect to your LMS, HR, and operations systems',
+                  ].map((feat, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 border border-white/5 bg-white/[0.01]">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-white/60 text-xs font-mono">{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ── BLOCKCHAIN ATTESTATION SECTION ── */}
-        <section id="patent" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#07070B' }}>
-          <div className="max-w-4xl mx-auto border border-emerald-500/20 p-8 md:p-12 relative" style={{
-            background: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, transparent 100%)'
-          }}>
-            <div className="absolute top-0 right-0 p-4 font-mono text-[9px] text-white/20 font-bold">
-              PATENT REF: NXM-PAT-001-2026
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="p-3 bg-emerald-950/40 border border-emerald-500/20 rounded-none mb-6">
-                <Shield className="w-8 h-8 text-emerald-400" />
-              </div>
-
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight uppercase mb-6 max-w-2xl">
-                Mathematical proof that operations were executed correctly.
+        {/* ════════════════════════════════════════════════════════════════════
+            11. MISSION CONTROL — OPERATIONAL INTELLIGENCE (preserved)
+            ════════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 border-b border-white/5">
+          <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-5">
+              <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">OPERATIONAL INTELLIGENCE</div>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+                Mission Control.<br />Operational Intelligence.
               </h2>
-              
-              <p className="text-white/60 text-sm leading-relaxed max-w-2xl mb-10">
-                Nexus locks down compliance auditing. Two-layer immutability prevents manual editing: advanced Row Level Security blocks direct updates/deletions at the database layer, while immediate event-hashes are permanently signed onto the Polygon blockchain network.
+              <p className="text-white/50 text-xs leading-relaxed mb-8">
+                Nexus Mission Control merges complex telemetry, incident tracking, and AI anomaly engines into one unified operating system. Monitor skills in production. Track compliance. Alert crews in real time.
               </p>
 
-              {/* 4 Badges */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-8">
+              <div className="space-y-4 mb-8">
                 {[
-                  'Immutable SQL (RLS)',
-                  'IPFS Content Hash',
-                  'Polygon TX Anchor',
-                  'EU AI Act Compliant'
-                ].map((badge, idx) => (
-                  <div key={idx} className="p-3 border border-white/5 bg-black/40 font-mono text-[10px] text-white/70 font-bold uppercase tracking-wider">
-                    {badge}
+                  'Interactive dashboards tracking skill execution across teams',
+                  'Real-time compliance monitoring and alerting',
+                  'Cryptographic verification of every execution',
+                  'AI-powered anomaly detection and recommendations',
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-none" />
+                    <span className="text-white/80 text-xs font-mono">{feat}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="inline-flex items-center gap-2 font-mono text-[10px] text-emerald-500/60 uppercase tracking-widest font-bold border border-emerald-500/10 px-4 py-2 bg-emerald-950/10">
-                <span>PCT Pending Registration Phase</span>
+              <Link href="/operations">
+                <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-[11px] uppercase px-6 py-4 tracking-widest rounded-none shadow-[0_4px_25px_rgba(16,185,129,0.15)] flex items-center gap-2 group">
+                  <span>Launch Mission Control</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </Link>
+            </div>
+
+            <div className="lg:col-span-7 border border-emerald-500/20 p-4 md:p-6" style={{ background: '#020205' }}>
+              <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/20" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 animate-pulse" />
+                  <span className="font-mono text-[10px] text-white/30 ml-2 font-bold uppercase tracking-wider">MISSION_CONTROL_LIVE // NXM-PREVIEW</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                  <span className="font-mono text-[9px] text-emerald-400 font-bold">ONLINE</span>
+                </div>
+              </div>
+
+              <div className="font-mono text-[11px] text-white/80 space-y-3 leading-relaxed">
+                <div className="text-white/30">[14:32:08] INGESTING SKILL EXECUTIONS FROM 12 ACTIVE NODES...</div>
+
+                <div className="p-3 bg-emerald-950/20 border border-emerald-500/10 text-emerald-400 flex items-start gap-3">
+                  <Brain className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-bold text-xs uppercase tracking-wider">SKILL CAPTURED [PLUMBING — PIPE JOINT]</div>
+                    <div className="text-[10px] text-emerald-300/80 mt-1 font-sans">Expert performance recorded. Golden Skeleton generated. 8 steps decomposed. Ready for learner deployment.</div>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-950/20 border border-emerald-500/10 text-emerald-400 flex items-start gap-3">
+                  <Target className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-bold text-xs uppercase tracking-wider">LEARNER EXECUTION VERIFIED [SCORE: 94%]</div>
+                    <div className="text-[10px] text-emerald-300/80 mt-1 font-sans">Alignment verified across 8 steps. Compliance attestation queued for Polygon blockchain.</div>
+                  </div>
+                </div>
+
+                <div className="p-2 border border-white/5 bg-white/[0.01] flex justify-between items-center text-[10px] text-white/40">
+                  <div className="flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500/60" />
+                    <span>POLYGON ATTESTATION: 0x7f3a...</span>
+                  </div>
+                  <span className="text-emerald-500/80 font-bold">CONFIRMED</span>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── FINAL CALL TO ACTION ── */}
+        {/* ════════════════════════════════════════════════════════════════════
+            12. FINAL CTA — WHAT WILL YOU TEACH NEXUS?
+            ════════════════════════════════════════════════════════════════════ */}
         <section className="py-32 px-6 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.08),transparent_60%)] pointer-events-none" />
-          
+
           <div className="max-w-3xl mx-auto z-10 relative">
             <div className="font-mono text-[10px] text-emerald-500 uppercase tracking-widest mb-4 font-bold">GET STARTED</div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6 leading-none">
-              Deploy Trusted Intelligence.
+              WHAT WILL YOU<br />
+              <span style={{
+                background: 'linear-gradient(90deg, #34d399, #10b981)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>TEACH NEXUS?</span>
             </h2>
             <p className="text-white/60 text-base leading-relaxed mb-10 max-w-xl mx-auto">
-              The infrastructure for operational certainty is ready. Launch Mission Control or request a developer integration build key.
+              Every expert has knowledge worth capturing. Every skill deserves to be taught with precision.
+              Start building your Skill library today.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
               <Link href="/operations" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] rounded-none">
-                  Enter Mission Control — It's Free
+                  Create Your First Skill
                 </button>
               </Link>
               <Link href="/operations" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border border-white/10 hover:bg-white/5 font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all text-white/80 rounded-none hover:border-emerald-500/30">
-                  Request Enterprise Demo
+                  Enter Mission Control →
                 </button>
               </Link>
             </div>
@@ -631,11 +750,11 @@ export default function NexusLanding() {
         </section>
       </main>
 
-      {/* ── FOOTER ── */}
+      {/* ════════════════════════════════════════════════════════════════════
+          FOOTER
+          ════════════════════════════════════════════════════════════════════ */}
       <footer className="border-t border-white/5 py-12 px-6" style={{ background: '#07070B' }}>
         <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          
-          {/* Logo & Patent */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="p-1 bg-emerald-950/20 border border-emerald-500/20">
@@ -644,17 +763,16 @@ export default function NexusLanding() {
               <span className="text-base font-black tracking-widest text-white">NEXUS</span>
             </Link>
             <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest mt-1">
-              © 2026 Nexus · nexusmotion.pt · NXM-PAT-001-2026 (PCT Pending)
+              © 2026 Nexus Motion · nexusmotion.pt · NXM-PAT-001-2026 (PCT Pending)
             </span>
           </div>
 
-          {/* Footer links */}
           <div className="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
             <Link href="/operations" className="text-white/40 hover:text-emerald-400 transition-colors">Operations</Link>
             <Link href="/verify" className="text-white/40 hover:text-emerald-400 transition-colors">Verify</Link>
             <Link href="/dashboard" className="text-white/40 hover:text-emerald-400 transition-colors">Dashboard</Link>
+            <Link href="/public-sector" className="text-white/40 hover:text-emerald-400 transition-colors">Public Sector</Link>
           </div>
-
         </div>
       </footer>
     </div>

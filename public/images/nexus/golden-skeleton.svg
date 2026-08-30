@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <rect width="600" height="400" fill="#0A0A0F"/>
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="learner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <!-- Golden skeleton (expert) - left -->
+  <g transform="translate(80, 40)" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.9">
+    <!-- Head -->
+    <circle cx="70" cy="30" r="18" stroke-width="1.5"/>
+    <!-- Spine -->
+    <line x1="70" y1="48" x2="70" y2="180"/>
+    <!-- Shoulders -->
+    <line x1="30" y1="80" x2="110" y2="80"/>
+    <!-- Arms -->
+    <line x1="30" y1="80" x2="10" y2="150"/>
+    <line x1="10" y1="150" x2="20" y2="200"/>
+    <line x1="110" y1="80" x2="130" y2="150"/>
+    <line x1="130" y1="150" x2="120" y2="200"/>
+    <!-- Hips -->
+    <line x1="70" y1="180" x2="40" y2="200"/>
+    <line x1="70" y1="180" x2="100" y2="200"/>
+    <!-- Legs -->
+    <line x1="40" y1="200" x2="30" y2="300"/>
+    <line x1="30" y1="300" x2="25" y2="340"/>
+    <line x1="100" y1="200" x2="110" y2="300"/>
+    <line x1="110" y1="300" x2="115" y2="340"/>
+    <!-- Joints -->
+    <circle cx="70" cy="80" r="4" fill="#fbbf24" opacity="0.8"/>
+    <circle cx="30" cy="80" r="3" fill="#fbbf24" opacity="0.6"/>
+    <circle cx="110" cy="80" r="3" fill="#fbbf24" opacity="0.6"/>
+    <circle cx="70" cy="180" r="4" fill="#fbbf24" opacity="0.8"/>
+    <circle cx="40" cy="200" r="3" fill="#fbbf24" opacity="0.6"/>
+    <circle cx="100" cy="200" r="3" fill="#fbbf24" opacity="0.6"/>
+  </g>
+  <!-- Label -->
+  <text x="150" y="395" text-anchor="middle" fill="#fbbf24" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">GOLDEN SKELETON</text>
+  <text x="150" y="380" text-anchor="middle" fill="#fbbf24" font-family="monospace" font-size="8" opacity="0.5">EXPERT REFERENCE</text>
+  <!-- Arrow -->
+  <g stroke="#10b981" stroke-width="1.5" opacity="0.4" stroke-dasharray="6 4">
+    <path d="M250,200 L350,200"/>
+    <path d="M340,192 L350,200 L340,208"/>
+  </g>
+  <!-- Learner skeleton - right -->
+  <g transform="translate(370, 40)" stroke="url(#learner)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7">
+    <!-- Head -->
+    <circle cx="70" cy="30" r="18" stroke-width="1.5"/>
+    <!-- Spine -->
+    <line x1="70" y1="48" x2="70" y2="180"/>
+    <!-- Shoulders -->
+    <line x1="30" y1="80" x2="110" y2="80"/>
+    <!-- Arms -->
+    <line x1="30" y1="80" x2="15" y2="155"/>
+    <line x1="15" y1="155" x2="25" y2="205"/>
+    <line x1="110" y1="80" x2="125" y2="155"/>
+    <line x1="125" y1="155" x2="115" y2="205"/>
+    <!-- Hips -->
+    <line x1="70" y1="180" x2="45" y2="200"/>
+    <line x1="70" y1="180" x2="95" y2="200"/>
+    <!-- Legs -->
+    <line x1="45" y1="200" x2="35" y2="300"/>
+    <line x1="35" y1="300" x2="30" y2="340"/>
+    <line x1="95" y1="200" x2="105" y2="300"/>
+    <line x1="105" y1="300" x2="110" y2="340"/>
+    <!-- Joints -->
+    <circle cx="70" cy="80" r="4" fill="#10b981" opacity="0.7"/>
+    <circle cx="30" cy="80" r="3" fill="#10b981" opacity="0.5"/>
+    <circle cx="110" cy="80" r="3" fill="#10b981" opacity="0.5"/>
+    <circle cx="70" cy="180" r="4" fill="#10b981" opacity="0.7"/>
+    <circle cx="45" cy="200" r="3" fill="#10b981" opacity="0.5"/>
+    <circle cx="95" cy="200" r="3" fill="#10b981" opacity="0.5"/>
+    <!-- Alignment indicators -->
+    <circle cx="70" cy="80" r="8" stroke="#10b981" stroke-width="0.5" fill="none" opacity="0.3"/>
+    <circle cx="70" cy="180" r="8" stroke="#10b981" stroke-width="0.5" fill="none" opacity="0.3"/>
+  </g>
+  <!-- Label -->
+  <text x="440" y="395" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">LEARNER SKELETON</text>
+  <text x="440" y="380" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="8" opacity="0.5">REAL-TIME TRACKING</text>
+</svg>
