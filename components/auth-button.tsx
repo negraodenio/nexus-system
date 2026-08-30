@@ -61,7 +61,7 @@ export function AuthButton({ onAuthChange }: AuthButtonProps) {
         }
         setLoading(true)
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/dashboard`
+            redirectTo: 'https://www.nexusmotion.pt/auth/reset-password'
         })
         if (error) {
             showToast(`Erro: ${error.message}`, 'error')
