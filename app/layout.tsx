@@ -17,24 +17,11 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const geistSans = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  weight: ["400", "700", "800"],
-  display: "swap",
-});
-
-const geistMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Nexus Motion — Trusted Operational Governance Infrastructure (TOGI)",
-  description: "Trusted Operational Governance Infrastructure (TOGI). Vectorize neuromuscular patterns, apply real-time AI reasoning, and audit municipal field operations with immutable cryptographic proof.",
+  title: "Nexus Motion — Plataforma de Inteligência Física",
+  description: "Aprenda qualquer competência física com orientação em tempo real. O Nexus transforma o conhecimento de especialistas em guias que qualquer pessoa pode seguir.",
   manifest: "/manifest.json",
-  keywords: ["physical intelligence", "motion as code", "neuromuscular AI", "skill attestation", "operational compliance", "cryptographic audit trail"],
+  keywords: ["inteligência física", "aprendizagem", "orientação", "competências", "formação", "Nexus Motion"],
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -43,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0F",
+  themeColor: "#0A0F1A",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -55,10 +42,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      {/* ... head ... */}
+    <html lang="pt-PT">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <ToastProvider>
           {children}
