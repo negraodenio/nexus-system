@@ -210,7 +210,7 @@ export default function NexusLanding() {
 
             <div className="w-full overflow-hidden rounded-lg border border-white/10">
               <img
-                src="/images/nexus/nexus-real-life-grid.png"
+                src="/images/nexus/Comofazer.png"
                 alt="People using Nexus Motion to learn and perform real-world skills with smartphone guidance"
                 className="w-full h-auto"
               />
