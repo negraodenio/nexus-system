@@ -257,28 +257,14 @@ export default function NexusLanding() {
         </section>
 
         {/* 4. USE CASES */}
-        <section id="niches" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
+        <section id="niches" className="py-16 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Real Situations</div>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">WHERE NEXUS CHANGES LIVES.</h2>
-              <p className="text-white/50 text-sm leading-relaxed mt-4">
-                Nexus isn't an abstract tool. It solves real problems for real people.
-                See how it fits into your life and your work.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
-              {NICHES.map((niche, i) => (
-                <div key={i} className="p-8 md:p-10 hover:bg-white/[0.02] transition-all group border border-transparent hover:border-blue-500/20 relative">
-                  <div className="text-4xl mb-4">{niche.icon}</div>
-                  <h3 className="text-xl font-black text-white mb-2 group-hover:text-blue-400 transition-colors">{niche.title}</h3>
-                  <div className="font-mono text-xs font-bold uppercase tracking-wider mb-3" style={{ color: niche.color }}>
-                    {niche.tagline}
-                  </div>
-                  <p className="text-white/40 text-xs leading-relaxed">{niche.desc}</p>
-                </div>
-              ))}
+            <div className="w-full overflow-hidden">
+              <img
+                src="/images/nexus/Comofazer.png"
+                alt="Nexus Motion use cases: Professionals, Small businesses, Enterprises, Technicians, Everyday tasks, Training"
+                className="w-full h-auto"
+              />
             </div>
           </div>
         </section>
