@@ -262,10 +262,20 @@ export function GhostHandPractice({ skillId, okemId, onClose }: GhostHandPractic
                         try {
                             const { data: { user } } = await supabase.auth.getUser()
                             if (user && skillId) {
+                                // First, get current progress to increment practice_count
+                                const { data: existingProgress } = await supabase
+                                    .from('learning_progress')
+                                    .select('practice_count')
+                                    .eq('user_id', user.id)
+                                    .eq('skill_id', skillId)
+                                    .single()
+
+                                const currentCount = (existingProgress as any)?.practice_count || 0
+                                
                                 await (supabase.from('learning_progress') as any).upsert({
                                     user_id: user.id,
                                     skill_id: skillId,
-                                    practice_count: 1,
+                                    practice_count: currentCount + 1,
                                     best_alignment_score: session.overallScore,
                                     total_practice_time_seconds: Math.round((session.completedAt! - session.startedAt) / 1000),
                                     last_practiced_at: new Date().toISOString(),

@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server'
 import { autoOKEMGenerator, OKEMGenerationInput } from '@/lib/core/okem-generator'
 import { Landmark } from '@/lib/kinetic-engine'
 import { okemRegistry } from '@/lib/core/okem-registry'
+import { okemStore } from '@/lib/core/okem-store'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -129,6 +130,14 @@ export async function POST(request: Request) {
 
         // ── Store OKEM in shared registry ──────────────────────────────────
         okemRegistry.storeOKEM(okem, guidance, body.skillId)
+        
+        // ── Persist OKEM to Supabase ──────────────────────────────────────
+        try {
+            await okemStore.store(okem, guidance, body.skillId)
+        } catch (error) {
+            console.warn('OKEM Supabase storage failed:', error)
+            // Continue anyway - at least in-memory registry has it
+        }
 
         // ── Response ───────────────────────────────────────────────────────
         return NextResponse.json({
