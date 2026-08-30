@@ -203,8 +203,10 @@ export class SavitzkyGolayFilter {
         }
 
         // Calculate time step in seconds
-        const dt = (this.timestamps[this.timestamps.length - 1] - this.timestamps[0])
+        const rawDt = (this.timestamps[this.timestamps.length - 1] - this.timestamps[0])
             / (this.windowSize - 1) / 1000;
+        // Guard against identical timestamps (dt=0) to avoid division by zero
+        const dt = rawDt > 1e-10 ? rawDt : 1 / 30; // fallback to 30fps
 
         return {
             position: this.convolve(this.coeffs.smooth),
@@ -315,6 +317,7 @@ export class ConstrainedDTW {
     private backtrack(n: number, m: number): Array<[number, number]> {
         if (!this.costMatrix) return [];
 
+        const band = Math.max(1, Math.floor(this.bandwidth * Math.max(n, m)));
         const path: Array<[number, number]> = [];
         let i = n, j = m;
 
@@ -325,9 +328,18 @@ export class ConstrainedDTW {
             const left = this.costMatrix[i]?.[j - 1] ?? Infinity;
             const up = this.costMatrix[i - 1]?.[j] ?? Infinity;
 
-            if (diag <= left && diag <= up) {
+            // Prefer diagonal, but respect band constraint
+            const inBandDiag = Math.abs((i - 1) - (j - 1)) <= band;
+            const inBandLeft = Math.abs(i - (j - 1)) <= band;
+            const inBandUp = Math.abs((i - 1) - j) <= band;
+
+            const validDiag = inBandDiag ? diag : Infinity;
+            const validLeft = inBandLeft ? left : Infinity;
+            const validUp = inBandUp ? up : Infinity;
+
+            if (validDiag <= validLeft && validDiag <= validUp) {
                 i--; j--;
-            } else if (left < up) {
+            } else if (validLeft < validUp) {
                 j--;
             } else {
                 i--;

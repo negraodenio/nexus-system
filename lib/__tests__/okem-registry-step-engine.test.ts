@@ -20,6 +20,7 @@ describe('OKEMRegistry', () => {
             createdAt: Date.now(),
             totalDurationMs: 10000,
             stepCount: 2,
+            globalEnvelope: { meanDurationMs: 5000, stdDevDurationMs: 0, meanVelocity: 0.3, stdDevVelocity: 0 },
             confidence: 0.9,
             warnings: [],
             steps: [
@@ -48,6 +49,7 @@ describe('OKEMRegistry', () => {
             createdAt: Date.now(),
             totalDurationMs: 10000,
             stepCount: 1,
+            globalEnvelope: { meanDurationMs: 10000, stdDevDurationMs: 0, meanVelocity: 0.3, stdDevVelocity: 0 },
             confidence: 0.8,
             warnings: [],
             steps: [
@@ -77,6 +79,7 @@ describe('OKEMRegistry', () => {
             createdAt: Date.now(),
             totalDurationMs: 10000,
             stepCount: 1,
+            globalEnvelope: { meanDurationMs: 10000, stdDevDurationMs: 0, meanVelocity: 0.3, stdDevVelocity: 0 },
             confidence: 0.8,
             warnings: [],
             steps: [

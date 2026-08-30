@@ -251,6 +251,10 @@ export class StepEngine {
      */
     retry(): void {
         if (this.state !== 'INCORRECT') return
+        const criteria = this.getCurrentCriteria()
+        const step = this.steps[this.currentStepIndex]
+        const effectiveCriteria = step?.isCritical ? CRITICAL_STEP_CRITERIA : criteria
+        if (this.stepAttemptCount >= effectiveCriteria.maxAttempts) return
         this.stepAttemptCount++
         this.frameScores = []
         this.stepAlignments = []
@@ -268,6 +272,7 @@ export class StepEngine {
      * Skip current step (for testing/development)
      */
     skip(): void {
+        if (this.state !== 'STEP_ACTIVE' && this.state !== 'RETRYING') return
         this.completeStep(false, 0)
     }
 

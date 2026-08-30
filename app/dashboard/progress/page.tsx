@@ -29,12 +29,12 @@ function ScoreRing({ score }: { score: number }) {
     const r = 36
     const circ = 2 * Math.PI * r
     const fill = circ - (circ * score) / 100
-    const color = score >= 80 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
+    const color = score >= 80 ? '#22c55e' : score >= 50 ? '#2563EB' : '#ef4444'
 
     return (
         <svg width={88} height={88} viewBox="0 0 88 88">
             {/* Track */}
-            <circle cx={44} cy={44} r={r} fill="none" stroke="#1e293b" strokeWidth={8} />
+            <circle cx={44} cy={44} r={r} fill="none" stroke="#1a2235" strokeWidth={8} />
             {/* Progress */}
             <circle
                 cx={44} cy={44} r={r}
@@ -116,13 +116,13 @@ export default function ProgressPage() {
 
     if (error && error.includes('login')) {
         return (
-            <div className="min-h-screen bg-[#050B14] flex items-center justify-center p-4 relative overflow-hidden">
+            <div className="min-h-screen bg-[#0A0F1A] flex items-center justify-center p-4 relative overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
                 
-                <div className="max-w-md w-full relative z-10 bg-white/[0.02] backdrop-blur-3xl border border-white/5 p-10 rounded-3xl shadow-2xl text-center overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+                <div className="max-w-md w-full relative z-10 bg-[#111827]/80 backdrop-blur-3xl border border-white/10 p-10 rounded-3xl shadow-2xl text-center overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400" />
                     
-                    <div className="w-20 h-20 bg-slate-900 border border-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner relative">
+                    <div className="w-20 h-20 bg-[#0A0F1A] border border-white/10 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner relative">
                         <div className="absolute inset-0 bg-blue-500/10 rounded-full animate-pulse blur" />
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-blue-400">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -135,8 +135,8 @@ export default function ProgressPage() {
                         Necessita de credenciais ativas para aceder à Brain Network e consultar as métricas operacionais.
                     </p>
 
-                    <Link href="/auth/login" className="relative group w-full flex items-center justify-center py-4 rounded-xl font-bold transition-all bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 hover:border-blue-500/50 shadow-lg cursor-pointer">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                    <Link href="/auth/login" className="relative group w-full flex items-center justify-center py-4 rounded-xl font-bold transition-all bg-blue-600 text-white hover:bg-blue-500 border border-blue-500/50 shadow-lg cursor-pointer">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
                         <span className="relative flex items-center justify-center gap-2">
                             <Zap className="w-5 h-5" /> Iniciar Autenticação
                         </span>
@@ -147,7 +147,7 @@ export default function ProgressPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#050B14] text-slate-300 px-4 py-8 relative">
+        <div className="min-h-screen bg-[#0A0F1A] text-slate-300 px-4 py-8 relative">
             {/* Ambient Background */}
             <div className="fixed top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none" />
             
@@ -163,12 +163,12 @@ export default function ProgressPage() {
                         <Link href="/skills" className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-colors">
                             Physical Graph
                         </Link>
-                        <Link href="/app" className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-colors">
+                        <Link href="/app" className="px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-cyan-500/20 transition-colors">
                             Cognitive Adapter
                         </Link>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-2">
-                        Telemetry & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Progresso</span>
+                        Telemetry & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-400 to-cyan-400">Progresso</span>
                     </h1>
                     <p className="text-slate-400 font-light">Métricas gravadas pela Kinetic Engine em tempo real.</p>
                 </div>
@@ -186,11 +186,11 @@ export default function ProgressPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                 {[
                     { icon: <BarChart2 className="w-6 h-6" />, label: 'Sessões Registadas', value: totalSessions, color: 'blue' },
-                    { icon: <Clock className="w-6 h-6" />, label: 'Tempo Tático', value: formatTime(totalTime), color: 'purple' },
-                    { icon: <Target className="w-6 h-6" />, label: 'Score Global', value: `${avgScore}%`, color: avgScore >= 80 ? 'emerald' : avgScore >= 50 ? 'amber' : 'red' },
-                    { icon: <Trophy className="w-6 h-6" />, label: 'Skills Dominadas', value: `${masteredCount}/${entries.length}`, color: 'indigo' },
+                    { icon: <Clock className="w-6 h-6" />, label: 'Tempo Tático', value: formatTime(totalTime), color: 'cyan' },
+                    { icon: <Target className="w-6 h-6" />, label: 'Score Global', value: `${avgScore}%`, color: avgScore >= 80 ? 'emerald' : avgScore >= 50 ? 'blue' : 'red' },
+                    { icon: <Trophy className="w-6 h-6" />, label: 'Skills Dominadas', value: `${masteredCount}/${entries.length}`, color: 'blue' },
                 ].map(({ icon, label, value, color }) => (
-                    <div key={label} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 hover:bg-white/[0.04] transition-colors relative overflow-hidden group">
+                    <div key={label} className="bg-[#111827]/60 border border-white/10 rounded-2xl p-6 hover:bg-[#111827]/80 transition-colors relative overflow-hidden group">
                         <div className={`absolute top-0 right-0 w-32 h-32 bg-${color}-500/10 rounded-full blur-3xl -mx-10 -my-10 group-hover:bg-${color}-500/20 transition-all`} />
                         <div className={`text-${color}-400 mb-4 bg-${color}-500/10 w-fit p-3 rounded-xl border border-${color}-500/20 shadow-inner group-hover:scale-110 transition-transform duration-500`}>
                             {icon}
@@ -206,8 +206,8 @@ export default function ProgressPage() {
                 <div className="flex items-center justify-center py-32">
                     <div className="relative w-16 h-16">
                         <div className="absolute inset-0 rounded-full border-t-2 border-blue-500 animate-spin" />
-                        <div className="absolute inset-2 rounded-full border-r-2 border-purple-500 animate-spin opacity-80" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-                        <div className="absolute inset-4 rounded-full border-b-2 border-emerald-500 animate-spin" style={{ animationDuration: '2s' }} />
+                        <div className="absolute inset-2 rounded-full border-r-2 border-cyan-400 animate-spin opacity-80" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+                        <div className="absolute inset-4 rounded-full border-b-2 border-blue-400 animate-spin" style={{ animationDuration: '2s' }} />
                     </div>
                 </div>
             )}
@@ -219,12 +219,12 @@ export default function ProgressPage() {
             )}
 
             {!loading && !error && entries.length === 0 && (
-                <div className="text-center py-32 bg-white/[0.02] border border-white/5 rounded-3xl mt-8">
-                    <div className="w-20 h-20 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <Zap className="w-8 h-8 text-slate-600" />
+                <div className="text-center py-32 bg-[#111827]/40 border border-white/10 rounded-3xl mt-8">
+                    <div className="w-20 h-20 bg-[#0A0F1A] border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <Zap className="w-8 h-8 text-blue-400/50" />
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-3">Database Vazia</h2>
-                    <p className="text-slate-500 mb-8 max-w-md mx-auto font-light">Não existem registos de Kinetic Tracking no seu histórico operativo. Inicie um SOP para gravar dados.</p>
+                    <p className="text-slate-400 mb-8 max-w-md mx-auto font-light">Não existem registos de Kinetic Tracking no seu histórico operativo. Inicie um SOP para gravar dados.</p>
                     <Link href="/skills" className="inline-flex bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(37,99,235,0.3)] gap-2">
                         <Play className="w-5 h-5" fill="currentColor" /> Explorar SOPs Disponíveis
                     </Link>
@@ -244,11 +244,11 @@ export default function ProgressPage() {
                             const skill = entry.skill as any
                             const scoreColor = entry.best_alignment_score >= 80
                                 ? 'emerald'
-                                : entry.best_alignment_score >= 50 ? 'amber' : 'red'
+                                : entry.best_alignment_score >= 50 ? 'blue' : 'red'
 
                             return (
                                 <div key={entry.id}
-                                    className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 hover:bg-white/[0.04] hover:border-slate-700 transition-all group overflow-hidden relative">
+                                    className="bg-[#111827]/40 border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 hover:bg-[#111827]/70 hover:border-blue-500/20 transition-all group overflow-hidden relative">
                                     
                                     {/* Hover gradient effect inside card */}
                                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:via-blue-500/[0.02] transition-colors pointer-events-none" />
@@ -273,7 +273,7 @@ export default function ProgressPage() {
                                                         MASTERED
                                                     </span>
                                                 ) : entry.best_alignment_score >= 50 ? (
-                                                    <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] uppercase font-black tracking-wider px-3 py-1.5 rounded-full">
+                                                    <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] uppercase font-black tracking-wider px-3 py-1.5 rounded-full">
                                                         EM CURSO
                                                     </span>
                                                 ) : (
@@ -289,11 +289,11 @@ export default function ProgressPage() {
                                         </p>
                                         
                                         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-xs text-slate-500 font-medium">
-                                            <span className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md border border-slate-800">
+                                            <span className="flex items-center gap-2 bg-[#0A0F1A]/60 px-2 py-1 rounded-md border border-white/5">
                                                 <Clock className="w-3.5 h-3.5 text-slate-400" />
                                                 {formatTime(entry.total_practice_time_seconds)} Tático
                                             </span>
-                                            <span className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md border border-slate-800">
+                                            <span className="flex items-center gap-2 bg-[#0A0F1A]/60 px-2 py-1 rounded-md border border-white/5">
                                                 <TrendingUp className="w-3.5 h-3.5 text-slate-400" />
                                                 Último Sync: {formatDate(entry.last_practiced_at)}
                                             </span>

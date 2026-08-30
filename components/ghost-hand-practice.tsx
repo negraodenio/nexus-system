@@ -255,9 +255,25 @@ export function GhostHandPractice({ skillId, okemId, onClose }: GhostHandPractic
                     onStepComplete: (result: StepResult) => {
                         // Step completed
                     },
-                    onSkillComplete: (session: PracticeSession) => {
+                    onSkillComplete: async (session: PracticeSession) => {
                         setSkillComplete(true)
                         setSessionResult(session)
+                        // Persist progress to Supabase
+                        try {
+                            const { data: { user } } = await supabase.auth.getUser()
+                            if (user && skillId) {
+                                await (supabase.from('learning_progress') as any).upsert({
+                                    user_id: user.id,
+                                    skill_id: skillId,
+                                    practice_count: 1,
+                                    best_alignment_score: session.overallScore,
+                                    total_practice_time_seconds: Math.round((session.completedAt! - session.startedAt) / 1000),
+                                    last_practiced_at: new Date().toISOString(),
+                                }, { onConflict: 'user_id,skill_id' })
+                            }
+                        } catch (e) {
+                            console.warn('Failed to persist progress:', e)
+                        }
                     },
                     onFeedback: (feedback, isPositive) => {
                         speakFeedback(feedback)

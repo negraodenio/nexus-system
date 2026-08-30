@@ -38,9 +38,9 @@ interface HistoryItem {
 const ComparisonRenderer = ({ items }: { items: Array<{ label: string, value: string }> }) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item, idx) => (
-            <div key={idx} className="border-2 border-purple-300 rounded-lg p-4 bg-purple-50">
-                <h4 className="font-bold text-purple-900 mb-2">{item.label}</h4>
-                <p className="text-sm text-purple-700">{item.value}</p>
+            <div key={idx} className="border border-white/10 rounded-2xl p-4 bg-[#111827]">
+                <h4 className="font-bold text-blue-300 mb-2">{item.label}</h4>
+                <p className="text-sm text-slate-300">{item.value}</p>
             </div>
         ))}
     </div>
@@ -51,14 +51,14 @@ const TimelineRenderer = ({ steps }: { steps: Array<{ title: string, description
         {steps.map((step, idx) => (
             <div key={idx} className="flex gap-4">
                 <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm">
+                    <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">
                         {idx + 1}
                     </div>
-                    {idx < steps.length - 1 && <div className="w-0.5 flex-1 bg-green-300 my-2" />}
+                    {idx < steps.length - 1 && <div className="w-0.5 flex-1 bg-blue-500/30 my-2" />}
                 </div>
                 <div className="flex-1 pb-8">
-                    <h4 className="font-bold text-green-900 mb-1">{step.title}</h4>
-                    <p className="text-sm text-green-700">{step.description}</p>
+                    <h4 className="font-bold text-white mb-1">{step.title}</h4>
+                    <p className="text-sm text-slate-300">{step.description}</p>
                 </div>
             </div>
         ))}
@@ -214,9 +214,9 @@ export default function Nexus() {
 
                         {/* 2. Hybrid Mode: If steps are present (e.g. Manual), show them too */}
                         {response.visual.steps && response.visual.steps.length > 0 && (
-                            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 mt-6">
-                                <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-indigo-600" />
+                            <div className="bg-[#111827] rounded-2xl p-6 border border-white/10 mt-6">
+                                <h4 className="font-bold text-white mb-4 flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-blue-400" />
                                     Procedimento (Manual Detectado)
                                 </h4>
                                 <TimelineRenderer steps={response.visual.steps} />
@@ -230,7 +230,7 @@ export default function Nexus() {
     }
 
     return (
-        <div className="min-h-screen bg-[#101822] text-white py-12 px-4">
+        <div className="min-h-screen bg-[#0A0F1A] text-white py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-10">
@@ -256,7 +256,7 @@ export default function Nexus() {
                 </div>
 
                 {/* Input Section */}
-                <div className="bg-[#1c242f] rounded-2xl shadow-xl p-8 mb-8 border border-slate-700">
+                <div className="bg-[#111827] rounded-3xl shadow-xl p-8 mb-8 border border-white/10">
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -268,11 +268,11 @@ export default function Nexus() {
                                     value={concept}
                                     onChange={(e) => setConcept(e.target.value)}
                                     placeholder={image ? "Descreva o que explicar na imagem (opcional)..." : "Ex: Como funciona a internet, Teoria da Relatividade..."}
-                                    className="w-full px-5 py-4 pr-12 text-lg bg-[#151c26] border-2 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-500 text-white"
+                                    className="w-full px-5 py-4 pr-12 text-lg bg-[#0A0F1A] border border-white/10 rounded-xl focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20 outline-none transition-all placeholder:text-slate-500 text-white"
                                     onKeyDown={(e) => e.key === 'Enter' && generateAnalogy()}
                                 />
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                    <label className="cursor-pointer p-2 hover:bg-slate-700 rounded-full transition-colors flex items-center justify-center text-slate-400 hover:text-blue-400" title="Adicionar Imagem">
+                                    <label className="cursor-pointer p-2 hover:bg-white/5 rounded-full transition-colors flex items-center justify-center text-slate-400 hover:text-blue-400" title="Adicionar Imagem">
                                         <input
                                             type="file"
                                             accept="image/*"
@@ -293,7 +293,7 @@ export default function Nexus() {
 
                             {image && (
                                 <div className="mt-3 relative inline-block animate-in fade-in zoom-in-95 duration-200">
-                                    <img src={image} alt="Preview" className="h-32 w-auto rounded-lg border-2 border-indigo-100 shadow-md object-cover" />
+                                    <img src={image} alt="Preview" className="h-32 w-auto rounded-2xl border border-white/10 shadow-md object-cover" />
                                     <button
                                         onClick={() => setImage(null)}
                                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition hover:scale-110"
@@ -310,7 +310,7 @@ export default function Nexus() {
                                 <label className="block text-sm font-medium text-slate-300 mb-2 flex justify-between">
                                     <span>Quem vai explicar? (Contexto)</span>
                                     {selectedContext.visual_mode === 'reality' && (
-                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                                        <span className="text-xs bg-[#2563EB]/20 text-blue-300 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
                                             <Sparkles className="w-3 h-3" /> AR Ativado
                                         </span>
                                     )}
@@ -325,7 +325,7 @@ export default function Nexus() {
                                 <select
                                     value={model}
                                     onChange={(e) => setModel(e.target.value as ModelId)}
-                                    className="w-full px-4 py-2.5 rounded-lg border-2 border-slate-600 bg-[#151c26] text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none font-medium"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0A0F1A] text-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 outline-none font-medium"
                                 >
                                     <option value="gpt-4o">GPT-4o (OpenAI — Raciocínio Superior)</option>
                                     <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic — Visão Perfeita)</option>
@@ -338,7 +338,7 @@ export default function Nexus() {
                         <button
                             onClick={generateAnalogy}
                             disabled={loading || (!concept.trim() && !image)}
-                            className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 disabled:bg-blue-400/50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 group"
+                            className="w-full bg-[#2563EB] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#1D4ED8] disabled:bg-[#2563EB]/50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-[#2563EB]/30 flex items-center justify-center gap-2 group"
                         >
                             {loading ? (
                                 <>
@@ -355,7 +355,7 @@ export default function Nexus() {
                     </div>
 
                     {error && (
-                        <div className="mt-6 p-4 bg-red-500/10 border-2 border-red-500/30 rounded-xl flex items-start gap-3 animate-in shake">
+                        <div className="mt-6 p-4 bg-red-500/10 border-2 border-red-500/30 rounded-2xl flex items-start gap-3 animate-in shake">
                             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-red-300 font-medium">Ops! Ocorreu um erro.</p>
@@ -367,20 +367,20 @@ export default function Nexus() {
 
                 {/* Response Section */}
                 {response && (
-                    <div className="bg-[#1c242f] rounded-2xl shadow-xl p-8 mb-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 border border-slate-700">
+                    <div className="bg-[#111827] rounded-3xl shadow-xl p-8 mb-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 border border-white/10">
                         {/* Cache Badge */}
-                        <div className="flex items-center justify-between border-b border-slate-600 pb-4">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
                             <div className="flex items-center gap-3">
-                                <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${response.source === 'exact' ? 'bg-green-100 text-green-700' :
-                                    response.source === 'rag' ? 'bg-blue-100 text-blue-700' :
-                                        'bg-purple-100 text-purple-700'
+                                <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${response.source === 'exact' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                    response.source === 'rag' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                        'bg-blue-500/10 text-blue-300 border border-blue-500/20'
                                     }`}>
                                     {response.source === 'exact' ? '⚡ Memória' :
                                         response.source === 'rag' ? '🔍 Similar' :
                                             '✨ Nova Criação'}
                                 </span>
                                 {startTime && !understood && (
-                                    <span className="flex items-center gap-1.5 text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                                    <span className="flex items-center gap-1.5 text-sm font-medium text-slate-400 bg-white/5 px-3 py-1 rounded-full">
                                         <Clock className="w-4 h-4" />
                                         {Math.floor((Date.now() - startTime) / 1000)}s
                                     </span>
@@ -389,7 +389,7 @@ export default function Nexus() {
 
                             {/* Detected Mode Badge (Prisma) */}
                             {response.detected_mode && (
-                                <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full text-sm font-bold shadow-sm animate-pulse">
+                                <div className="flex items-center gap-2 px-3 py-1 bg-[#2563EB] text-white rounded-full text-sm font-bold shadow-sm animate-pulse">
                                     <Sparkles className="w-4 h-4" />
                                     Modo Ativado: {response.detected_mode}
                                 </div>
@@ -397,30 +397,30 @@ export default function Nexus() {
                         </div>
 
                         {/* Analogia */}
-                        <div className="prose prose-indigo max-w-none">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <Brain className="w-6 h-6 text-indigo-500" />
+                        <div className="prose prose-invert max-w-none">
+                            <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                                <Brain className="w-6 h-6 text-blue-400" />
                                 Análise
                             </h3>
-                            <p className="text-lg text-gray-700 leading-relaxed bg-indigo-50/50 p-6 rounded-xl border border-indigo-100">
+                            <p className="text-lg text-slate-300 leading-relaxed bg-[#0A0F1A] p-6 rounded-2xl border border-white/10">
                                 {response.analogy}
                             </p>
                         </div>
 
                         {/* Core Ideas */}
                         {response.coreIdeas && (
-                            <div className="bg-gray-50 rounded-xl p-6">
-                                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                    <CheckCircle className="w-5 h-5 text-green-600" />
+                            <div className="bg-[#0A0F1A] rounded-2xl p-6 border border-white/10">
+                                <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                                    <CheckCircle className="w-5 h-5 text-green-400" />
                                     Ideias Centrais
                                 </h4>
                                 <ul className="grid gap-3">
                                     {response.coreIdeas.map((idea, idx) => (
-                                        <li key={idx} className="flex items-start gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
-                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm font-bold mt-0.5">
+                                        <li key={idx} className="flex items-start gap-3 bg-[#111827] p-3 rounded-xl border border-white/10">
+                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#2563EB]/20 text-blue-400 flex items-center justify-center text-sm font-bold mt-0.5">
                                                 {idx + 1}
                                             </span>
-                                            <span className="text-gray-700">{idea}</span>
+                                            <span className="text-slate-300">{idea}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -428,14 +428,14 @@ export default function Nexus() {
                         )}
 
                         {/* Visual */}
-                        <div className="border-t border-gray-100 pt-8">
-                            <h4 className="font-semibold text-gray-900 mb-4">Visualização</h4>
+                        <div className="border-t border-white/10 pt-8">
+                            <h4 className="font-semibold text-white mb-4">Visualização</h4>
                             {renderVisual()}
                         </div>
 
                         {/* Ghost Hand - Physical Skill Demo */}
                         {matchedSkillId && (
-                            <div className="bg-[#151c26] rounded-2xl p-6 border border-blue-500/30 mt-8 relative overflow-hidden group">
+                            <div className="bg-[#0A0F1A] rounded-2xl p-6 border border-[#2563EB]/30 mt-8 relative overflow-hidden group">
                                 {/* Sensor Fusion Overlay (Mocks for APEX) */}
                                 <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
                                     <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-lg backdrop-blur-md animate-pulse">
@@ -455,7 +455,7 @@ export default function Nexus() {
                                     </span>
                                     <button 
                                         onClick={() => setShowPractice(true)}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all hover:scale-105"
+                                        className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all hover:scale-105"
                                     >
                                         <Target className="w-4 h-4" />
                                         Calibration (Live AR)
@@ -470,14 +470,14 @@ export default function Nexus() {
                                 <motion.div 
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-400/30 rounded-xl p-4 flex gap-4 items-start"
+                                    className="bg-[#2563EB]/10 border border-[#2563EB]/30 rounded-2xl p-4 flex gap-4 items-start"
                                 >
-                                    <div className="p-2 bg-blue-500 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.5)] flex-shrink-0">
+                                    <div className="p-2 bg-[#2563EB] rounded-lg shadow-[0_0_10px_rgba(37,99,235,0.5)] flex-shrink-0">
                                         <MessageSquareQuote className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-black uppercase tracking-tighter text-blue-300 bg-blue-400/20 px-1.5 py-0.5 rounded">Copilot Físico</span>
+                                            <span className="text-[10px] font-black uppercase tracking-tighter text-blue-300 bg-blue-500/20 px-1.5 py-0.5 rounded">Copilot Físico</span>
                                             <span className="text-[10px] text-slate-500 font-mono italic">Contexto: Sensor Fusion (Torque + Vision)</span>
                                         </div>
                                         <p className="text-sm text-blue-100 leading-relaxed italic">
@@ -498,14 +498,14 @@ export default function Nexus() {
 
                         {/* Limits */}
                         {response.limits && (
-                            <div className="bg-orange-50 rounded-xl p-6 border border-orange-100">
-                                <h4 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
+                            <div className="bg-[#0A0F1A] rounded-2xl p-6 border border-orange-500/20">
+                                <h4 className="font-semibold text-orange-300 mb-3 flex items-center gap-2">
                                     <AlertCircle className="w-5 h-5" />
                                     Pontos de Atenção
                                 </h4>
                                 <ul className="space-y-2">
                                     {response.limits.map((limit, idx) => (
-                                        <li key={idx} className="text-sm text-orange-800 flex items-start gap-2">
+                                        <li key={idx} className="text-sm text-slate-300 flex items-start gap-2">
                                             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
                                             {limit}
                                         </li>
@@ -525,7 +525,7 @@ export default function Nexus() {
                                     Entendi!
                                 </button>
                             ) : (
-                                <div className="flex-1 bg-green-50 border-2 border-green-200 rounded-xl p-3 flex items-center justify-center gap-2 text-green-700 font-bold">
+                                <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center justify-center gap-2 text-green-400 font-bold">
                                     <CheckCircle className="w-6 h-6" />
                                     Registrado com sucesso!
                                 </div>
@@ -538,7 +538,7 @@ export default function Nexus() {
                                     setImage(null)
                                     setUnderstood(false)
                                 }}
-                                className="flex-1 border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 transition flex items-center justify-center gap-2"
+                                className="flex-1 border border-white/10 text-slate-300 py-3 rounded-xl font-bold hover:bg-white/5 transition flex items-center justify-center gap-2"
                             >
                                 <RotateCcw className="w-5 h-5" />
                                 Nova Explicação
@@ -554,7 +554,7 @@ export default function Nexus() {
                         <div className="text-center pb-8">
                             <button
                                 onClick={() => setShowHistory(!showHistory)}
-                                className="text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-2 mx-auto px-4 py-2 hover:bg-indigo-50 rounded-lg transition"
+                                className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-2 mx-auto px-4 py-2 hover:bg-white/5 rounded-lg transition"
                             >
                                 <History className="w-4 h-4" />
                                 {showHistory ? 'Ocultar' : 'Ver'} Histórico ({history.length})
@@ -565,22 +565,22 @@ export default function Nexus() {
                                     {history.map((item, idx) => (
                                         <div
                                             key={idx}
-                                            className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+                                            className="flex items-center justify-between p-4 bg-[#111827] rounded-2xl border border-white/10 hover:bg-[#1a2235] transition"
                                         >
                                             <div className="text-left">
-                                                <p className="font-bold text-gray-900">{item.concept}</p>
+                                                <p className="font-bold text-white">{item.concept}</p>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 font-medium">
                                                         {item.audience}
                                                     </span>
-                                                    <span className="text-xs text-gray-400">
+                                                    <span className="text-xs text-slate-500">
                                                         {new Date(item.timestamp).toLocaleTimeString()}
                                                     </span>
                                                 </div>
                                             </div>
                                             {item.understood && (
-                                                <div className="bg-green-100 p-1.5 rounded-full">
-                                                    <CheckCircle className="w-5 h-5 text-green-600" />
+                                                <div className="bg-green-500/10 p-1.5 rounded-full">
+                                                    <CheckCircle className="w-5 h-5 text-green-400" />
                                                 </div>
                                             )}
                                         </div>
