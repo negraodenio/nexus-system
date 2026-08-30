@@ -7,7 +7,6 @@ import { AuthButton } from '@/components/auth-button'
 import {
   Shield,
   Cpu,
-  ChevronRight,
   ArrowRight,
   Check,
   AlertTriangle,
@@ -22,21 +21,21 @@ import {
 } from 'lucide-react'
 
 const NICHES = [
-  { icon: '👨‍👧', title: 'Pai + Filho', tagline: 'Ensine o que sabe.', desc: 'Um pai ensina o filho a montar, consertar ou fazer qualquer coisa. O Nexus transforma esse conhecimento em orientação que o filho consegue seguir.', color: '#38BDF8' },
-  { icon: '🔧', title: 'Encanador', tagline: 'O seu saber não precisa de ficar só consigo.', desc: 'Um profissional grava como troca uma torneira. Outro profissional — ou um cliente — segue o passo a passo guiado pelo Nexus.', color: '#2563EB' },
-  { icon: '🥖', title: 'Padaria', tagline: 'Transforme experiência em padrão.', desc: 'O padeiro experiente ensina uma preparação. O novo funcionário é guiado durante a execução. Muito mais eficaz do que um manual.', color: '#2563EB' },
-  { icon: '🏭', title: 'Manutenção', tagline: 'Menos dependência de especialistas.', desc: 'Um técnico experiente demonstra um procedimento. Outros técnicos reproduzem-no com orientação em tempo real.', color: '#2563EB' },
-  { icon: '📡', title: 'Telecom', tagline: 'Leve a experiência dos melhores técnicos para toda a equipa.', desc: 'A experiência dos seus melhores técnicos, disponível para toda a equipa. Reduza erros, acelere a formação.', color: '#38BDF8' },
-  { icon: '🏠', title: 'Dia a dia', tagline: 'Quando precisa de fazer, o Nexus está consigo.', desc: 'Trocar uma torneira. Montar um móvel. Configurar o modem. Instalar uma peça. Pequenas reparações do quotidiano.', color: '#38BDF8' },
+  { icon: '👨‍👧', title: 'Father + Son', tagline: 'Teach what you know.', desc: 'A father teaches his son to build, fix, or make something. Nexus turns that knowledge into guidance the son can actually follow.', color: '#38BDF8' },
+  { icon: '🔧', title: 'Plumber', tagline: "Your knowledge doesn't have to stay with you.", desc: 'A professional records how to replace a faucet. Another professional — or a customer — follows the step-by-step guided by Nexus.', color: '#2563EB' },
+  { icon: '🥖', title: 'Bakery', tagline: 'Turn experience into standard.', desc: 'An experienced baker teaches a preparation. The new employee is guided during execution. Far more effective than a manual.', color: '#2563EB' },
+  { icon: '🏭', title: 'Maintenance', tagline: 'Less dependence on specialists.', desc: 'An experienced technician demonstrates a procedure. Other technicians reproduce it with real-time guidance.', color: '#2563EB' },
+  { icon: '📡', title: 'Telecom', tagline: 'Bring the best experience to the whole team.', desc: 'Your best technicians experience, available to the entire team. Reduce errors, accelerate training.', color: '#38BDF8' },
+  { icon: '🏠', title: 'Everyday', tagline: 'When you need to do something, Nexus is with you.', desc: 'Replace a faucet. Assemble furniture. Set up a modem. Install a part. Small everyday repairs.', color: '#38BDF8' },
 ]
 
 const JOURNEY_STEPS = [
-  { icon: AlertTriangle, label: 'Não sei fazer isto.', desc: 'Tem um problema. Não sabe como resolver.', emotion: 'frustration' },
-  { icon: Smartphone, label: 'Abre o Nexus.', desc: 'Aponta a câmara para as suas mãos.', emotion: 'curiosity' },
-  { icon: Eye, label: 'Vê a orientação.', desc: 'Alguém faz. Entende o que precisa de fazer.', emotion: 'understanding' },
-  { icon: Hand, label: 'Tenta por si mesmo.', desc: 'O Nexus guia os seus movimentos em tempo real.', emotion: 'action' },
-  { icon: Target, label: 'Melhora a cada vez.', desc: 'A pontuação mostra o progresso. Cada tentativa fica melhor.', emotion: 'growth' },
-  { icon: Check, label: 'Conclui a tarefa.', desc: 'Fez. Aprendeu. Pode voltar a fazer sozinho.', emotion: 'completion' },
+  { icon: AlertTriangle, label: "I don't know how to do this.", desc: 'You have a problem. You don\'t know how to solve it.', emotion: 'frustration' },
+  { icon: Smartphone, label: 'Open Nexus.', desc: 'Point your camera at your hands.', emotion: 'curiosity' },
+  { icon: Eye, label: 'See the guidance.', desc: 'Someone does it. You understand what to do.', emotion: 'understanding' },
+  { icon: Hand, label: 'Try it yourself.', desc: 'Nexus guides your movements in real time.', emotion: 'action' },
+  { icon: Target, label: 'Improve each time.', desc: 'The score shows your progress. Every attempt gets better.', emotion: 'growth' },
+  { icon: Check, label: 'Complete the task.', desc: "Done. You learned. You can do it again on your own.", emotion: 'completion' },
 ]
 
 export default function NexusLanding() {
@@ -62,9 +61,7 @@ export default function NexusLanding() {
         style={{ scaleX: scrollYProgress }}
       />
 
-      {/* ════════════════════════════════════════════════════════════════════
-          HEADER
-          ════════════════════════════════════════════════════════════════════ */}
+      {/* HEADER */}
       <header className="fixed top-0 w-full z-50" style={{ background: 'rgba(10, 15, 26, 0.9)', backdropFilter: 'blur(24px)' }}>
         <div className="flex justify-between items-center px-6 md:px-12 h-20 w-full max-w-screen-2xl mx-auto">
           <Link href="/" className="flex items-center gap-3 group">
@@ -76,18 +73,18 @@ export default function NexusLanding() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] text-white/50 font-bold font-mono">
-            <a href="#como-funciona" className="hover:text-blue-400 transition-colors">Como Funciona</a>
-            <a href="#nichos" className="hover:text-blue-400 transition-colors">Nichos</a>
-            <a href="#pessoas" className="hover:text-blue-400 transition-colors">Pessoas</a>
-            <a href="#empresas" className="hover:text-blue-400 transition-colors">Empresas</a>
-            <a href="#tecnologia" className="hover:text-blue-400 transition-colors">Tecnologia</a>
+            <a href="#how-it-works" className="hover:text-blue-400 transition-colors">How It Works</a>
+            <a href="#niches" className="hover:text-blue-400 transition-colors">Use Cases</a>
+            <a href="#for-people" className="hover:text-blue-400 transition-colors">For People</a>
+            <a href="#for-business" className="hover:text-blue-400 transition-colors">For Business</a>
+            <a href="#technology" className="hover:text-blue-400 transition-colors">Technology</a>
           </nav>
 
           <div className="flex items-center gap-4">
             <AuthButton />
             <Link href="/dashboard">
               <button className="bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-[11px] uppercase px-5 py-3 tracking-wider transition-all active:scale-95 rounded-none">
-                Entrar
+                Sign In
               </button>
             </Link>
           </div>
@@ -96,15 +93,12 @@ export default function NexusLanding() {
 
       <main className="pt-20">
 
-        {/* ════════════════════════════════════════════════════════════════════
-            1. HERO
-            ════════════════════════════════════════════════════════════════════ */}
+        {/* 1. HERO */}
         <section className="relative min-h-[90vh] md:min-h-[95vh] flex flex-col justify-center overflow-hidden border-b border-white/5">
-          {/* Background image */}
           <div className="absolute inset-0">
             <img
-              src="/images/nexus/nexus-hero-father-son.png"
-              alt="Pai e filho a aprender com Nexus Motion"
+              src="/images/nexus/NovafotoPaieFilho.png"
+              alt="Father and son learning with Nexus Motion"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0A0F1A] via-[#0A0F1A]/80 to-transparent" />
@@ -130,13 +124,13 @@ export default function NexusLanding() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="font-black tracking-tighter leading-[0.95] mb-6"
               >
-                <span className="block text-[clamp(2.5rem,6vw,5.5rem)]">O YOUTUBE MOSTRA.</span>
+                <span className="block text-[clamp(2.5rem,6vw,5.5rem)]">ONE PERSON KNOWS.</span>
                 <span className="block text-[clamp(2.5rem,6vw,5.5rem)]" style={{
                   background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                }}>O NEXUS GUIA-O</span>
-                <span className="block text-[clamp(2.5rem,6vw,5.5rem)]">A FAZER.</span>
+                }}>NEXUS MAKES IT</span>
+                <span className="block text-[clamp(2.5rem,6vw,5.5rem)]">TEACHABLE.</span>
               </motion.h1>
 
               <motion.p
@@ -145,8 +139,9 @@ export default function NexusLanding() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-base md:text-lg text-white/70 max-w-lg mb-10 leading-relaxed"
               >
-                Veja como alguém faz.
-                Depois, faça por si mesmo, com orientação em tempo real.
+                Turn real-world expertise into guided action.
+                <br />
+                Watch someone do it. Then do it yourself, with real-time guidance.
               </motion.p>
 
               <motion.div
@@ -155,20 +150,19 @@ export default function NexusLanding() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-col sm:flex-row items-start gap-4"
               >
-                <a href="#como-funciona" className="w-full sm:w-auto">
+                <a href="#how-it-works" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(37,99,235,0.3)] rounded-none flex items-center gap-2">
-                    Ver Como Funciona
+                    See How It Works
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </a>
-                <a href="#nichos" className="w-full sm:w-auto">
+                <a href="#niches" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto border border-white/20 hover:bg-white/5 font-bold px-8 py-4 text-xs uppercase tracking-widest transition-all text-white rounded-none hover:border-blue-500/30">
-                    Ver Situações Reais
+                    Real-Life Use Cases
                   </button>
                 </a>
               </motion.div>
 
-              {/* Value props bar */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -177,69 +171,65 @@ export default function NexusLanding() {
               >
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-4 h-4 text-blue-400/60" />
-                  <span>Apenas o telemóvel</span>
+                  <span>Just your phone</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-blue-400/60" />
-                  <span>Orientado por AI</span>
+                  <span>AI-guided</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Target className="w-4 h-4 text-blue-400/60" />
-                  <span>Aprender fazendo</span>
+                  <span>Learn by doing</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-blue-400/60" />
-                  <span>Conhecimento partilhável</span>
+                  <span>Shareable knowledge</span>
                 </div>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            2. REAL-LIFE GRID
-            ════════════════════════════════════════════════════════════════════ */}
+        {/* 2. REAL-LIFE GRID */}
         <section className="py-16 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-black tracking-tight leading-none uppercase">
-                DE COMPETÊNCIAS DO DIA A DIA<br />
+                FROM EVERYDAY SKILLS<br />
                 <span style={{
                   background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                }}>A COMPETÊNCIAS PROFISSIONAIS.</span>
+                }}>TO PROFESSIONAL EXPERTISE.</span>
               </h2>
               <p className="text-white/60 text-sm leading-relaxed mt-4 max-w-2xl mx-auto">
-                De trocar uma torneira em casa a formar a próxima geração de profissionais,
-                o Nexus ajuda a transformar saber em algo que as pessoas podem realmente aprender e fazer.
+                From changing a faucet at home to training the next generation of professionals,
+                Nexus helps turn know-how into something people can actually learn and do.
               </p>
             </div>
 
             <div className="w-full overflow-hidden rounded-lg border border-white/10">
               <img
                 src="/images/nexus/nexus-real-life-grid.png"
-                alt="Pessoas a usar Nexus Motion para aprender e executar competências reais com orientação no telemóvel"
+                alt="People using Nexus Motion to learn and perform real-world skills with smartphone guidance"
                 className="w-full h-auto"
               />
             </div>
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            3. EMOTIONAL JOURNEY
-            ════════════════════════════════════════════════════════════════════ */}
-        <section id="como-funciona" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0A0F1A' }}>
+        {/* 3. HOW IT WORKS */}
+        <section id="how-it-works" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0A0F1A' }}>
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">A Jornada</div>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">The Journey</div>
               <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">
-                NÃO SABE COMO FAZER.<br />
+                DON'T KNOW HOW.<br />
                 <span style={{
                   background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                }}>AGORA SABE.</span>
+                }}>NOW YOU DO.</span>
               </h2>
             </div>
 
@@ -271,17 +261,15 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            4. SITUAÇÕES REAIS — OS NICHOS
-            ════════════════════════════════════════════════════════════════════ */}
-        <section id="nichos" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
+        {/* 4. USE CASES */}
+        <section id="niches" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Situações Reais</div>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">ONDE O NEXUS MUDA A VIDA.</h2>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Real Situations</div>
+              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">WHERE NEXUS CHANGES LIVES.</h2>
               <p className="text-white/50 text-sm leading-relaxed mt-4">
-                O Nexus não é uma ferramenta abstrata. Resolve problemas reais de pessoas reais.
-                Veja como se encaixa na sua vida e no seu trabalho.
+                Nexus isn't an abstract tool. It solves real problems for real people.
+                See how it fits into your life and your work.
               </p>
             </div>
 
@@ -300,29 +288,28 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            5. PARA PESSOAS
-            ════════════════════════════════════════════════════════════════════ */}
-        <section id="pessoas" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0A0F1A' }}>
+        {/* 5. FOR PEOPLE */}
+        <section id="for-people" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0A0F1A' }}>
           <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             <div className="lg:col-span-6">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Para Pessoas</div>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">For People</div>
               <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-tight mb-6">
-                APRENDA QUALQUER COISA FAZENDO.
+                LEARN ANYTHING BY DOING.
               </h2>
               <p className="text-white/50 text-sm leading-relaxed mb-8">
-                O pai que quer ensinar o filho. O vizinho que sabe consertar algo. A pessoa que quer aprender a fazer uma reparação qualquer.
-                O Nexus transforma qualquer conhecimento prático em orientação que funciona.
+                The father who wants to teach his son. The neighbor who knows how to fix something.
+                The person who wants to learn a repair.
+                Nexus turns any practical knowledge into guidance that works.
               </p>
 
               <div className="space-y-4 mb-8">
                 {[
-                  'Montar móveis IKEA sem dor de cabeça',
-                  'Trocar uma torneira ou reparar um cano',
-                  'Configurar um modem ou roteador',
-                  'Aprender uma receita de padeiro',
-                  'Instalar algo que comprou na internet',
-                  'Aprender um hobby de alguém que sabe',
+                  'Assemble IKEA furniture without the headache',
+                  'Replace a faucet or fix a pipe',
+                  'Set up a modem or router',
+                  'Learn a baker\'s recipe',
+                  'Install something you bought online',
+                  'Learn a hobby from someone who knows',
                 ].map((feat, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-none" />
@@ -332,25 +319,25 @@ export default function NexusLanding() {
               </div>
 
               <div className="p-6 border border-blue-500/20 bg-blue-950/10">
-                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-2 font-bold">A ideia é simples:</div>
+                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-2 font-bold">The idea is simple:</div>
                 <div className="text-white/60 text-sm leading-relaxed">
-                  Alguém sabe fazer. Nexus transforma esse saber em orientação.
+                  Someone knows how. Nexus turns that knowledge into guidance.
                   <br />
-                  Você executa. Nexus guia. Você aprende.
+                  You execute. Nexus guides. You learn.
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-6">
               <div className="border border-blue-500/20 p-6 md:p-8 relative" style={{ background: 'rgba(255,255,255,0.01)' }}>
-                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-6 font-bold">COMO FUNCIONA PARA SI</div>
+                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-6 font-bold">HOW IT WORKS FOR YOU</div>
                 <div className="space-y-4">
                   {[
-                    { step: '01', title: 'Alguém grava', desc: 'Um familiar, amigo ou profissional mostra como fazer.' },
-                    { step: '02', title: 'Nexus entende', desc: 'Transforma o vídeo em passos claros e orientação.' },
-                    { step: '03', title: 'Você assiste', desc: 'Vê a orientação antes de tentar.' },
-                    { step: '04', title: 'Você tenta', desc: 'Nexus guia os seus movimentos enquanto faz.' },
-                    { step: '05', title: 'Você consegue', desc: 'Completou a tarefa. Pode fazer de novo sozinho.' },
+                    { step: '01', title: 'Someone records', desc: 'A family member, friend, or professional shows how to do it.' },
+                    { step: '02', title: 'Nexus understands', desc: 'Turns the video into clear steps and guidance.' },
+                    { step: '03', title: 'You watch', desc: 'See the guidance before you try.' },
+                    { step: '04', title: 'You try', desc: 'Nexus guides your movements as you do it.' },
+                    { step: '05', title: 'You succeed', desc: 'Completed the task. You can do it again on your own.' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-4 p-4 border border-white/5 hover:border-blue-500/20 transition-all group" style={{ background: '#0A0F1A' }}>
                       <div className="w-8 h-8 flex items-center justify-center border border-blue-500/20 bg-blue-950/20 font-mono text-[10px] text-blue-400 font-bold flex-shrink-0 group-hover:border-blue-500/40 transition-colors">
@@ -368,20 +355,18 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            6. PARA EMPRESAS
-            ════════════════════════════════════════════════════════════════════ */}
-        <section id="empresas" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
+        {/* 6. FOR BUSINESS */}
+        <section id="for-business" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             <div className="lg:col-span-6 order-2 lg:order-1">
               <div className="border border-white/5 p-6 md:p-8 relative" style={{ background: 'rgba(255,255,255,0.01)' }}>
-                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-6 font-bold">O SEU MELHOR FUNCIONÁRIO ENSINA TODOS</div>
+                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-6 font-bold">YOUR BEST EMPLOYEE TEACHES EVERYONE</div>
                 <div className="space-y-4">
                   {[
-                    { icon: Wrench, title: 'Encanador experiente', desc: 'Grava como faz. Toda a equipa aprende.' },
-                    { icon: Cpu, title: 'Técnico de manutenção', desc: 'Demonstra o procedimento. Outros reproduzem.' },
-                    { icon: Plug, title: 'Técnico de telecom', desc: 'A experiência vai para toda a equipa.' },
-                    { icon: Hammer, title: 'Operário de construção', desc: 'O conhecimento fica na empresa, não na cabeça de uma pessoa.' },
+                    { icon: Wrench, title: 'Experienced plumber', desc: 'Records how they do it. The whole team learns.' },
+                    { icon: Cpu, title: 'Maintenance technician', desc: 'Demonstrates the procedure. Others reproduce it.' },
+                    { icon: Plug, title: 'Telecom technician', desc: 'The experience goes to the whole team.' },
+                    { icon: Hammer, title: 'Construction worker', desc: 'Knowledge stays with the company, not with one person.' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-4 p-4 border border-white/5 bg-white/[0.01] hover:border-blue-500/20 transition-all group">
                       <item.icon className="w-5 h-5 text-blue-500/40 group-hover:text-blue-400 transition-colors flex-shrink-0 mt-0.5" />
@@ -396,21 +381,21 @@ export default function NexusLanding() {
             </div>
 
             <div className="lg:col-span-6 order-1 lg:order-2">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Para Empresas</div>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">For Business</div>
               <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-tight mb-6">
-                TRANSFORME EXPERIÊNCIA EM ESCALA.
+                TURN EXPERTISE INTO SCALE.
               </h2>
               <p className="text-white/50 text-sm leading-relaxed mb-8">
-                Os seus melhores profissionais guardam conhecimento valioso. Nexus captura isso uma vez e escala para toda a equipa.
-                Treine mais rápido. Reduza erros. Prove conformidade.
+                Your best professionals hold valuable knowledge. Nexus captures it once and scales it across the entire team.
+                Train faster. Reduce errors. Prove compliance.
               </p>
 
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { label: 'Formação', value: '5x mais rápida', desc: 'Novos colaboradores aprendem mais depressa' },
-                  { label: 'Erros', value: '-80%', desc: 'Orientação previne erros' },
-                  { label: 'Conformidade', value: '100%', desc: 'Cada execução é verificada' },
-                  { label: 'Perda de conhecimento', value: '€0', desc: 'O saber fica na empresa' },
+                  { label: 'Training', value: '5x faster', desc: 'New hires reach competence faster' },
+                  { label: 'Errors', value: '-80%', desc: 'Guidance prevents mistakes' },
+                  { label: 'Compliance', value: '100%', desc: 'Every execution is verified' },
+                  { label: 'Knowledge loss', value: '$0', desc: 'Expertise stays with the company' },
                 ].map((item, i) => (
                   <div key={i} className="p-4 border border-white/5 bg-white/[0.01]">
                     <div className="font-mono text-[9px] text-white/30 uppercase tracking-widest mb-1">{item.label}</div>
@@ -423,27 +408,25 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            7. COMPARAÇÃO — NÃO É SÓ VÍDEO
-            ════════════════════════════════════════════════════════════════════ */}
+        {/* 7. COMPARISON */}
         <section className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0A0F1A' }}>
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">A Diferença</div>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">NÃO É SÓ VÍDEO. É ORIENTAÇÃO.</h2>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">The Difference</div>
+              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">NOT JUST VIDEO. IT'S GUIDANCE.</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/5 border border-white/5 max-w-5xl mx-auto">
               <div className="p-8 md:p-12" style={{ background: '#0A0F1A' }}>
-                <div className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4 font-bold">YouTube / Formação Tradicional</div>
-                <h3 className="text-3xl font-black text-white/30 mb-6 line-through">ASSISTIR</h3>
+                <div className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-4 font-bold">YouTube / Traditional Training</div>
+                <h3 className="text-3xl font-black text-white/30 mb-6 line-through">WATCH</h3>
                 <ul className="space-y-3">
                   {[
-                    'Assiste passivamente',
-                    'Não sabe se está a fazer bem',
-                    'Esqueceu o passo seguinte',
-                    'Não há verificação',
-                    'Conhecimento fica no vídeo',
+                    'You watch passively',
+                    'You don\'t know if you\'re doing it right',
+                    'You forgot the next step',
+                    'No verification',
+                    'Knowledge stays in the video',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="text-red-500/50 mt-1 font-mono text-[12px] font-bold">✕</span>
@@ -459,14 +442,14 @@ export default function NexusLanding() {
                   background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                }}>VER → TENTAR → GUIA → CONSEGUIR</h3>
+                }}>WATCH → TRY → GUIDE → SUCCEED</h3>
                 <ul className="space-y-3">
                   {[
-                    'Assiste e entende',
-                    'Tenta por si mesmo com orientação',
-                    'Nexus guia cada movimento',
-                    'Verificação em tempo real',
-                    'Conhecimento fica consigo',
+                    'You watch and understand',
+                    'You try it yourself with guidance',
+                    'Nexus guides every movement',
+                    'Real-time verification',
+                    'Knowledge stays with you',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <Check className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
@@ -479,16 +462,14 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            8. TECNOLOGIA
-            ════════════════════════════════════════════════════════════════════ */}
-        <section id="tecnologia" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
+        {/* 8. TECHNOLOGY */}
+        <section id="technology" className="py-24 px-6 border-b border-white/5" style={{ backgroundColor: '#0D1321' }}>
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Tecnologia</div>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">COMO FUNCIONA POR BAIXO.</h2>
+              <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Technology</div>
+              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight leading-none uppercase">HOW IT WORKS UNDERNEATH.</h2>
               <p className="text-white/50 text-sm leading-relaxed mt-4">
-                Não precisa de saber isto para usar o Nexus. Mas se quiser entender a tecnologia, está aqui.
+                You don't need to know this to use Nexus. But if you want to understand the technology, it's here.
               </p>
             </div>
 
@@ -497,11 +478,11 @@ export default function NexusLanding() {
                 <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Pipeline</div>
                 <div className="space-y-3">
                   {[
-                    { step: 'detect()', desc: 'Rastreamento de mãos + estimativa de pose', icon: Hand },
-                    { step: 'decompose()', desc: 'Segmentação de passos por AI', icon: Cpu },
-                    { step: 'skeletonize()', desc: 'Geração do Esqueleto Dourado', icon: Sparkles },
-                    { step: 'align()', desc: 'Correspondência de pose em tempo real', icon: Target },
-                    { step: 'verify()', desc: 'Comparação + prova de execução', icon: Shield },
+                    { step: 'detect()', desc: 'Hand tracking + pose estimation', icon: Hand },
+                    { step: 'decompose()', desc: 'AI step segmentation', icon: Cpu },
+                    { step: 'skeletonize()', desc: 'Golden Skeleton generation', icon: Sparkles },
+                    { step: 'align()', desc: 'Real-time pose matching', icon: Target },
+                    { step: 'verify()', desc: 'Execution comparison + proof', icon: Shield },
                   ].map((item, idx) => (
                     <div key={idx} className="p-4 border border-white/5 hover:border-blue-500/20 transition-all group flex items-center gap-4" style={{ background: '#0D1321' }}>
                       <item.icon className="w-4 h-4 text-blue-500/40 group-hover:text-blue-400 transition-colors flex-shrink-0" />
@@ -515,12 +496,12 @@ export default function NexusLanding() {
               </div>
 
               <div className="p-8 md:p-12" style={{ background: '#0D1321' }}>
-                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Dispositivos</div>
+                <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Devices</div>
                 <div className="space-y-3">
                   {[
-                    { tier: 'SMARTPHONE', desc: 'Câmara padrão + esqueleto 2D', hardware: 'Qualquer smartphone', note: 'Basta isto para começar' },
-                    { tier: 'DEPTH / LIDAR', desc: 'Câmara depth + esqueleto 3D', hardware: 'Dispositivo LiDAR / ToF', note: 'Experiência enriquecida' },
-                    { tier: 'PROFISSIONAL', desc: 'Captura completa com Stera SDK', hardware: 'Dispositivo compatível Stera', note: 'Pipeline profissional' },
+                    { tier: 'SMARTPHONE', desc: 'Standard camera + 2D skeleton', hardware: 'Any smartphone', note: 'All you need to start' },
+                    { tier: 'DEPTH / LIDAR', desc: 'Depth camera + 3D skeleton', hardware: 'LiDAR / ToF device', note: 'Enhanced experience' },
+                    { tier: 'PROFESSIONAL', desc: 'Full Stera SDK capture', hardware: 'Stera-compatible device', note: 'Professional pipeline' },
                   ].map((item, i) => (
                     <div key={i} className="p-4 border border-white/5 bg-white/[0.01]">
                       <div className="flex items-center justify-between mb-1">
@@ -535,8 +516,8 @@ export default function NexusLanding() {
 
                 <div className="mt-6 p-4 border border-blue-500/20 bg-blue-950/10">
                   <p className="text-white/60 text-xs leading-relaxed">
-                    O Nexus funciona com qualquer smartphone. Não precisa de equipamento especial.
-                    Quanto mais avançado o dispositivo, mais rica a experiência — mas pode começar agora com o que tem.
+                    Nexus works with any smartphone. No special equipment needed.
+                    The more advanced the device, the richer the experience — but you can start right now with what you have.
                   </p>
                 </div>
               </div>
@@ -544,37 +525,35 @@ export default function NexusLanding() {
           </div>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            9. CTA FINAL
-            ════════════════════════════════════════════════════════════════════ */}
+        {/* 9. CTA */}
         <section className="py-24 md:py-32 px-6 text-center relative overflow-hidden" style={{ backgroundColor: '#0A0F1A' }}>
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.08),transparent_60%)] pointer-events-none" />
 
           <div className="max-w-3xl mx-auto z-10 relative">
-            <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Comece Agora</div>
+            <div className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-bold">Get Started</div>
             <h2 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-tighter uppercase mb-6 leading-none">
-              O QUE VAI ENSINAR<br />
+              WHAT WILL YOU<br />
               <span style={{
                 background: 'linear-gradient(90deg, #60A5FA, #2563EB)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>AO NEXUS?</span>
+              }}>TEACH NEXUS?</span>
             </h2>
             <p className="text-white/60 text-base leading-relaxed mb-10 max-w-xl mx-auto">
-              Cada especialista tem conhecimento que vale ser capturado.
-              Cada habilidade merece ser ensinada com precisão.
-              Comece a construir a sua biblioteca de competências hoje.
+              Every expert has knowledge worth capturing.
+              Every skill deserves to be taught with precision.
+              Start building your skill library today.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-              <a href="#nichos" className="w-full sm:w-auto">
+              <a href="#niches" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(37,99,235,0.3)] rounded-none">
-                  Pedir Uma Demonstração
+                  Request a Demo
                 </button>
               </a>
-              <a href="#empresas" className="w-full sm:w-auto">
+              <a href="#for-business" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border border-white/20 hover:bg-white/5 font-bold px-8 py-4 text-xs uppercase tracking-widest transition-all text-white rounded-none hover:border-blue-500/30">
-                  Para Empresas →
+                  For Business →
                 </button>
               </a>
             </div>
@@ -582,9 +561,7 @@ export default function NexusLanding() {
         </section>
       </main>
 
-      {/* ════════════════════════════════════════════════════════════════════
-          FOOTER
-          ════════════════════════════════════════════════════════════════════ */}
+      {/* FOOTER */}
       <footer className="border-t border-white/5 py-12 px-6" style={{ background: '#0D1321' }}>
         <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-2">
@@ -596,16 +573,16 @@ export default function NexusLanding() {
               />
             </Link>
             <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest mt-1">
-              © 2026 Nexus Motion · nexusmotion.pt · Tecnologia proprietária em desenvolvimento
+              © 2026 Nexus Motion · nexusmotion.pt · Proprietary technology in development
             </span>
           </div>
 
           <div className="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
-            <a href="#como-funciona" className="text-white/40 hover:text-blue-400 transition-colors">Como Funciona</a>
-            <a href="#nichos" className="text-white/40 hover:text-blue-400 transition-colors">Nichos</a>
-            <a href="#pessoas" className="text-white/40 hover:text-blue-400 transition-colors">Pessoas</a>
-            <a href="#empresas" className="text-white/40 hover:text-blue-400 transition-colors">Empresas</a>
-            <a href="#tecnologia" className="text-white/40 hover:text-blue-400 transition-colors">Tecnologia</a>
+            <a href="#how-it-works" className="text-white/40 hover:text-blue-400 transition-colors">How It Works</a>
+            <a href="#niches" className="text-white/40 hover:text-blue-400 transition-colors">Use Cases</a>
+            <a href="#for-people" className="text-white/40 hover:text-blue-400 transition-colors">For People</a>
+            <a href="#for-business" className="text-white/40 hover:text-blue-400 transition-colors">For Business</a>
+            <a href="#technology" className="text-white/40 hover:text-blue-400 transition-colors">Technology</a>
           </div>
         </div>
       </footer>

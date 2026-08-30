@@ -18,10 +18,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Motion — Plataforma de Inteligência Física",
-  description: "Aprenda qualquer competência física com orientação em tempo real. O Nexus transforma o conhecimento de especialistas em guias que qualquer pessoa pode seguir.",
+  title: "Nexus Motion — Physical Intelligence Platform",
+  description: "Learn any physical skill with real-time guidance. Nexus turns expert knowledge into step-by-step instructions anyone can follow.",
   manifest: "/manifest.json",
-  keywords: ["inteligência física", "aprendizagem", "orientação", "competências", "formação", "Nexus Motion"],
+  keywords: ["physical intelligence", "learn by doing", "guidance", "skills", "training", "Nexus Motion"],
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-PT">
+    <html lang="en">
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
