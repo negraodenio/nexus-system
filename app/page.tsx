@@ -82,11 +82,6 @@ export default function NexusLanding() {
 
           <div className="flex items-center gap-4">
             <AuthButton />
-            <Link href="/dashboard">
-              <button className="bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-[11px] uppercase px-5 py-3 tracking-wider transition-all active:scale-95 rounded-none">
-                Sign In
-              </button>
-            </Link>
           </div>
         </div>
       </header>
