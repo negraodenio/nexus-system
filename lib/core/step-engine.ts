@@ -177,9 +177,13 @@ export class StepEngine {
             return this.state
         }
 
-        // Check if max attempts exceeded → force progression
+        // Check if max attempts exceeded → mark INCORRECT, stay on step.
+        // P0-3: a failed step must NOT auto-advance. The learner must take an
+        // explicit action (Retry / instructor approval). We intentionally do NOT
+        // call completeStep(false) here, because completeStep(false) previously
+        // scheduled an automatic advance to the next step.
         if (this.stepAttemptCount >= effectiveCriteria.maxAttempts) {
-            this.completeStep(false, alignmentScore)
+            this.transitionTo('INCORRECT')
             return this.state
         }
 
@@ -324,30 +328,36 @@ export class StepEngine {
         }
 
         this.callbacks.onStepComplete?.(result)
-        this.transitionTo('STEP_COMPLETE')
 
-        // Auto-advance after brief delay
-        setTimeout(() => {
-            if (this.state === 'STEP_COMPLETE') {
-                const nextIndex = this.currentStepIndex + 1
-                if (nextIndex >= this.steps.length) {
-                    this.completeSkill()
-                } else {
-                    this.callbacks.onFeedback?.(
-                        passed
-                            ? `Step ${this.currentStepIndex + 1} complete!`
-                            : `Step ${this.currentStepIndex + 1} complete. Let's continue.`,
-                        true
-                    )
-                    this.transitionTo('NEXT_STEP')
-                    setTimeout(() => {
-                        if (this.state === 'NEXT_STEP') {
-                            this.startStep(nextIndex)
-                        }
-                    }, 800)
+        if (passed) {
+            // SUCCESS: verified step → advance after a brief delay.
+            this.transitionTo('STEP_COMPLETE')
+            setTimeout(() => {
+                if (this.state === 'STEP_COMPLETE') {
+                    const nextIndex = this.currentStepIndex + 1
+                    if (nextIndex >= this.steps.length) {
+                        this.completeSkill()
+                    } else {
+                        this.callbacks.onFeedback?.(
+                            `Step ${this.currentStepIndex + 1} complete!`,
+                            true
+                        )
+                        this.transitionTo('NEXT_STEP')
+                        setTimeout(() => {
+                            if (this.state === 'NEXT_STEP') {
+                                this.startStep(nextIndex)
+                            }
+                        }, 800)
+                    }
                 }
-            }
-        }, 1200)
+            }, 1200)
+        } else {
+            // P0-3: FAILURE must NOT auto-advance. The step remains on the current
+            // index in the INCORRECT state and requires an explicit user action
+            // (Retry or instructor approval) to progress. completeStep(false) must
+            // never schedule a transition to the next step.
+            this.transitionTo('INCORRECT')
+        }
     }
 
     private completeSkill(): void {

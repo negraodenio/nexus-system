@@ -53,6 +53,16 @@ next-env.d.ts
 *.swo
 *~
 
+# Python
+.venv-stera/
+__pycache__/
+*.pyc
+*.pyo
+
+# Stera data
+data/stera/output/
+*.mcap
+
 # Debug & Temp
 tsc_errors.txt
 GUIA_CORRECAO.md
