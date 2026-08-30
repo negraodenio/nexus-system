@@ -102,20 +102,11 @@ export default function NexusLanding() {
             <a href="#knowledge" className="hover:text-emerald-400 transition-colors">Knowledge</a>
             <a href="#platform" className="hover:text-emerald-400 transition-colors">Platform</a>
             <a href="#worlds" className="hover:text-emerald-400 transition-colors">Worlds</a>
-            <Link href="/operations" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-              <span>Mission Control</span>
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            </Link>
             <a href="#enterprise" className="hover:text-emerald-400 transition-colors">Enterprise</a>
           </nav>
 
           <div className="flex items-center gap-4">
             <AuthButton />
-            <Link href="/operations">
-              <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-[11px] uppercase px-5 py-3 tracking-wider transition-all active:scale-95 border-none shadow-[0_4px_20px_rgba(16,185,129,0.15)] rounded-none">
-                Enter Mission Control
-              </button>
-            </Link>
           </div>
         </div>
       </header>
@@ -178,14 +169,9 @@ export default function NexusLanding() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mb-16"
             >
-              <Link href="/operations" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] rounded-none">
-                  Enter Mission Control
-                </button>
-              </Link>
               <a href="#knowledge" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto border border-white/10 hover:bg-white/5 font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all text-white/80 rounded-none hover:border-emerald-500/30">
-                  See How It Works →
+                <button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] rounded-none">
+                  See How It Works
                 </button>
               </a>
             </motion.div>
@@ -659,13 +645,6 @@ export default function NexusLanding() {
                   </div>
                 ))}
               </div>
-
-              <Link href="/operations">
-                <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-[11px] uppercase px-6 py-4 tracking-widest rounded-none shadow-[0_4px_25px_rgba(16,185,129,0.15)] flex items-center gap-2 group">
-                  <span>Launch Mission Control</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </Link>
             </div>
 
             <div className="lg:col-span-7 border border-emerald-500/20 p-4 md:p-6" style={{ background: '#020205' }}>
@@ -735,16 +714,16 @@ export default function NexusLanding() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-              <Link href="/operations" className="w-full sm:w-auto">
+              <a href="#knowledge" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] rounded-none">
-                  Create Your First Skill
+                  See How It Works
                 </button>
-              </Link>
-              <Link href="/operations" className="w-full sm:w-auto">
+              </a>
+              <a href="#enterprise" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border border-white/10 hover:bg-white/5 font-bold px-8 py-4.5 text-xs uppercase tracking-widest transition-all text-white/80 rounded-none hover:border-emerald-500/30">
-                  Enter Mission Control →
+                  For Enterprise →
                 </button>
-              </Link>
+              </a>
             </div>
           </div>
         </section>
@@ -768,7 +747,6 @@ export default function NexusLanding() {
           </div>
 
           <div className="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
-            <Link href="/operations" className="text-white/40 hover:text-emerald-400 transition-colors">Operations</Link>
             <Link href="/verify" className="text-white/40 hover:text-emerald-400 transition-colors">Verify</Link>
             <Link href="/dashboard" className="text-white/40 hover:text-emerald-400 transition-colors">Dashboard</Link>
             <Link href="/public-sector" className="text-white/40 hover:text-emerald-400 transition-colors">Public Sector</Link>
