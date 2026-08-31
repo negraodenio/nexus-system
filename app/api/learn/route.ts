@@ -17,10 +17,10 @@ import { NextResponse } from 'next/server'
 import { audioKinematicEngine } from '@/lib/core/audio-kinematic'
 import { Landmark } from '@/lib/kinetic-engine'
 import { okemRegistry } from '@/lib/core/okem-registry'
+import { okemStore } from '@/lib/core/okem-store'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
-// ─────────────────────────────────────────────────────────────────────────────
 
 interface LearnRequest {
     /** OKEM ID from /api/record */
@@ -31,6 +31,17 @@ interface LearnRequest {
     timestamps: number[]
     /** Current step index (optional, for incremental validation) */
     currentStepIndex?: number
+}
+
+// R2: Resolve an OKEM with Supabase as source of truth.
+// The in-memory registry is an optional cache only; cold starts reload from Supabase.
+async function resolveOKEM(okemId: string) {
+    const cached = okemRegistry.getOKEM(okemId)
+    if (cached) return cached
+
+    const durable = await okemStore.retrieveForRegistry(okemId)
+    if (durable) okemRegistry.storeRegistryOKEM(durable)
+    return durable
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -57,7 +68,7 @@ export async function POST(request: Request) {
         }
 
         // ── Retrieve OKEM ──────────────────────────────────────────────────
-        const okem = okemRegistry.getOKEM(body.okemId)
+        const okem = await resolveOKEM(body.okemId)
         if (!okem) {
             return NextResponse.json(
                 { error: 'OKEM not found. Please record a procedure first.' },

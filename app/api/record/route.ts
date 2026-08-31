@@ -128,16 +128,27 @@ export async function POST(request: Request) {
         // ── Generate procedure steps ───────────────────────────────────────
         const guidance = autoOKEMGenerator.generateGuidance(okem)
 
-        // ── Store OKEM in shared registry ──────────────────────────────────
-        okemRegistry.storeOKEM(okem, guidance, body.skillId)
-        
-        // ── Persist OKEM to Supabase ──────────────────────────────────────
+        // ── Persist OKEM to Supabase (durable) ───────────────────────────────
+        // R1: No phantom success — if durable persistence fails, this request fails.
+        let persistedOkemId: string
         try {
-            await okemStore.store(okem, guidance, body.skillId)
-        } catch (error) {
-            console.warn('OKEM Supabase storage failed:', error)
-            // Continue anyway - at least in-memory registry has it
+            persistedOkemId = await okemStore.store(okem, guidance, body.skillId)
+        } catch (persistError) {
+            console.error('OKEM Supabase persistence failed:', persistError)
+            return NextResponse.json(
+                { error: 'OKEM generated but could not be durably persisted. Please retry.' },
+                { status: 500 }
+            )
         }
+
+        if (persistedOkemId !== okem.id) {
+            console.error(
+                `OKEM ID mismatch after persistence: generated=${okem.id} persisted=${persistedOkemId}`
+            )
+        }
+
+        // ── Store OKEM in shared registry (in-memory cache of durable data) ─
+        okemRegistry.storeOKEM(okem, guidance, body.skillId)
 
         // ── Response ───────────────────────────────────────────────────────
         return NextResponse.json({

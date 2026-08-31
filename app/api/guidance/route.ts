@@ -10,6 +10,18 @@
 
 import { NextResponse } from 'next/server'
 import { okemRegistry } from '@/lib/core/okem-registry'
+import { okemStore } from '@/lib/core/okem-store'
+
+// R2: Resolve an OKEM with Supabase as source of truth.
+// The in-memory registry is an optional cache only; cold starts reload from Supabase.
+async function resolveOKEM(okemId: string) {
+    const cached = okemRegistry.getOKEM(okemId)
+    if (cached) return cached
+
+    const durable = await okemStore.retrieveForRegistry(okemId)
+    if (durable) okemRegistry.storeRegistryOKEM(durable)
+    return durable
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/guidance
@@ -30,7 +42,7 @@ export async function GET(request: Request) {
         }
 
         // ── Retrieve OKEM ──────────────────────────────────────────────────
-        const okem = okemRegistry.getOKEM(okemId)
+        const okem = await resolveOKEM(okemId)
         if (!okem) {
             return NextResponse.json(
                 { error: 'OKEM not found. Please record a procedure first.' },

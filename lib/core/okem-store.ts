@@ -10,6 +10,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { Landmark } from '@/lib/kinetic-engine'
 import { AutoOKEM } from './okem-generator'
+import { RegistryOKEM, RegistryStep, RegistryGuidance } from './okem-registry'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseClient = any
@@ -22,6 +23,7 @@ export interface StoredOKEM {
     id: string
     procedure_name: string
     specialist_id: string
+    skill_id: string | null
     niche_id: string | null
     language: string
     total_duration_ms: number
@@ -75,6 +77,12 @@ export interface OKEMSearchResult {
 export class OKEMStore {
     /**
      * Store an OKEM in Supabase
+     *
+     * @param okem      The generated OKEM
+     * @param guidance  Per-step guidance
+     * @param skillId   The Skill this OKEM belongs to (source of truth for skill linkage)
+     * @param nicheId   Optional niche classification (NOT a Skill ID)
+     * @param metadata  Arbitrary metadata (e.g. SpatialOKEM)
      */
     async store(
         okem: AutoOKEM,
@@ -85,6 +93,7 @@ export class OKEMStore {
             passThreshold: number
             isCritical: boolean
         }>,
+        skillId?: string,
         nicheId?: string,
         metadata: Record<string, unknown> = {}
     ): Promise<string> {
@@ -110,6 +119,7 @@ export class OKEMStore {
                 id: okem.id,
                 procedure_name: okem.procedureName,
                 specialist_id: okem.specialistId,
+                skill_id: skillId ?? null,
                 niche_id: nicheId ?? null,
                 language: 'pt',
                 total_duration_ms: okem.totalDurationMs,
@@ -152,6 +162,52 @@ export class OKEMStore {
         return {
             okem: data as StoredOKEM,
             guidance: data.guidance as SerializedGuidance[],
+        }
+    }
+
+    /**
+     * Retrieve an OKEM by ID in the shape consumed by /api/learn and /api/guidance.
+     * This is the durable (Supabase) retrieval path — the in-memory registry is only
+     * an optimization layered on top of this. referenceFrames are deserialized here.
+     */
+    async retrieveForRegistry(id: string): Promise<RegistryOKEM | null> {
+        const row = await this.retrieve(id)
+        if (!row) return null
+
+        const steps: RegistryStep[] = (row.okem.steps as SerializedStep[]).map(s => ({
+            index: s.index,
+            name: s.name,
+            description: s.description,
+            referenceFrames: JSON.parse(s.referenceFramesJson) as Landmark[][],
+            durationMs: s.durationMs,
+            isCritical: s.isCritical,
+            criticalLandmarks: s.criticalLandmarks,
+            spatialVariance: s.spatialVariance,
+            actionVerb: s.actionVerb,
+            targetObject: s.targetObject,
+            semanticType: s.semanticType,
+        }))
+
+        const guidance: RegistryGuidance[] = (row.guidance as SerializedGuidance[]).map(g => ({
+            stepNumber: g.stepNumber,
+            instruction: g.instruction,
+            waitDurationMs: g.waitDurationMs,
+            passThreshold: g.passThreshold,
+            isCritical: g.isCritical,
+        }))
+
+        return {
+            id: row.okem.id,
+            procedureName: row.okem.procedure_name,
+            specialistId: row.okem.specialist_id,
+            skillId: row.okem.skill_id ?? undefined,
+            totalDurationMs: row.okem.total_duration_ms,
+            stepCount: row.okem.step_count,
+            confidence: row.okem.confidence,
+            warnings: row.okem.warnings,
+            steps,
+            guidance,
+            createdAt: new Date(row.okem.created_at).getTime(),
         }
     }
 

@@ -115,6 +115,14 @@ class OKEMRegistry {
     }
 
     /**
+     * Store an already-registry-shaped OKEM (used to cache a DB-loaded OKEM).
+     * The registry is a cache; Supabase remains the source of truth.
+     */
+    storeRegistryOKEM(okem: RegistryOKEM): void {
+        this.store.set(okem.id, okem)
+    }
+
+    /**
      * Delete an OKEM
      */
     deleteOKEM(id: string): boolean {
